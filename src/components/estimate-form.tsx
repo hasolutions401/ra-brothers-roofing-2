@@ -17,6 +17,14 @@ const conditions = [
   "Nothing visible — routine check",
 ];
 
+const estimateTypes = [
+  "Remote — from photos (fastest)",
+  "In-person visit",
+  "Whatever you recommend",
+];
+
+const insuranceOptions = ["Yes", "No", "Not sure yet"];
+
 const roofAges = [
   "Under 10 years",
   "10 – 15 years",
@@ -30,6 +38,9 @@ type Data = {
   propertyType: string;
   roofAge: string;
   conditions: string[];
+  estimateType: string;
+  insurance: string;
+  photos: string[];
   town: string;
   address: string;
   name: string;
@@ -44,6 +55,9 @@ const empty: Data = {
   propertyType: "Residential",
   roofAge: "",
   conditions: [],
+  estimateType: "Whatever you recommend",
+  insurance: "Not sure yet",
+  photos: [],
   town: "",
   address: "",
   name: "",
@@ -97,25 +111,25 @@ export function EstimateForm() {
     return (
       <div
         ref={shell}
-        className="rounded-[4px] border border-ink/10 bg-white p-8 md:p-10"
+        className="rounded-2xl bg-white p-6 shadow-xl ring-1 ring-mist-200 sm:p-8"
       >
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-copper-50">
-          <IconCheck className="h-6 w-6 text-copper-600" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-500/10">
+          <IconCheck className="h-6 w-6 text-accent-600" />
         </div>
-        <h3 className="mt-6 text-[22px] text-ink">That is everything we need</h3>
+        <h3 className="mt-5 text-xl font-bold text-navy-900">That is everything we need</h3>
         {DEMO_MODE ? (
           <>
-            <p className="mt-4 text-[14.5px] leading-[1.75] text-stone-700">
+            <p className="mt-3 text-sm leading-relaxed text-charcoal-500 sm:text-base">
               This is a preview of the site, so the form is not connected to an
               inbox yet. Once the business email and hosting are set up, a
               submission like this one lands in your inbox and as a text
               message within seconds.
             </p>
-            <div className="mt-6 rounded-[3px] border border-ink/10 bg-paper p-5">
-              <p className="eyebrow mb-4 text-stone-500">
+            <div className="mt-6 rounded-xl bg-mist-50 p-5 ring-1 ring-mist-200">
+              <p className="mb-3 text-xs font-bold uppercase tracking-wider text-charcoal-500">
                 What would have been sent
               </p>
-              <dl className="space-y-2 text-[13px]">
+              <dl className="space-y-2 text-sm">
                 <Row k="Service" v={data.service} />
                 <Row k="Property" v={data.propertyType} />
                 <Row k="Roof age" v={data.roofAge} />
@@ -123,6 +137,11 @@ export function EstimateForm() {
                   k="Seeing"
                   v={data.conditions.join(", ") || "Not specified"}
                 />
+                <Row k="Estimate" v={data.estimateType} />
+                <Row k="Insurance" v={data.insurance} />
+                {data.photos.length > 0 && (
+                  <Row k="Photos" v={`${data.photos.length} attached`} />
+                )}
                 <Row k="Location" v={data.town} />
                 {data.address && <Row k="Address" v={data.address} />}
                 <Row k="Name" v={data.name} />
@@ -134,16 +153,16 @@ export function EstimateForm() {
             </div>
           </>
         ) : (
-          <p className="mt-4 text-[14.5px] leading-[1.75] text-stone-700">
-            Thank you. We will call you back to confirm the details and book a
-            time for the inspection.
+          <p className="mt-3 text-sm leading-relaxed text-charcoal-500 sm:text-base">
+            Thank you. We will call you back within one business day to go
+            over your estimate.
           </p>
         )}
 
         <div className="mt-7 flex flex-wrap items-center gap-3">
           <a
             href={phone.href}
-            className="inline-flex h-12 items-center gap-2 rounded-[3px] bg-navy-900 px-6 font-display text-[13.5px] font-bold text-white hover:bg-ink"
+            className="inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-600"
           >
             <IconPhone className="h-4 w-4" />
             Call {phone.display}
@@ -155,7 +174,7 @@ export function EstimateForm() {
               setStep(0);
               setData(empty);
             }}
-            className="font-display text-[13px] font-bold text-stone-500 hover:text-ink"
+            className="text-sm font-semibold text-navy-600 underline underline-offset-4 hover:text-navy-900"
           >
             Start over
           </button>
@@ -165,40 +184,40 @@ export function EstimateForm() {
   }
 
   return (
-    <div ref={shell} className="rounded-[4px] border border-ink/10 bg-white">
+    <div ref={shell} className="rounded-2xl bg-white shadow-xl ring-1 ring-mist-200">
       {/* Progress */}
-      <div className="border-b border-ink/8 px-6 pb-5 pt-6 md:px-8">
-        <div className="flex items-baseline justify-between gap-4">
-          <h3 className="text-[19px] text-ink">{STEPS[step]}</h3>
-          <span className="eyebrow shrink-0 text-stone-500">
+      <div className="px-5 pt-6 sm:px-7">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="text-lg font-bold text-navy-900 sm:text-xl">{STEPS[step]}</h3>
+          <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-charcoal-500">
             Step {step + 1} of {STEPS.length}
           </span>
         </div>
         {DEMO_MODE && (
-          <p className="mt-2 text-[12px] text-stone-500">
+          <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
             Preview form — not connected yet.{" "}
             <a
               href={PHONE_NH.href}
-              className="font-semibold text-copper-600 hover:underline"
+              className="font-semibold text-navy-600 underline underline-offset-2"
             >
               Call {PHONE_NH.display}
             </a>{" "}
             to make an enquiry now.
           </p>
         )}
-        <div className="mt-4 h-[3px] w-full overflow-hidden rounded-full bg-ink/8">
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-mist-200" aria-hidden="true">
           <div
-            className="h-full rounded-full bg-copper-500 transition-[width] duration-500 ease-out"
+            className="h-full rounded-full bg-accent-500 transition-[width] duration-500 ease-out"
             style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
           />
         </div>
       </div>
 
-      <div className="px-6 py-7 md:px-8">
+      <div className="px-5 py-6 sm:px-7">
         {step === 0 && (
           <fieldset>
             <legend className="sr-only">What do you need?</legend>
-            <div className="space-y-2.5">
+            <div className="grid gap-2">
               {services.map((s) => (
                 <Choice
                   key={s.slug}
@@ -214,10 +233,10 @@ export function EstimateForm() {
         )}
 
         {step === 1 && (
-          <div className="space-y-7">
+          <div className="space-y-6">
             <div>
               <Label>Property type</Label>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2">
                 {["Residential", "Commercial"].map((t) => (
                   <Choice
                     key={t}
@@ -232,7 +251,7 @@ export function EstimateForm() {
             </div>
             <div>
               <Label>Roughly how old is the roof?</Label>
-              <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 {roofAges.map((a) => (
                   <Choice
                     key={a}
@@ -248,11 +267,11 @@ export function EstimateForm() {
             <div>
               <Label>
                 What are you seeing?{" "}
-                <span className="font-normal normal-case tracking-normal text-stone-500">
+                <span className="text-xs font-normal text-charcoal-500">
                   Select any that apply
                 </span>
               </Label>
-              <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 {conditions.map((c) => (
                   <Choice
                     key={c}
@@ -272,17 +291,76 @@ export function EstimateForm() {
                 ))}
               </div>
             </div>
+            <div>
+              <Label>Is this an insurance claim?</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {insuranceOptions.map((o) => (
+                  <Choice
+                    key={o}
+                    type="radio"
+                    name="insurance"
+                    label={o}
+                    checked={data.insurance === o}
+                    onChange={() => set("insurance", o)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label>How would you like your estimate?</Label>
+              <div className="grid gap-2">
+                {estimateTypes.map((o) => (
+                  <Choice
+                    key={o}
+                    type="radio"
+                    name="estimateType"
+                    label={o}
+                    checked={data.estimateType === o}
+                    onChange={() => set("estimateType", o)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <Label>
+                Photos of the roof{" "}
+                <span className="text-xs font-normal text-charcoal-500">
+                  Optional — speeds up a remote estimate
+                </span>
+              </Label>
+              <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-mist-300 px-4 py-3.5 text-sm text-charcoal-500 transition hover:border-navy-400">
+                <span>
+                  {data.photos.length > 0
+                    ? `${data.photos.length} photo${data.photos.length === 1 ? "" : "s"} selected`
+                    : "Add photos from your phone or computer"}
+                </span>
+                <span className="shrink-0 font-semibold text-accent-600">Browse</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="sr-only"
+                  onChange={(e) =>
+                    set(
+                      "photos",
+                      Array.from(e.target.files ?? []).map((f) => f.name),
+                    )
+                  }
+                />
+              </label>
+            </div>
           </div>
         )}
 
         {step === 2 && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div>
               <Label>Town</Label>
               <select
                 value={data.town}
                 onChange={(e) => set("town", e.target.value)}
-                className="h-12 w-full rounded-[3px] border border-ink/15 bg-white px-3.5 text-[14.5px] text-ink outline-none transition-colors focus:border-navy-600"
+                className={`${inputClass} appearance-none bg-no-repeat pr-10`}
+                style={{ backgroundImage: CHEVRON, backgroundPosition: "right 0.9rem center", backgroundSize: "1.1rem" }}
               >
                 <option value="">Select your town…</option>
                 <optgroup label="New Hampshire">
@@ -308,7 +386,7 @@ export function EstimateForm() {
                 </option>
               </select>
               {data.town === "Outside this list" && (
-                <p className="mt-2.5 text-[12.5px] leading-relaxed text-stone-600">
+                <p className="mt-2.5 text-sm leading-relaxed text-charcoal-500">
                   Give us a call anyway — we will tell you honestly whether we
                   can get to you, and recommend someone if we cannot.
                 </p>
@@ -325,8 +403,8 @@ export function EstimateForm() {
         )}
 
         {step === 3 && (
-          <div className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2">
+          <div className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
               <Field
                 label="Full name"
                 value={data.name}
@@ -351,7 +429,7 @@ export function EstimateForm() {
             />
             <div>
               <Label>Best time to reach you</Label>
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {["Anytime", "Morning", "Afternoon", "Evening"].map((t) => (
                   <Choice
                     key={t}
@@ -372,7 +450,7 @@ export function EstimateForm() {
                 value={data.notes}
                 onChange={(e) => set("notes", e.target.value)}
                 placeholder="Gate code, dog in the yard, when the leak started…"
-                className="w-full resize-y rounded-[3px] border border-ink/15 px-3.5 py-3 text-[14.5px] text-ink outline-none transition-colors placeholder:text-stone-300 focus:border-navy-600"
+                className={`${inputClass} resize-y`}
               />
             </div>
           </div>
@@ -380,17 +458,17 @@ export function EstimateForm() {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between gap-4 border-t border-ink/8 px-6 py-5 md:px-8">
+      <div className="flex items-center justify-between gap-3 border-t border-mist-200 px-5 py-4 sm:px-7">
         {step > 0 ? (
           <button
             type="button"
             onClick={() => goTo(step - 1)}
-            className="font-display text-[13px] font-bold text-stone-500 transition-colors hover:text-ink"
+            className="rounded-xl px-4 py-3 text-sm font-semibold text-charcoal-500 transition hover:bg-mist-100 hover:text-navy-900"
           >
             ← Back
           </button>
         ) : (
-          <span className="text-[12px] text-stone-500">
+          <span className="text-xs text-charcoal-500">
             Free inspection · no obligation
           </span>
         )}
@@ -401,7 +479,7 @@ export function EstimateForm() {
           onClick={() =>
             goTo(step === STEPS.length - 1 ? "done" : step + 1)
           }
-          className="group inline-flex h-12 items-center gap-2 rounded-[3px] bg-copper-600 px-7 font-display text-[13.5px] font-bold text-white transition-colors hover:bg-copper-700 disabled:cursor-not-allowed disabled:bg-ink/15 disabled:text-ink/35"
+          className="group inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-accent-600 active:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-accent-500"
         >
           {step === STEPS.length - 1 ? "Send request" : "Continue"}
           <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1 group-disabled:translate-x-0" />
@@ -413,11 +491,19 @@ export function EstimateForm() {
 
 /* ------------------------------------------------------------------ bits */
 
+const inputClass =
+  "w-full rounded-xl border border-mist-300 bg-white px-4 py-3 text-base text-charcoal-900 " +
+  "placeholder:text-charcoal-500/60 transition focus:border-navy-600 focus:outline-none " +
+  "focus:ring-2 focus:ring-navy-600/20";
+
+const CHEVRON =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")";
+
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex gap-4">
-      <dt className="w-[86px] shrink-0 text-stone-500">{k}</dt>
-      <dd className="font-medium text-ink">{v}</dd>
+      <dt className="w-[86px] shrink-0 text-charcoal-500">{k}</dt>
+      <dd className="font-medium text-navy-900">{v}</dd>
     </div>
   );
 }
@@ -430,13 +516,9 @@ function Label({
   optional?: boolean;
 }) {
   return (
-    <label className="mb-3 block font-display text-[11.5px] font-bold uppercase tracking-[0.14em] text-stone-700">
+    <label className="mb-2 flex flex-wrap items-baseline gap-x-2 text-sm font-semibold text-navy-900">
       {children}
-      {optional && (
-        <span className="ml-2 font-normal normal-case tracking-normal text-stone-500">
-          optional
-        </span>
-      )}
+      {optional && <span className="text-xs font-normal text-charcoal-500">Optional</span>}
     </label>
   );
 }
@@ -464,7 +546,7 @@ function Field({
         value={value}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 w-full rounded-[3px] border border-ink/15 px-3.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-stone-300 focus:border-navy-600"
+        className={inputClass}
       />
     </div>
   );
@@ -487,12 +569,12 @@ function Choice({
 }) {
   return (
     <label
-      className={`flex cursor-pointer items-center gap-3 rounded-[3px] border transition-colors ${
-        compact ? "px-3 py-2.5" : "px-4 py-3.5"
+      className={`flex cursor-pointer items-center gap-3 rounded-xl border text-sm font-medium transition has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent-500 ${
+        compact ? "px-3 py-2.5" : "px-4 py-3"
       } ${
         checked
-          ? "border-copper-500 bg-copper-50"
-          : "border-ink/12 hover:border-ink/30"
+          ? "border-accent-500 bg-accent-500/10 text-navy-900"
+          : "border-mist-200 text-charcoal-700 hover:border-navy-200 hover:bg-mist-50"
       }`}
     >
       <input
@@ -504,8 +586,8 @@ function Choice({
       />
       <span
         className={`flex h-[18px] w-[18px] shrink-0 items-center justify-center border transition-colors ${
-          type === "radio" ? "rounded-full" : "rounded-[2px]"
-        } ${checked ? "border-copper-500 bg-copper-500" : "border-ink/25"}`}
+          type === "radio" ? "rounded-full" : "rounded-[5px]"
+        } ${checked ? "border-accent-500 bg-accent-500" : "border-mist-300 bg-white"}`}
       >
         {checked &&
           (type === "radio" ? (
@@ -514,7 +596,7 @@ function Choice({
             <IconCheck className="h-3 w-3 text-white" />
           ))}
       </span>
-      <span className="text-[14px] text-ink">{label}</span>
+      <span>{label}</span>
     </label>
   );
 }

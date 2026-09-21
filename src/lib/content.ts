@@ -2,12 +2,12 @@ export const processSteps = [
   {
     n: "01",
     title: "Tell us what is going on",
-    text: "Call us or send the form. We will ask what you are seeing, how long it has been happening and roughly when the roof was last done — enough to know whether this is a repair conversation or a replacement conversation before anyone drives out.",
+    text: "Call us or send the form. We will ask what you are seeing, how long it has been happening and roughly when the roof was last done — enough to know whether this is a repair conversation or a replacement conversation. We call back within one business day.",
   },
   {
     n: "02",
-    title: "We inspect the roof",
-    text: "We walk the roof where it is safe to do so, check the flashing, valleys and penetrations, look at the gutters, and get into the attic if there is access. You get photographs of anything we flag.",
+    title: "We assess the roof",
+    text: "Often we can price the job from your photos and aerial imagery of the roof, with no visit needed. When the roof needs a closer look — an active leak, storm damage, an insurance claim — we come out, check the flashing, valleys and attic, and photograph anything we flag. Either way, the estimate is free.",
   },
   {
     n: "03",
@@ -23,27 +23,35 @@ export const processSteps = [
 
 export const differentiators = [
   {
-    title: "One point of contact",
-    text: "The person who inspects your roof is the person who quotes it and the person you call afterwards. No handoff to a call centre, no salesperson who has never been on a roof.",
+    title: "Free estimates, often without a visit",
+    text: "Send a few photos and your address and we can usually price the job from those and aerial imagery of the roof. No waiting around for an appointment, no obligation, and it is free for repairs as well as replacements.",
   },
   {
-    title: "Written scope, itemised price",
-    text: "Every estimate spells out what is being removed, what is going back on and what happens if we find bad decking. You should be able to hand our quote and another contractor's side by side and compare them line for line.",
+    title: "A fair price, in writing",
+    text: "Every estimate spells out what is being removed, what is going back on and what happens if we find bad decking. You should be able to put our quote beside anyone else's and compare them line for line.",
   },
   {
-    title: "We will tell you not to replace it",
-    text: "Plenty of roofs that get quoted for full replacement have five good years left. If yours is one of them we will say so, do the repair, and see you in five years.",
+    title: "Help with your insurance claim",
+    text: "Storm damage is stressful enough. We document the damage, write up a scope your adjuster can work from, and meet the adjuster at the property so nothing gets missed.",
   },
   {
-    title: "Local, and staying local",
-    text: "Southern New Hampshire and the Massachusetts towns closest to Salem. We are not a national brand renting a local phone number — if something goes wrong we are twenty minutes away.",
+    title: "Backed by a satisfaction guarantee",
+    text: "We started this company to give people a roofer they can trust at a price that is fair. If you are not satisfied with the work, tell us and we will make it right.",
   },
 ];
 
 export const faqs = [
   {
     q: "Do you charge for an estimate?",
-    a: "No. The inspection and the written estimate are free. We will give you our honest recommendation even when that recommendation is that your roof does not need work yet.",
+    a: "No — estimates are always free, for repairs as well as replacements and new roofs. We will give you our honest recommendation even when that recommendation is that your roof does not need work yet.",
+  },
+  {
+    q: "Do you need to come out to give me an estimate?",
+    a: "Not always. For many jobs we can price the work from photos you send and aerial imagery of your roof, which is faster for you. We come out in person when a job needs it — active leaks, storm damage, insurance claims, or anything we cannot judge properly from a picture.",
+  },
+  {
+    q: "How quickly will I hear back?",
+    a: "Within one business day of your call or form. If you reach us during business hours it is often the same day.",
   },
   {
     q: "How do I know whether I need a repair or a full replacement?",
@@ -66,12 +74,12 @@ export const faqs = [
     a: "Repairs and emergency work, yes. Full replacements depend on temperature — asphalt shingles need to be warm enough to seal properly, so a mid-January tear-off is usually the wrong call unless the roof has actually failed. We will tell you if waiting for spring is the better decision.",
   },
   {
-    q: "Can you work with my insurance company?",
-    a: "For storm damage, yes. We document the damage with photographs, write up the scope so your adjuster can read it, and we are happy to be on site when the adjuster comes out. We do not file the claim for you and we do not promise an outcome — that conversation is between you and your carrier.",
+    q: "Can you help with my insurance claim?",
+    a: "Yes, and it is a big part of what we do for storm damage. We inspect and photograph the damage, write up a detailed scope, meet your adjuster at the property, and point out anything the adjuster's estimate has missed so it can be added. The claim itself stays in your name and the final decision is your insurer's — but you will not be handling the roofing side of it on your own.",
   },
   {
     q: "Which towns do you cover?",
-    a: "Southern New Hampshire is our main market, centred on Salem, with the Northern Massachusetts towns closest to the line. There is a full list on the service areas page — and if you are just outside it, call anyway and we will tell you honestly whether we can get to you.",
+    a: "We are starting in Southern New Hampshire, centred on Salem, and the Northern Massachusetts towns closest to the line — the full list is on the service areas page. The area is growing, so if you are outside it, call anyway and we will tell you honestly whether we can help.",
   },
 ];
 

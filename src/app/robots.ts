@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { site, DEMO_MODE } from "@/lib/site";
 
+// Generated once at build time — the site is a static export.
+export const dynamic = "force-static";
+
 export default function robots(): MetadataRoute.Robots {
   // Demo build: keep the whole site out of search until launch.
   if (DEMO_MODE) {

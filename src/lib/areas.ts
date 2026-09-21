@@ -1,3 +1,5 @@
+import { site } from "./site";
+
 export type StateCode = "NH" | "MA";
 
 export type Town = {
@@ -111,7 +113,7 @@ export const townPages: TownPage[] = [
     heading: "Roofing Company in Salem, NH",
     metaTitle: "Roofing Company in Salem NH — Replacement, Repair & Inspections",
     metaDescription:
-      "RA Brothers Roofing serves Salem, NH with roof replacement, repair, storm damage work and free inspections. Call (603) 560-6170.",
+      `${site.name} serves Salem, NH with roof replacement, repair, storm damage and insurance claims, and free estimates. Call (603) 560-6170.`,
     image: "/images/home-gray.jpg",
     imageAlt: "New England shingle-style home with a dark asphalt shingle roof",
     body: [
@@ -151,7 +153,7 @@ export const townPages: TownPage[] = [
     heading: "Roofing Contractor in Windham, NH",
     metaTitle: "Roofing Contractor in Windham NH — Roof Replacement & Repair",
     metaDescription:
-      "Roof replacement, repair, inspections and storm damage work in Windham, NH. RA Brothers Roofing — call (603) 560-6170 for a free inspection.",
+      `Roof replacement, repair, inspections and storm damage work in Windham, NH. ${site.name} — call (603) 560-6170 for a free estimate.`,
     image: "/images/home-colonial.jpg",
     imageAlt: "Two-storey New England home with a dark roof",
     body: [
@@ -191,7 +193,7 @@ export const townPages: TownPage[] = [
     heading: "Roofing Contractor in Methuen, MA",
     metaTitle: "Roofing Contractor in Methuen MA — Roof Replacement & Repair",
     metaDescription:
-      "Roof replacement, repair, inspections and storm damage work in Methuen, MA. RA Brothers Roofing — call (617) 943-7714 for a free inspection.",
+      `Roof replacement, repair, inspections and storm damage work in Methuen, MA. ${site.name} — call (617) 943-7714 for a free estimate.`,
     image: "/images/home-white-flag.jpg",
     imageAlt: "Classic New England two-storey home with black shutters",
     body: [

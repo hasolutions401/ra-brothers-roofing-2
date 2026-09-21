@@ -5,7 +5,7 @@
  */
 export const DEMO_MODE = true;
 
-type Phone = {
+export type Phone = {
   region: string;
   state: "NH" | "MA";
   display: string;
@@ -27,11 +27,17 @@ export const PHONE_MA: Phone = {
 };
 
 export const site = {
+  /*
+   * WORKING NAME. The client has said "RA Brothers" will not be the final
+   * company name. Every page, the logo and all meta tags read from these
+   * three fields, so the rename is a one-file change.
+   */
   name: "RA Brothers Roofing",
   short: "RA Brothers",
   legal: "RA Brothers Roofing",
-  // Placeholder only — swap once the domain is purchased.
-  url: "https://www.rabrothersroofing.com",
+  nameIsFinal: false,
+  // Placeholder only. Do not buy a domain until the final name is chosen.
+  url: "https://www.example-roofing.com",
   description:
     "Residential and commercial roofing across Southern New Hampshire and Northern Massachusetts. Roof replacement, repair, new installation, storm damage and inspections.",
   phones: [PHONE_NH, PHONE_MA],
@@ -45,8 +51,25 @@ export const site = {
   hoursNote:
     "Proposed hours, typical for roofing contractors in the area — pending your confirmation.",
   primaryCta: { label: "Get a Free Roof Inspection", href: "/free-estimate" },
+
+  /* Promises the client has explicitly approved (21 Sep 2026). */
+  callback: "We call you back within one business day.",
+  callbackShort: "Call back within 1 business day",
+  guarantee: "Satisfaction guarantee",
+  // Client approved offering a satisfaction guarantee; the written terms
+  // (what it covers, for how long, what happens if you are not satisfied)
+  // still have to be drafted before launch.
+  guaranteeNote: "Written guarantee terms to be finalised before launch.",
 };
 
 export function phoneFor(state: "NH" | "MA" | null | undefined): Phone {
   return state === "MA" ? PHONE_MA : PHONE_NH;
+}
+
+/**
+ * Prefixes a /public path with the GitHub Pages base path. <Link> does this
+ * on its own; <Image> does not, so every photo src goes through here.
+ */
+export function asset(path: string): string {
+  return `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
 }

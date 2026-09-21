@@ -4,36 +4,34 @@ import { townPages, townCount } from "@/lib/areas";
 import { DEMO_MODE, PHONE_MA, PHONE_NH, site } from "@/lib/site";
 import { Logo } from "./icons";
 
+const heading = "text-sm font-bold uppercase tracking-wider text-white";
+
 export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-navy-950 text-white">
-      <div className="blueprint absolute inset-0 opacity-60" aria-hidden="true" />
-
-      <div className="wrap relative">
-        <div className="grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.15fr] lg:gap-10 lg:py-20">
+    <footer className="bg-navy-900 text-navy-100">
+      <div className="wrap py-12 lg:py-16">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
-          <div>
-            <Logo tone="light" />
-            <p className="mt-6 max-w-[34ch] text-[13.5px] leading-[1.75] text-white/55">
+          <div className="sm:col-span-2 lg:col-span-1">
+            <Link href="/" aria-label={`${site.name} — home`} className="text-white">
+              <Logo />
+            </Link>
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-navy-200">
               Residential and commercial roofing across Southern New Hampshire
               and Northern Massachusetts. Call to discuss a free inspection or
               estimate and confirm the scope for your property.
             </p>
-            <div className="rule-accent-dark mt-7 max-w-[180px]" />
           </div>
 
           {/* Services */}
           <div>
-            <h3 className="eyebrow mb-5 text-white/45">Services</h3>
-            <ul className="space-y-3">
+            <h2 className={heading}>Services</h2>
+            <ul className="mt-4 space-y-2.5 text-sm">
               {services.map((s) => (
                 <li key={s.slug}>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    className="link-underline text-[13.5px] text-white/70 transition-colors hover:text-white"
-                  >
+                  <Link href={`/services/${s.slug}`} className="text-navy-200 transition hover:text-white">
                     {s.name}
                   </Link>
                 </li>
@@ -43,23 +41,17 @@ export function SiteFooter() {
 
           {/* Areas */}
           <div>
-            <h3 className="eyebrow mb-5 text-white/45">Service Areas</h3>
-            <ul className="space-y-3">
+            <h2 className={heading}>Service Areas</h2>
+            <ul className="mt-4 space-y-2.5 text-sm">
               {townPages.map((t) => (
                 <li key={t.slug}>
-                  <Link
-                    href={`/service-areas/${t.slug}`}
-                    className="link-underline text-[13.5px] text-white/70 transition-colors hover:text-white"
-                  >
+                  <Link href={`/service-areas/${t.slug}`} className="text-navy-200 transition hover:text-white">
                     {t.town}, {t.state}
                   </Link>
                 </li>
               ))}
-              <li className="pt-1">
-                <Link
-                  href="/service-areas"
-                  className="font-display text-[13px] font-bold text-copper-400 hover:text-copper-200"
-                >
+              <li>
+                <Link href="/service-areas" className="font-semibold text-accent-400 transition hover:text-accent-300">
                   See all {townCount} towns →
                 </Link>
               </li>
@@ -68,100 +60,80 @@ export function SiteFooter() {
 
           {/* Contact */}
           <div>
-            <h3 className="eyebrow mb-5 text-white/45">Contact</h3>
-            <div className="space-y-4">
+            <h2 className={heading}>Contact</h2>
+            <ul className="mt-4 space-y-3 text-sm">
               {[PHONE_NH, PHONE_MA].map((p) => (
-                <div key={p.state}>
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-white/35">
-                    {p.region}
-                  </p>
-                  <a
-                    href={p.href}
-                    className="font-display text-[18px] font-extrabold tabular-nums tracking-[-0.01em] text-white transition-colors hover:text-copper-400"
-                  >
+                <li key={p.state}>
+                  <span className="block text-xs uppercase tracking-wide text-navy-400">{p.region}</span>
+                  <a href={p.href} className="font-bold tabular-nums text-white transition hover:text-accent-400">
                     {p.display}
                   </a>
-                </div>
+                </li>
               ))}
-
-              <div className="pt-1">
-                <p className="text-[11px] uppercase tracking-[0.16em] text-white/35">
-                  Email
-                </p>
+              <li>
+                <span className="block text-xs uppercase tracking-wide text-navy-400">Email</span>
                 {site.email ? (
-                  <a
-                    href={`mailto:${site.email}`}
-                    className="text-[13.5px] text-white/70 hover:text-white"
-                  >
+                  <a href={`mailto:${site.email}`} className="break-all text-navy-200 hover:text-white">
                     {site.email}
                   </a>
                 ) : (
-                  <p className="text-[13px] text-white/45">{site.emailNote}</p>
+                  <span className="text-navy-200">{site.emailNote}</span>
                 )}
-              </div>
-            </div>
+              </li>
+            </ul>
 
-            <h3 className="eyebrow mb-4 mt-9 text-white/45">Hours</h3>
-            <dl className="space-y-2">
+            <h2 className={`${heading} mt-6`}>Hours</h2>
+            {DEMO_MODE && <p className="mt-2 text-xs text-navy-200">{site.hoursNote}</p>}
+            <ul className="mt-3 space-y-1.5 text-sm text-navy-200">
               {site.hours.map((h) => (
-                <div
-                  key={h.day}
-                  className="flex items-baseline justify-between gap-4 border-b border-white/8 pb-2"
-                >
-                  <dt className="text-[13px] text-white/70">{h.day}</dt>
-                  <dd className="text-[13px] tabular-nums text-white/45">
-                    {h.time}
-                  </dd>
-                </div>
+                <li key={h.day} className="flex justify-between gap-3">
+                  <span>{h.day}</span>
+                  <span className="text-right text-navy-400">{h.time}</span>
+                </li>
               ))}
-            </dl>
-            {DEMO_MODE && (
-              <p className="mt-3 text-[11.5px] leading-relaxed text-white/35">
-                {site.hoursNote}
-              </p>
-            )}
+            </ul>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="border-t border-white/10 py-7">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
-              {[
-                { href: "/services", label: "Services" },
-                { href: "/service-areas", label: "Service Areas" },
-                { href: "/about", label: "About" },
-                { href: "/free-estimate", label: "Free Estimate" },
-              ].map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className="text-[12.5px] text-white/55 transition-colors hover:text-white"
-                >
-                  {l.label}
-                </Link>
-              ))}
-              {DEMO_MODE && (
-                <Link
-                  href="/plan"
-                  className="rounded-[2px] border border-copper-400/40 px-2.5 py-1 font-display text-[11px] font-bold uppercase tracking-[0.12em] text-copper-400 transition-colors hover:bg-copper-400/10"
-                >
-                  Growth plan · internal
-                </Link>
-              )}
-            </nav>
-            <p className="text-[12px] text-white/35">
-              © {year} {site.legal}. All rights reserved.
-            </p>
-          </div>
+        {/* Every public page, linked from every page. */}
+        <nav
+          aria-label="Footer"
+          className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-navy-800 pt-6 text-sm font-semibold"
+        >
+          {[
+            { href: "/", label: "Home" },
+            { href: "/services", label: "Services" },
+            { href: "/service-areas", label: "Service Areas" },
+            { href: "/about", label: "About" },
+            { href: "/free-estimate", label: "Free Estimate" },
+          ].map((l) => (
+            <Link key={l.href} href={l.href} className="text-navy-200 transition hover:text-white">
+              {l.label}
+            </Link>
+          ))}
+          {DEMO_MODE && (
+            <Link
+              href="/plan"
+              className="rounded-lg border border-accent-400/40 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-accent-400 transition hover:bg-accent-400/10"
+            >
+              Growth plan · internal
+            </Link>
+          )}
+        </nav>
 
-          <p className="mt-6 max-w-4xl text-[11.5px] leading-relaxed text-white/25">
-            Serving Salem, Windham, Pelham, Derry, Londonderry, Atkinson,
-            Plaistow, Hudson, Nashua and Manchester NH · Methuen, Lawrence,
-            Andover, North Andover, Haverhill and Lowell MA · Asphalt shingle
-            roof replacement, roof repair, storm damage and inspections.
+        <div className="mt-6 flex flex-col gap-3 border-t border-navy-800 pt-6 text-xs text-navy-400 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {year} {site.legal}. All rights reserved.
           </p>
+          <p>Serving Southern NH &amp; Northern MA · Asphalt shingle roofing</p>
         </div>
+
+        <p className="mt-5 max-w-4xl text-xs leading-relaxed text-navy-400/80">
+          Serving Salem, Windham, Pelham, Derry, Londonderry, Atkinson,
+          Plaistow, Hudson, Nashua and Manchester NH · Methuen, Lawrence,
+          Andover, North Andover, Haverhill and Lowell MA · Asphalt shingle
+          roof replacement, roof repair, storm damage and inspections.
+        </p>
       </div>
     </footer>
   );

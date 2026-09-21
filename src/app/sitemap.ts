@@ -3,6 +3,9 @@ import { site } from "@/lib/site";
 import { services } from "@/lib/services";
 import { townPages } from "@/lib/areas";
 
+// Generated once at build time — the site is a static export.
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const statics = ["", "/services", "/service-areas", "/free-estimate", "/about"];

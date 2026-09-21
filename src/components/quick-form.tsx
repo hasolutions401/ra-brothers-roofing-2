@@ -5,6 +5,14 @@ import { useState } from "react";
 import { DEMO_MODE, PHONE_NH } from "@/lib/site";
 import { IconArrow, IconCheck } from "./icons";
 
+const inputClass =
+  "w-full rounded-xl border border-mist-300 bg-white px-4 py-3 text-base text-charcoal-900 " +
+  "placeholder:text-charcoal-500/60 transition focus:border-navy-600 focus:outline-none " +
+  "focus:ring-2 focus:ring-navy-600/20";
+
+const CHEVRON =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")";
+
 /**
  * Compact hero card. Deliberately short — name, phone, town — because the
  * job of this form is to start a conversation, not to qualify the lead.
@@ -17,38 +25,35 @@ export function QuickForm() {
   const ready = v.name.trim() !== "" && v.phone.trim() !== "";
 
   return (
-    <div className="w-full rounded-[4px] border border-white/12 bg-white p-6 shadow-[0_30px_70px_-30px_rgba(7,19,34,0.7)] sm:p-7">
+    <div className="w-full rounded-2xl bg-white p-5 shadow-xl ring-1 ring-mist-200 sm:p-7">
       {sent ? (
         <div>
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-copper-50">
-            <IconCheck className="h-5 w-5 text-copper-600" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-500/10">
+            <IconCheck className="h-6 w-6 text-accent-600" />
           </div>
-          <h3 className="mt-5 text-[19px] text-ink">Got it</h3>
-          <p className="mt-3 text-[13.5px] leading-[1.7] text-stone-700">
+          <h3 className="mt-5 text-xl font-bold text-navy-900">Got it</h3>
+          <p className="mt-2 text-sm leading-relaxed text-charcoal-500">
             {DEMO_MODE
               ? "This is a site preview, so nothing was actually sent. Once hosting and the business email are live this lands in your inbox immediately."
-              : "We will call you back to confirm the details and arrange the inspection."}
+              : "Thanks — we will call you back within one business day."}
           </p>
           <a
             href={PHONE_NH.href}
-            className="mt-5 inline-flex h-11 items-center rounded-[3px] bg-navy-900 px-5 font-display text-[13px] font-bold text-white hover:bg-ink"
+            className="mt-5 inline-block rounded-xl bg-accent-500 px-5 py-3 text-sm font-bold text-white transition hover:bg-accent-600"
           >
             Call {PHONE_NH.display}
           </a>
         </div>
       ) : (
         <>
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 className="text-[19px] leading-tight text-ink">
-              Request a free inspection
-            </h3>
-          </div>
-          <p className="mt-2 text-[12.5px] leading-[1.6] text-stone-600">
-            Tell us the basics and we will call you back to arrange a time.
+          <h3 className="text-lg font-bold text-navy-900 sm:text-xl">Get a free estimate</h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-charcoal-500">
+            Tell us the basics. We call back within one business day — and
+            many estimates need no visit at all.
           </p>
 
           <form
-            className="mt-5 space-y-2.5"
+            className="mt-5 grid gap-3"
             onSubmit={(e) => {
               e.preventDefault();
               setSent(true);
@@ -59,7 +64,8 @@ export function QuickForm() {
               onChange={(e) => setV({ ...v, name: e.target.value })}
               placeholder="Full name"
               aria-label="Full name"
-              className="h-[46px] w-full rounded-[3px] border border-ink/14 px-3.5 text-[14px] outline-none transition-colors placeholder:text-stone-300 focus:border-navy-600"
+              autoComplete="name"
+              className={inputClass}
             />
             <input
               value={v.phone}
@@ -67,27 +73,29 @@ export function QuickForm() {
               placeholder="Phone number"
               aria-label="Phone number"
               type="tel"
-              className="h-[46px] w-full rounded-[3px] border border-ink/14 px-3.5 text-[14px] outline-none transition-colors placeholder:text-stone-300 focus:border-navy-600"
+              autoComplete="tel"
+              className={inputClass}
             />
             <input
               value={v.town}
               onChange={(e) => setV({ ...v, town: e.target.value })}
               placeholder="Town"
               aria-label="Town"
-              className="h-[46px] w-full rounded-[3px] border border-ink/14 px-3.5 text-[14px] outline-none transition-colors placeholder:text-stone-300 focus:border-navy-600"
+              className={inputClass}
             />
             <select
               value={v.need}
               onChange={(e) => setV({ ...v, need: e.target.value })}
               aria-label="What do you need"
-              className={`h-[46px] w-full rounded-[3px] border border-ink/14 bg-white px-3 text-[14px] outline-none transition-colors focus:border-navy-600 ${
-                v.need === "" ? "text-stone-400" : "text-ink"
+              className={`${inputClass} appearance-none bg-no-repeat pr-10 ${
+                v.need === "" ? "text-charcoal-500/80" : ""
               }`}
+              style={{ backgroundImage: CHEVRON, backgroundPosition: "right 0.9rem center", backgroundSize: "1.1rem" }}
             >
               <option value="">What do you need?</option>
               <option>Roof replacement</option>
               <option>Roof repair or leak</option>
-              <option>Storm damage</option>
+              <option>Storm damage / insurance claim</option>
               <option>Inspection only</option>
               <option>Something else</option>
             </select>
@@ -95,31 +103,21 @@ export function QuickForm() {
             <button
               type="submit"
               disabled={!ready}
-              className="group mt-1 flex h-[50px] w-full items-center justify-center gap-2 rounded-[3px] bg-copper-600 font-display text-[14px] font-bold text-white transition-colors hover:bg-copper-700 disabled:cursor-not-allowed disabled:bg-ink/12 disabled:text-ink/35"
+              className="group mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-accent-600 active:bg-accent-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-accent-500"
             >
               Request my inspection
               <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </button>
           </form>
 
-          <p className="mt-4 border-t border-ink/8 pt-4 text-[11.5px] leading-[1.6] text-stone-500">
-            {DEMO_MODE && (
-              <span className="mr-1 font-semibold text-stone-600">
-                Preview form — not connected yet.
-              </span>
-            )}
+          <p className="mt-4 border-t border-mist-200 pt-4 text-xs leading-relaxed text-charcoal-500">
+            {DEMO_MODE && <span className="mr-1 font-semibold">Preview form — not connected yet.</span>}
             Prefer to talk?{" "}
-            <a
-              href={PHONE_NH.href}
-              className="font-semibold text-copper-600 hover:underline"
-            >
+            <a href={PHONE_NH.href} className="font-semibold text-navy-600 underline underline-offset-2">
               {PHONE_NH.display}
             </a>{" "}
             ·{" "}
-            <Link
-              href="/free-estimate"
-              className="font-semibold text-copper-600 hover:underline"
-            >
+            <Link href="/free-estimate" className="font-semibold text-navy-600 underline underline-offset-2">
               Longer form
             </Link>
           </p>

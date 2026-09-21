@@ -6,30 +6,22 @@ import { useEffect, useRef, useState } from "react";
 import { services } from "@/lib/services";
 import { coreTowns, townPages, townCount } from "@/lib/areas";
 import { PHONE_MA, PHONE_NH, site } from "@/lib/site";
-import { IconChevron, IconPhone, Logo, ServiceIcon } from "./icons";
+import { IconChevron, IconPhone, IconTile, Logo, ServiceIcon } from "./icons";
 
 type MenuId = "services" | "areas" | null;
 
-export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
+/**
+ * Sticky white header, as on the live site: logo left, menu right, the NH
+ * line and the free-inspection button always in reach. The two dropdowns open
+ * on hover and on click; on phones the menu becomes a full-height drawer.
+ */
+export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState<MenuId>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<MenuId>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    // Deferred so the first sync happens outside the effect body — matters
-    // when the browser restores a scroll position on load.
-    const raf = requestAnimationFrame(onScroll);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
 
   // Close every menu on navigation, adjusted during render rather than in an
   // effect so the new page never paints with the old menu still open.
@@ -77,62 +69,39 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
     closeTimer.current = setTimeout(() => setOpen(null), 140);
   };
 
-  // The drawer is white, so the bar above it has to be too.
-  const solid = !overlay || scrolled || open !== null || mobileOpen;
-  const linkTone = solid ? "text-ink/78 hover:text-ink" : "text-white/85 hover:text-white";
-
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        solid
-          ? "border-b border-ink/8 bg-white/95 backdrop-blur-md"
-          : "border-b border-white/10 bg-transparent"
-      }`}
-    >
-      {/* Utility strip */}
-      <div
-        className={`hidden border-b transition-colors duration-300 lg:block ${
-          solid ? "border-ink/8 bg-navy-950" : "border-white/10 bg-black/25"
-        }`}
-      >
-        <div className="wrap flex h-9 items-center justify-between">
-          <p className="text-[11.5px] tracking-[0.02em] text-white/55">
-            Residential &amp; commercial roofing · Southern New Hampshire &amp;
-            Northern Massachusetts
-          </p>
-          <div className="flex items-center gap-5">
-            {[PHONE_NH, PHONE_MA].map((p) => (
-              <a
-                key={p.state}
-                href={p.href}
-                className="group flex items-center gap-2 text-[11.5px] text-white/70 transition-colors hover:text-white"
-              >
-                <span className="font-display font-bold tracking-[0.16em] text-copper-400">
-                  {p.state}
-                </span>
-                <span className="font-display font-bold tabular-nums tracking-[0.01em]">
-                  {p.display}
-                </span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
+  /** Underlined in blue when it is the page you are on. */
+  const menuLink = (active: boolean) =>
+    `inline-flex items-center gap-1 border-b-2 py-1.5 text-sm font-semibold transition ${
+      active
+        ? "border-accent-500 text-navy-900"
+        : "border-transparent text-charcoal-700 hover:text-navy-900"
+    }`;
 
-      {/* Main bar */}
+  return (
+    <header className="sticky top-0 z-50 border-b border-mist-200">
+      {/*
+        The frosted background is its own layer: backdrop-filter on the header
+        itself would make it the containing block for the fixed mobile drawer
+        and squash the drawer into the 4rem bar.
+      */}
+      <div className="absolute inset-0 -z-10 bg-white/95 backdrop-blur" aria-hidden="true" />
       <div className="wrap" ref={navRef}>
-        <div className="flex h-[68px] items-center justify-between gap-6 lg:h-[76px]">
-          <Link href="/" aria-label={`${site.name} — home`} className="shrink-0">
-            <Logo tone={solid ? "dark" : "light"} />
+        <div className="flex h-16 items-center gap-4 lg:h-20">
+          <Link href="/" aria-label={`${site.name} — home`} className="shrink-0 text-navy-900">
+            <Logo />
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex">
-            <NavLink href="/" active={isActive("/")} tone={linkTone}>
+          <nav aria-label="Main" className="ml-auto hidden lg:flex lg:items-center lg:gap-6">
+            <Link
+              href="/"
+              aria-current={isActive("/") ? "page" : undefined}
+              className={menuLink(isActive("/"))}
+            >
               Home
-            </NavLink>
+            </Link>
 
             {/* Services dropdown */}
             <div
@@ -144,38 +113,29 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
                 type="button"
                 aria-expanded={open === "services"}
                 aria-haspopup="true"
-                onClick={() =>
-                  setOpen(open === "services" ? null : "services")
-                }
-                className={`flex items-center gap-1.5 px-3.5 py-2 font-display text-[14px] font-semibold transition-colors ${linkTone} ${
-                  isActive("/services") ? (solid ? "text-ink" : "text-white") : ""
-                }`}
+                onClick={() => setOpen(open === "services" ? null : "services")}
+                className={menuLink(isActive("/services"))}
               >
                 Services
                 <IconChevron
-                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                    open === "services" ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 transition-transform duration-200 ${open === "services" ? "rotate-180" : ""}`}
                 />
               </button>
 
-              <Panel open={open === "services"} width="w-[680px]">
-                <div className="grid grid-cols-2 gap-x-6">
+              <Panel open={open === "services"} width="w-[640px]">
+                <div className="grid grid-cols-2 gap-1">
                   {services.map((s) => (
                     <Link
                       key={s.slug}
                       href={`/services/${s.slug}`}
-                      className="group flex gap-3 rounded-[3px] px-3 py-3 transition-colors hover:bg-navy-50"
+                      className="group flex gap-3 rounded-xl p-3 transition hover:bg-mist-100"
                     >
-                      <ServiceIcon
-                        name={s.icon}
-                        className="mt-0.5 h-[22px] w-[22px] shrink-0 text-copper-600"
-                      />
+                      <IconTile size="sm">
+                        <ServiceIcon name={s.icon} />
+                      </IconTile>
                       <span className="min-w-0">
-                        <span className="block font-display text-[13.5px] font-bold text-ink">
-                          {s.navLabel}
-                        </span>
-                        <span className="mt-1 block text-[12px] leading-[1.5] text-stone-500">
+                        <span className="block text-sm font-bold text-navy-900">{s.navLabel}</span>
+                        <span className="mt-0.5 block text-xs leading-relaxed text-charcoal-500">
                           {s.blurb.split(" — ")[0]}
                         </span>
                       </span>
@@ -201,44 +161,34 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
                 aria-expanded={open === "areas"}
                 aria-haspopup="true"
                 onClick={() => setOpen(open === "areas" ? null : "areas")}
-                className={`flex items-center gap-1.5 px-3.5 py-2 font-display text-[14px] font-semibold transition-colors ${linkTone} ${
-                  isActive("/service-areas")
-                    ? solid
-                      ? "text-ink"
-                      : "text-white"
-                    : ""
-                }`}
+                className={menuLink(isActive("/service-areas"))}
               >
                 Service Areas
                 <IconChevron
-                  className={`h-3.5 w-3.5 transition-transform duration-200 ${
-                    open === "areas" ? "rotate-180" : ""
-                  }`}
+                  className={`h-4 w-4 transition-transform duration-200 ${open === "areas" ? "rotate-180" : ""}`}
                 />
               </button>
 
-              <Panel open={open === "areas"} width="w-[620px]">
-                <div className="grid grid-cols-[1fr_1fr_190px] gap-x-7">
+              <Panel open={open === "areas"} width="w-[600px]">
+                <div className="grid grid-cols-[1fr_1fr_190px] gap-x-6 p-3">
                   <AreaCol
                     label="New Hampshire"
-                    towns={coreTowns
-                      .filter((t) => t.state === "NH")
-                      .map((t) => t.name)}
+                    towns={coreTowns.filter((t) => t.state === "NH").map((t) => t.name)}
                   />
                   <AreaCol
                     label="Massachusetts"
-                    towns={coreTowns
-                      .filter((t) => t.state === "MA")
-                      .map((t) => t.name)}
+                    towns={coreTowns.filter((t) => t.state === "MA").map((t) => t.name)}
                   />
-                  <div className="border-l border-ink/8 pl-6">
-                    <p className="eyebrow mb-3 text-copper-600">Town pages</p>
-                    <ul className="space-y-2">
+                  <div className="border-l border-mist-200 pl-6">
+                    <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent-600">
+                      Town pages
+                    </p>
+                    <ul className="space-y-1">
                       {townPages.map((t) => (
                         <li key={t.slug}>
                           <Link
                             href={`/service-areas/${t.slug}`}
-                            className="link-underline font-display text-[13px] font-bold text-ink"
+                            className="-mx-2 block rounded-lg px-2 py-1.5 text-sm font-semibold text-navy-900 transition hover:bg-mist-100"
                           >
                             {t.town}, {t.state}
                           </Link>
@@ -249,94 +199,91 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
                 </div>
                 <PanelFoot
                   href="/service-areas"
-                  label={`See all ${townCount} towns we cover`}
+                  label={`See all ${townCount} towns`}
                   note="Just outside the list? Call and we will tell you honestly."
                 />
               </Panel>
             </div>
 
-            <NavLink href="/about" active={isActive("/about")} tone={linkTone}>
+            <Link
+              href="/about"
+              aria-current={isActive("/about") ? "page" : undefined}
+              className={menuLink(isActive("/about"))}
+            >
               About
-            </NavLink>
+            </Link>
+            <Link href="/#faq" className={menuLink(false)}>
+              FAQ
+            </Link>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-2 lg:ml-6 lg:gap-3">
+            {/* On phones the call button lives in the bottom bar instead. */}
             <a
               href={PHONE_NH.href}
-              className={`hidden items-center gap-2 rounded-[3px] border px-4 py-2.5 font-display text-[13px] font-bold transition-colors md:inline-flex ${
-                solid
-                  ? "border-ink/15 text-ink hover:border-ink/40"
-                  : "border-white/30 text-white hover:border-white/70"
-              }`}
+              className="hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-navy-900 transition hover:bg-mist-100 sm:flex"
             >
-              <IconPhone className="h-4 w-4" />
+              <IconPhone className="h-4 w-4 text-accent-600" />
               <span className="tabular-nums">{PHONE_NH.display}</span>
             </a>
             <Link
               href="/free-estimate"
-              className="hidden rounded-[3px] bg-copper-600 px-5 py-3 font-display text-[13px] font-bold text-white transition-colors hover:bg-copper-700 sm:block"
+              className="hidden rounded-xl bg-accent-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-accent-600 sm:inline-block"
             >
               Free Inspection
             </Link>
 
             <button
               type="button"
-              aria-label="Open menu"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
+              aria-controls="mobile-nav"
               onClick={() => setMobileOpen((v) => !v)}
-              className={`-mr-2 flex h-11 w-11 flex-col items-center justify-center gap-[5px] lg:hidden ${
-                solid ? "text-ink" : "text-white"
-              }`}
+              className="rounded-xl p-2.5 text-navy-900 transition hover:bg-mist-100 lg:hidden"
             >
-              <span
-                className={`block h-[2px] w-5 bg-current transition-transform duration-300 ${mobileOpen ? "translate-y-[7px] rotate-45" : ""}`}
-              />
-              <span
-                className={`block h-[2px] w-5 bg-current transition-opacity duration-200 ${mobileOpen ? "opacity-0" : ""}`}
-              />
-              <span
-                className={`block h-[2px] w-5 bg-current transition-transform duration-300 ${mobileOpen ? "-translate-y-[7px] -rotate-45" : ""}`}
-              />
+              <svg
+                viewBox="0 0 24 24"
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden="true"
+              >
+                {mobileOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+              </svg>
             </button>
           </div>
         </div>
       </div>
 
       {/* Mobile drawer */}
-      <div
-        className={`fixed inset-x-0 top-[68px] bottom-0 z-40 overflow-y-auto bg-white transition-[opacity,transform] duration-300 lg:hidden ${
-          mobileOpen
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-2 opacity-0"
+      <nav
+        id="mobile-nav"
+        aria-label="Mobile"
+        className={`fixed inset-x-0 top-16 bottom-0 z-40 overflow-y-auto border-t border-mist-200 bg-white transition-[opacity,transform] duration-300 lg:hidden ${
+          mobileOpen ? "translate-y-0 opacity-100" : "pointer-events-none -translate-y-2 opacity-0"
         }`}
       >
-        <div className="wrap py-6">
+        <div className="wrap pb-8 pt-2">
           <MobileRow href="/" label="Home" />
 
           <MobileGroup
             label="Services"
             open={mobilePanel === "services"}
-            onToggle={() =>
-              setMobilePanel(mobilePanel === "services" ? null : "services")
-            }
+            onToggle={() => setMobilePanel(mobilePanel === "services" ? null : "services")}
           >
             {services.map((s) => (
               <Link
                 key={s.slug}
                 href={`/services/${s.slug}`}
-                className="flex items-center gap-3 py-2.5 text-[14.5px] text-stone-700"
+                className="flex items-center gap-3 py-2 text-sm text-charcoal-700"
               >
-                <ServiceIcon
-                  name={s.icon}
-                  className="h-[18px] w-[18px] text-copper-600"
-                />
+                <ServiceIcon name={s.icon} className="h-[18px] w-[18px] text-accent-600" />
                 {s.navLabel}
               </Link>
             ))}
-            <Link
-              href="/services"
-              className="mt-2 inline-block font-display text-[13px] font-bold text-copper-600"
-            >
+            <Link href="/services" className="block py-2 text-sm font-bold text-accent-600">
               All services →
             </Link>
           </MobileGroup>
@@ -344,84 +291,55 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
           <MobileGroup
             label="Service Areas"
             open={mobilePanel === "areas"}
-            onToggle={() =>
-              setMobilePanel(mobilePanel === "areas" ? null : "areas")
-            }
+            onToggle={() => setMobilePanel(mobilePanel === "areas" ? null : "areas")}
           >
             {townPages.map((t) => (
               <Link
                 key={t.slug}
                 href={`/service-areas/${t.slug}`}
-                className="block py-2.5 text-[14.5px] text-stone-700"
+                className="block py-2 text-sm text-charcoal-700"
               >
                 Roofing in {t.town}, {t.state}
               </Link>
             ))}
-            <Link
-              href="/service-areas"
-              className="mt-2 inline-block font-display text-[13px] font-bold text-copper-600"
-            >
+            <Link href="/service-areas" className="block py-2 text-sm font-bold text-accent-600">
               All {townCount} towns →
             </Link>
           </MobileGroup>
 
           <MobileRow href="/about" label="About" />
+          <MobileRow href="/#faq" label="FAQ" />
 
-          <div className="mt-8 border-t border-ink/8 pt-6">
-            <p className="eyebrow mb-4 text-stone-500">Call us</p>
-            <div className="grid gap-3">
-              {[PHONE_NH, PHONE_MA].map((p) => (
-                <a
-                  key={p.state}
-                  href={p.href}
-                  className="flex items-center justify-between rounded-[3px] border border-ink/12 px-4 py-3.5"
-                >
-                  <span className="text-[12px] uppercase tracking-[0.14em] text-stone-500">
-                    {p.region}
-                  </span>
-                  <span className="font-display text-[15px] font-bold tabular-nums text-ink">
-                    {p.display}
-                  </span>
-                </a>
-              ))}
-            </div>
+          <div className="mt-6 grid gap-3">
+            {[PHONE_NH, PHONE_MA].map((p) => (
+              <a
+                key={p.state}
+                href={p.href}
+                className="flex items-center justify-between rounded-xl border border-navy-200 px-4 py-3"
+              >
+                <span className="text-xs font-semibold uppercase tracking-wider text-charcoal-500">
+                  {p.region}
+                </span>
+                <span className="flex items-center gap-2 text-base font-bold tabular-nums text-navy-900">
+                  <IconPhone className="h-4 w-4 text-accent-600" />
+                  {p.display}
+                </span>
+              </a>
+            ))}
             <Link
               href="/free-estimate"
-              className="mt-4 flex h-[52px] items-center justify-center rounded-[3px] bg-copper-600 font-display text-[14px] font-bold text-white"
+              className="flex items-center justify-center rounded-xl bg-accent-500 py-3.5 text-base font-bold text-white"
             >
-              Get a Free Roof Inspection
+              {site.primaryCta.label}
             </Link>
           </div>
         </div>
-      </div>
+      </nav>
     </header>
   );
 }
 
 /* ---------------------------------------------------------------- helpers */
-
-function NavLink({
-  href,
-  children,
-  active,
-  tone,
-}: {
-  href: string;
-  children: React.ReactNode;
-  active: boolean;
-  tone: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`px-3.5 py-2 font-display text-[14px] font-semibold transition-colors ${tone} ${
-        active ? "opacity-100" : ""
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
 
 function Panel({
   open,
@@ -435,35 +353,23 @@ function Panel({
   return (
     <div
       className={`absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3 transition-[opacity,transform] duration-200 ${
-        open
-          ? "pointer-events-auto translate-y-0 opacity-100"
-          : "pointer-events-none -translate-y-1 opacity-0"
+        open ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-1 opacity-0"
       }`}
     >
-      <div
-        className={`${width} rounded-[4px] border border-ink/10 bg-white p-5 shadow-[0_24px_60px_-24px_rgba(10,22,38,0.35)]`}
-      >
+      <div className={`${width} rounded-2xl border border-mist-200 bg-white p-2 shadow-xl`}>
         {children}
       </div>
     </div>
   );
 }
 
-function PanelFoot({
-  href,
-  label,
-  note,
-}: {
-  href: string;
-  label: string;
-  note: string;
-}) {
+function PanelFoot({ href, label, note }: { href: string; label: string; note: string }) {
   return (
-    <div className="mt-4 flex items-center justify-between gap-6 border-t border-ink/8 pt-4">
-      <p className="text-[11.5px] text-stone-500">{note}</p>
+    <div className="mt-1 flex items-center justify-between gap-6 border-t border-mist-200 px-3 pb-1 pt-3">
+      <p className="text-xs text-charcoal-500">{note}</p>
       <Link
         href={href}
-        className="shrink-0 font-display text-[12.5px] font-bold text-copper-600 hover:text-copper-700"
+        className="shrink-0 text-sm font-bold text-accent-600 transition hover:text-accent-700"
       >
         {label} →
       </Link>
@@ -474,10 +380,10 @@ function PanelFoot({
 function AreaCol({ label, towns }: { label: string; towns: string[] }) {
   return (
     <div>
-      <p className="eyebrow mb-3 text-copper-600">{label}</p>
+      <p className="mb-3 text-xs font-bold uppercase tracking-wider text-accent-600">{label}</p>
       <ul className="space-y-1.5">
         {towns.map((t) => (
-          <li key={t} className="text-[13px] text-stone-700">
+          <li key={t} className="text-sm text-charcoal-700">
             {t}
           </li>
         ))}
@@ -490,7 +396,7 @@ function MobileRow({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="block border-b border-ink/8 py-4 font-display text-[17px] font-bold text-ink"
+      className="block border-b border-mist-100 py-3.5 text-base font-semibold text-charcoal-700"
     >
       {label}
     </Link>
@@ -509,23 +415,19 @@ function MobileGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-ink/8">
+    <div className="border-b border-mist-100">
       <button
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="flex w-full items-center justify-between py-4 font-display text-[17px] font-bold text-ink"
+        className="flex w-full items-center justify-between py-3.5 text-base font-semibold text-charcoal-700"
       >
         {label}
-        <IconChevron
-          className={`h-4 w-4 text-stone-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        />
+        <IconChevron className={`h-5 w-5 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
-      <div
-        className={`grid transition-[grid-template-rows] duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-      >
+      <div className={`grid transition-[grid-template-rows] duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
         <div className="overflow-hidden">
-          <div className="pb-4 pl-1">{children}</div>
+          <div className="pb-3 pl-4">{children}</div>
         </div>
       </div>
     </div>

@@ -123,20 +123,22 @@ export const services: Service[] = [
   },
   {
     slug: "storm-damage-repair",
-    name: "Emergency & Storm Damage Repair",
-    navLabel: "Storm & Emergency Damage",
+    name: "Storm Damage & Insurance Claims",
+    navLabel: "Storm Damage & Insurance",
     icon: "storm",
     featured: true,
     blurb:
-      "Wind, ice and fallen-limb damage — stabilised first, documented for your claim, then repaired.",
+      "Wind, ice and fallen-limb damage — stabilised first, documented for your insurance claim, then repaired.",
     intro:
-      "Nor'easters and summer thunderstorms are the two events that put roofs on our schedule at short notice. When a section of roof opens up, the order of operations matters: stop the water, photograph everything before it changes, then repair. Working in that order is what lets your insurance carrier see the damage as it actually was.",
+      "Nor'easters and summer thunderstorms are the two events that put roofs on our schedule at short notice. When a section of roof opens up, the order of operations matters: stop the water, photograph everything before it changes, then work through the claim with you and your insurer. We handle the roofing side of the claim — the documentation, the scope, the adjuster meeting — so you are not left sorting out the roofing details with your insurer on your own.",
     image: "/images/shingle-dark.jpg",
     imageAlt: "Weathered dark asphalt shingles",
     includes: [
       "Temporary tarping and stabilisation to stop active water entry",
-      "Photo documentation of the damage for your insurance claim",
-      "A written scope of damage you can hand to your adjuster",
+      "Full photo documentation of the damage before anything is touched",
+      "A detailed written scope your adjuster can work from",
+      "Meeting your insurance adjuster at the property",
+      "Reviewing the adjuster's estimate and flagging anything missed",
       "Wind-lifted and missing shingle replacement",
       "Fallen limb and impact damage repair, including decking where needed",
       "Ice dam damage assessment and the ventilation fix behind it",
@@ -145,12 +147,12 @@ export const services: Service[] = [
       "Shingles torn off or lifted after a wind storm",
       "A tree limb has come down on the roof",
       "Water entering the house during or after a storm",
-      "Ice dams forming along the eaves every winter",
+      "You are thinking about filing an insurance claim",
       "Your insurer has asked for a contractor's assessment",
     ],
-    metaTitle: "Storm Damage & Emergency Roof Repair — NH & MA",
+    metaTitle: "Storm Damage Roof Repair & Insurance Claims — NH & MA",
     metaDescription:
-      "Storm and wind damage roof repair, emergency tarping and insurance documentation across Southern NH and Northern MA.",
+      "Storm and wind damage roof repair with insurance claim help across Southern NH and Northern MA: documentation, adjuster meetings and a detailed scope.",
   },
   {
     slug: "roof-inspections",
@@ -160,7 +162,7 @@ export const services: Service[] = [
     blurb:
       "A documented look at the whole system — field, flashing, ventilation and attic — with photos and a straight recommendation.",
     intro:
-      "An inspection is the cheapest thing you will ever do to a roof, and it is where every job with us starts. We go over the field, the flashing, the penetrations and the gutters, and — where there is access — the attic, because half of what kills a roof in New England is happening underneath it. You get photographs and a plain-English recommendation, including the one people do not expect to hear: this roof is fine, call us in three years.",
+      "An inspection is the cheapest thing you will ever do to a roof — ours are free, and many start remotely, from your photos and aerial imagery, before anyone climbs a ladder. We go over the field, the flashing, the penetrations and the gutters, and — where there is access — the attic, because half of what kills a roof in New England is happening underneath it. You get photographs and a plain-English recommendation, including the one people do not expect to hear: this roof is fine, call us in three years.",
     image: "/images/hero-roofer.jpg",
     imageAlt: "Roofer inspecting shingles against a clear blue sky",
     includes: [

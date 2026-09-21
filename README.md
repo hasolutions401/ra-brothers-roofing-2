@@ -5,8 +5,8 @@ Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · TypeScript.
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # production build
+npm run dev      # http://localhost:3000/ra-brothers-roofing-2/
+npm run build    # static export into out/
 npm run lint
 npm run typecheck
 ```
@@ -28,6 +28,21 @@ npm run typecheck
 
 `/plan` is linked only from the footer, behind the demo flag, so it disappears
 from the live site the moment `DEMO_MODE` is turned off.
+
+---
+
+## Hosting
+
+Live at **https://hasolutions401.github.io/ra-brothers-roofing-2/**.
+
+Every push to `main` runs `.github/workflows/deploy.yml`, which builds a static
+export (`output: "export"` in `next.config.ts`) and publishes `out/` to GitHub
+Pages — the same setup as the other RA Brothers site.
+
+GitHub Pages serves the site from `/ra-brothers-roofing-2`, so `next.config.ts`
+sets that as `basePath`. `<Link>` adds it automatically; photos go through
+`asset()` in `src/lib/site.ts`, because `<Image>` does not. Moving to a custom
+domain later means removing `basePath` and nothing else.
 
 ---
 
@@ -88,10 +103,21 @@ soon as there is some.
 
 ## Design notes
 
-- **Type:** Archivo (display) + Inter (body), loaded via `next/font`.
-- **Colour:** deep navy / charcoal / stone as requested, plus one warm copper
-  accent for calls-to-action. All tokens are at the top of
-  `src/app/globals.css` — to go all-blue, change the `--color-copper-*` values
-  there and nothing else.
-- **Icons** are hand-drawn SVGs in `src/components/icons.tsx`, built around a
-  gable shape so the set reads as one family. No icon library.
+The look matches the live RA Brothers site
+(hasolutions401.github.io/roofing-website), which follows the client's own
+mock-up: blue buttons, navy dark sections, neutral greys everywhere else.
+
+- **Type:** Geist, loaded via `next/font`. Headings are extra-bold with tight
+  tracking; small letter-spaced blue labels sit above each heading.
+- **Colour:** navy for dark sections and headings, one blue accent
+  (`accent-500`, always with white text) for anything clickable, charcoal for
+  body copy, mist greys for light sections and borders. All tokens are at the
+  top of `src/app/globals.css`.
+- **Shape:** `rounded-xl` buttons and inputs, `rounded-2xl` cards and photos,
+  icons in navy tiles (`IconTile`).
+- **Heroes:** every page opens with a full-screen photo banner (`.page-hero`)
+  under a navy overlay dark enough to keep white text readable.
+- **Logo** (`Logo` in `src/components/icons.tsx`) is the live site's roof-line
+  mark; `src/app/icon.svg` is the same mark as the browser-tab icon.
+- **Icons** are line SVGs in `src/components/icons.tsx`, shared with the live
+  site. No icon library.

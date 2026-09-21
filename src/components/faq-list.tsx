@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { IconPlus } from "./icons";
 
+/** Accordion in the live site's style: hairline rows, a blue plus that turns to a cross. */
 export function FaqList({
   items,
 }: {
@@ -11,43 +12,33 @@ export function FaqList({
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div className="border-t border-ink/10">
+    <div className="divide-y divide-mist-200 border-y border-mist-200">
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
-          <div key={item.q} className="border-b border-ink/10">
+          <div key={item.q}>
             <h3>
               <button
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="group flex w-full items-start justify-between gap-6 py-6 text-left"
+                className="flex w-full items-start justify-between gap-4 py-4 text-left text-base font-bold text-navy-900"
               >
-                <span
-                  className={`font-display text-[16px] font-bold leading-snug transition-colors md:text-[17px] ${
-                    isOpen ? "text-ink" : "text-ink/80 group-hover:text-ink"
+                {item.q}
+                <IconPlus
+                  className={`mt-1 h-5 w-5 shrink-0 text-accent-600 transition-transform duration-200 ${
+                    isOpen ? "rotate-45" : ""
                   }`}
-                >
-                  {item.q}
-                </span>
-                <span
-                  className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
-                    isOpen
-                      ? "rotate-45 border-copper-500 bg-copper-500 text-white"
-                      : "border-ink/20 text-ink/50 group-hover:border-ink/45"
-                  }`}
-                >
-                  <IconPlus className="h-4 w-4" />
-                </span>
+                />
               </button>
             </h3>
             <div
-              className={`grid transition-[grid-template-rows] duration-400 ease-out ${
+              className={`grid transition-[grid-template-rows] duration-300 ease-out ${
                 isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
               }`}
             >
               <div className="overflow-hidden">
-                <p className="max-w-[72ch] pb-7 pr-12 text-[14.5px] leading-[1.8] text-stone-700">
+                <p className="pb-5 pr-9 text-sm leading-relaxed text-charcoal-500 sm:text-base">
                   {item.a}
                 </p>
               </div>

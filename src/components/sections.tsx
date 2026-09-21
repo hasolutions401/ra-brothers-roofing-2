@@ -1,146 +1,177 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { DEMO_MODE, PHONE_MA, PHONE_NH, site } from "@/lib/site";
+import { asset, DEMO_MODE, PHONE_MA, PHONE_NH, site, type Phone } from "@/lib/site";
 import { EstimateForm } from "./estimate-form";
+import { IconPhone } from "./icons";
 import { Eyebrow } from "./ui";
 
-/** Compact navy hero used at the top of every inner page. */
+/**
+ * Full-screen photo banner at the top of every inner page, as on the live
+ * site. Without an aside the copy is centred; with one (phone cards on the
+ * area pages) the copy sits left and the aside sits right.
+ */
 export function PageHero({
   eyebrow,
   title,
   lede,
   crumbs,
   aside,
+  image,
+  phone = PHONE_NH,
 }: {
   eyebrow: string;
   title: ReactNode;
   lede?: ReactNode;
   crumbs?: { href: string; label: string }[];
   aside?: ReactNode;
+  /** A /public/images path. Stock photography — never captioned as our work. */
+  image: string;
+  /** The line the hero's call button dials. */
+  phone?: Phone;
 }) {
+  const centred = !aside;
+
   return (
-    <section className="relative overflow-hidden bg-navy-950 pb-16 pt-[128px] text-white md:pb-20 md:pt-[172px]">
-      <div className="blueprint absolute inset-0 opacity-70" aria-hidden="true" />
+    <section className="page-hero relative isolate flex items-center overflow-hidden bg-navy-950">
+      <Image src={asset(image)} alt="" fill priority sizes="100vw" className="object-cover" />
+      {/* Dark layer so white text stays readable. 0.6 is the lightest that keeps 4.5:1 on any photo. */}
       <div
+        className={`absolute inset-0 ${centred ? "bg-navy-950/60" : "bg-navy-950/65 lg:bg-transparent lg:bg-gradient-to-r lg:from-navy-950/80 lg:via-navy-950/65 lg:to-navy-950/60"}`}
         aria-hidden="true"
-        className="absolute -right-32 -top-40 h-[420px] w-[420px] rounded-full bg-navy-700/25 blur-[120px]"
       />
-      <div className="wrap relative">
-        {crumbs && (
-          <nav aria-label="Breadcrumb" className="mb-7">
-            <ol className="flex flex-wrap items-center gap-2 text-[12px] text-white/40">
-              <li>
-                <Link href="/" className="transition-colors hover:text-white/80">
-                  Home
-                </Link>
-              </li>
-              {crumbs.map((c) => (
-                <li key={c.href} className="flex items-center gap-2">
-                  <span aria-hidden="true">/</span>
-                  <Link
-                    href={c.href}
-                    className="transition-colors hover:text-white/80"
-                  >
-                    {c.label}
+
+      <div
+        className={`wrap relative py-16 text-white ${
+          centred
+            ? "max-w-4xl text-center"
+            : "lg:grid lg:grid-cols-[1fr_minmax(0,24rem)] lg:items-center lg:gap-12"
+        }`}
+      >
+        <div>
+          {crumbs && (
+            <nav aria-label="Breadcrumb" className="text-sm text-navy-100">
+              <ol className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${centred ? "justify-center" : ""}`}>
+                <li>
+                  <Link href="/" className="underline underline-offset-4 hover:text-white">
+                    Home
                   </Link>
                 </li>
-              ))}
-            </ol>
-          </nav>
-        )}
+                {crumbs.map((c, i) => {
+                  const last = i === crumbs.length - 1;
+                  return (
+                    <li key={c.href} className="flex items-center gap-3">
+                      <span aria-hidden="true">/</span>
+                      {last ? (
+                        <span aria-current="page" className="text-white">
+                          {c.label}
+                        </span>
+                      ) : (
+                        <Link href={c.href} className="underline underline-offset-4 hover:text-white">
+                          {c.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
+          )}
 
-        <div
-          className={
-            aside
-              ? "grid items-end gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-16"
-              : ""
-          }
-        >
-          <div className="max-w-3xl">
-            <Eyebrow tone="light" className="mb-5">
-              {eyebrow}
-            </Eyebrow>
-            <h1 className="text-[clamp(2rem,5vw,3.4rem)] leading-[1.05] text-white">
-              {title}
-            </h1>
-            {lede && (
-              <p className="mt-6 max-w-2xl text-[16px] leading-[1.75] text-white/60">
-                {lede}
-              </p>
-            )}
+          <Eyebrow tone="light" className="mt-6">
+            {eyebrow}
+          </Eyebrow>
+          <h1
+            className={`mt-3 font-extrabold leading-[1.1] tracking-tight ${
+              centred ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl lg:text-5xl"
+            }`}
+          >
+            {title}
+          </h1>
+          {lede && (
+            <p
+              className={`mt-5 max-w-2xl text-base leading-relaxed text-navy-100 sm:text-lg ${centred ? "mx-auto" : ""}`}
+            >
+              {lede}
+            </p>
+          )}
+
+          <div className={`mt-8 flex flex-wrap gap-3 ${centred ? "justify-center" : ""}`}>
+            <Link
+              href={site.primaryCta.href}
+              className="rounded-xl bg-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600"
+            >
+              {site.primaryCta.label}
+            </Link>
+            <a
+              href={phone.href}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-5 py-3.5 text-sm font-bold transition hover:bg-white/10"
+            >
+              <IconPhone className="h-4 w-4 text-accent-400" />
+              Call {phone.display}
+            </a>
           </div>
-          {aside && <div>{aside}</div>}
         </div>
+
+        {aside && <div className="mt-10 lg:mt-0">{aside}</div>}
       </div>
     </section>
   );
 }
 
-/** Full-width conversion band with the multi-step form. */
+/** Phone card on navy — used in the CTA band and the area-page heroes. */
+export function PhoneCard({ phone }: { phone: Phone }) {
+  return (
+    <a
+      href={phone.href}
+      className="block rounded-xl border border-white/25 bg-white/5 px-5 py-4 backdrop-blur-sm transition hover:bg-white/10"
+    >
+      <span className="block text-xs font-semibold uppercase tracking-wider text-accent-400">
+        {phone.region}
+      </span>
+      <span className="mt-1 block whitespace-nowrap text-lg font-extrabold tabular-nums text-white">
+        {phone.display}
+      </span>
+    </a>
+  );
+}
+
+/** Closing conversion band with the multi-step form. Every page ends with it. */
 export function CtaBand({
-  title = "Get your free roof inspection",
-  lede = "Call during business hours to talk through what you are seeing, or start the form and we will call you back to arrange a time.",
+  title = "Get your free roof estimate",
+  lede = "Call during business hours to talk through what you are seeing, or start the form — we call back within one business day. Many estimates can be done from photos, without a visit.",
 }: {
   title?: string;
   lede?: string;
 }) {
   return (
-    <section className="relative overflow-hidden bg-navy-900 py-20 md:py-28">
-      <div className="blueprint absolute inset-0 opacity-60" aria-hidden="true" />
-      <div
-        aria-hidden="true"
-        className="absolute -left-40 -bottom-20 h-[480px] w-[480px] rounded-full bg-navy-600/20 blur-[130px]"
-      />
-      <div className="wrap relative">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-20">
-          <div>
-            <h2 className="text-[clamp(1.9rem,3.6vw,2.9rem)] leading-[1.08] text-white">
-              {title}
-            </h2>
-            <p className="mt-6 max-w-lg text-[15.5px] leading-[1.8] text-white/60">
-              {lede}
-            </p>
+    <section id="estimate-bottom" className="scroll-mt-24 bg-navy-800">
+      <div className="wrap py-14 lg:grid lg:grid-cols-[1fr_minmax(0,32rem)] lg:gap-12 lg:py-20">
+        <div>
+          <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl lg:text-4xl">
+            {title}
+          </h2>
+          <p className="mt-3 max-w-lg text-base leading-relaxed text-navy-100">{lede}</p>
 
-            <div className="mt-9 grid gap-3 sm:grid-cols-2">
-              {[PHONE_NH, PHONE_MA].map((p) => (
-                <a
-                  key={p.state}
-                  href={p.href}
-                  className="group rounded-[3px] border border-white/15 bg-white/[0.04] px-5 py-5 transition-colors hover:border-white/40 hover:bg-white/[0.07]"
-                >
-                  <p className="eyebrow text-copper-400">{p.region}</p>
-                  <p className="mt-2.5 whitespace-nowrap font-display text-[19px] font-extrabold tabular-nums tracking-[-0.02em] text-white sm:text-[22px]">
-                    {p.display}
-                  </p>
-                </a>
-              ))}
-            </div>
-
-            <div className="mt-10">
-              <dl className="max-w-md">
-                {site.hours.map((h) => (
-                  <div
-                    key={h.day}
-                    className="flex items-baseline justify-between gap-4 border-b border-white/10 py-3"
-                  >
-                    <dt className="text-[13.5px] text-white/70">{h.day}</dt>
-                    <dd className="text-[13.5px] tabular-nums text-white/45">
-                      {h.time}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-              {DEMO_MODE && (
-                <p className="mt-4 max-w-md text-[11.5px] leading-relaxed text-white/35">
-                  {site.hoursNote}
-                </p>
-              )}
-            </div>
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:max-w-lg">
+            {[PHONE_NH, PHONE_MA].map((p) => (
+              <PhoneCard key={p.state} phone={p} />
+            ))}
           </div>
 
-          <div>
-            <EstimateForm />
-          </div>
+          {DEMO_MODE && <p className="mt-7 text-xs text-navy-200">{site.hoursNote}</p>}
+          <dl className="mt-3 space-y-1.5 text-sm text-navy-200 lg:max-w-lg">
+            {site.hours.map((h) => (
+              <div key={h.day} className="flex justify-between gap-4 border-b border-navy-700 pb-1.5">
+                <dt>{h.day}</dt>
+                <dd className="text-navy-100">{h.time}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="mt-9 lg:mt-0">
+          <EstimateForm />
         </div>
       </div>
     </section>
@@ -150,14 +181,18 @@ export function CtaBand({
 /** Small honesty panel — turned into a selling point rather than a caveat. */
 export function StraightAnswer() {
   return (
-    <div className="rounded-[3px] border-l-2 border-copper-500 bg-paper px-6 py-6">
-      <p className="eyebrow mb-3 text-copper-600">Straight answer</p>
-      <p className="max-w-[64ch] text-[14.5px] leading-[1.8] text-stone-700">
-        RA Brothers Roofing is a new company, and we would rather say that
-        plainly than borrow someone else&apos;s reviews. What we will give you
-        is a documented inspection, an itemised written quote, and a straight
-        recommendation — including telling you when your roof does not need
-        replacing yet.
+    <div className="rounded-2xl border border-mist-200 bg-mist-50 p-6 sm:p-7">
+      <Eyebrow tone="accent" className="mb-2">
+        Straight answer
+      </Eyebrow>
+      <p className="max-w-[64ch] text-sm leading-relaxed text-charcoal-500 sm:text-base">
+        <strong className="font-semibold text-navy-900">
+          We are a new company,
+        </strong>{" "}
+        and we would rather say that plainly than borrow someone else&apos;s
+        reviews. What we will give you is a free estimate, an itemised written
+        quote, a straight recommendation — including telling you when your roof
+        does not need replacing yet — and a satisfaction guarantee on the work.
       </p>
     </div>
   );

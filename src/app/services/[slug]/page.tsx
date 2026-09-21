@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import { serviceBySlug, services } from "@/lib/services";
 import { townPages, townCount } from "@/lib/areas";
 import { processSteps } from "@/lib/content";
+import { asset } from "@/lib/site";
 import { PageHero, CtaBand, StraightAnswer } from "@/components/sections";
-import { IconArrow, IconCheck, IconPin, ServiceIcon } from "@/components/icons";
-import { Button, Eyebrow, SectionHeading } from "@/components/ui";
+import { IconArrow, IconCheck, IconPin, IconTile, ServiceIcon } from "@/components/icons";
+import { ArrowLink, Button, Eyebrow, SectionHeading } from "@/components/ui";
 import { Reveal } from "@/components/reveal";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -36,6 +37,7 @@ export default async function ServicePage({ params }: Params) {
   return (
     <>
       <PageHero
+        image={service.image}
         eyebrow="Roofing service"
         crumbs={[
           { href: "/services", label: "Services" },
@@ -46,28 +48,26 @@ export default async function ServicePage({ params }: Params) {
       />
 
       {/* Intro + image */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="wrap">
-          <div className="grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+      <section className="bg-white">
+        <div className="wrap py-14 lg:py-20">
+          <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-14">
             <div>
-              <ServiceIcon
-                name={service.icon}
-                className="h-10 w-10 text-copper-600"
-              />
-              <p className="mt-7 max-w-[62ch] text-[17px] leading-[1.75] text-ink">
-                {service.intro}
-              </p>
-              <div className="mt-9">
+              <IconTile>
+                <ServiceIcon name={service.icon} />
+              </IconTile>
+              <p className="mt-6 max-w-[62ch] text-lg leading-relaxed text-charcoal-700">{service.intro}</p>
+              <div className="mt-8">
                 <StraightAnswer />
               </div>
             </div>
-            <Reveal className="relative aspect-[4/3] w-full overflow-hidden rounded-[4px] lg:aspect-auto lg:min-h-[420px]">
+            <Reveal className="overflow-hidden rounded-2xl">
               <Image
-                src={service.image}
+                src={asset(service.image)}
                 alt={service.imageAlt}
-                fill
-                sizes="(max-width: 1024px) 100vw, 560px"
-                className="object-cover"
+                width={1200}
+                height={900}
+                sizes="(min-width: 1024px) 32rem, 100vw"
+                className="h-64 w-full object-cover sm:h-80 lg:h-full lg:min-h-[26rem]"
               />
             </Reveal>
           </div>
@@ -75,154 +75,132 @@ export default async function ServicePage({ params }: Params) {
       </section>
 
       {/* Included + signals */}
-      <section className="bg-paper py-16 md:py-24">
-        <div className="wrap">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
+      <section className="bg-mist-50">
+        <div className="wrap py-14 lg:py-20">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-14">
             <div>
-              <SectionHeading
-                eyebrow="Included"
-                title="What the job covers"
-              />
-              <ul className="mt-9 space-y-0">
+              <SectionHeading eyebrow="Included" title="What the job covers" />
+              <ul className="mt-8 grid gap-3">
                 {service.includes.map((inc, i) => (
                   <li
                     key={inc}
-                    className="flex items-start gap-4 border-t border-ink/10 py-4 last:border-b"
+                    className="flex items-start gap-4 rounded-2xl border border-mist-200 bg-white px-5 py-4"
                   >
-                    <span className="mt-0.5 font-display text-[11.5px] font-bold tabular-nums tracking-[0.16em] text-copper-600">
-                      {String(i + 1).padStart(2, "0")}
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-accent-500 text-xs font-extrabold text-white">
+                      {i + 1}
                     </span>
-                    <span className="text-[14.5px] leading-[1.6] text-stone-700">
-                      {inc}
-                    </span>
+                    <span className="pt-0.5 text-sm leading-relaxed text-charcoal-700 sm:text-base">{inc}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <SectionHeading
-                eyebrow="When you need it"
-                title="Signs this is the right call"
-              />
-              <ul className="mt-9 grid gap-3">
+              <SectionHeading eyebrow="When you need it" title="Signs this is the right call" />
+              <ul className="mt-8 grid gap-3">
                 {service.signals.map((sig) => (
                   <li
                     key={sig}
-                    className="flex items-start gap-3 rounded-[3px] border border-ink/10 bg-white px-5 py-4"
+                    className="flex items-start gap-3 rounded-2xl border border-mist-200 bg-white px-5 py-4"
                   >
-                    <IconCheck className="mt-[3px] h-4 w-4 shrink-0 text-copper-600" />
-                    <span className="text-[14px] leading-snug text-stone-700">
-                      {sig}
-                    </span>
+                    <IconCheck className="mt-0.5 h-5 w-5 shrink-0 text-accent-600" />
+                    <span className="text-sm leading-relaxed text-charcoal-700 sm:text-base">{sig}</span>
                   </li>
                 ))}
               </ul>
-              <div className="mt-8">
-                <Button href="/free-estimate" variant="dark" arrow>
-                  Get this quoted
-                </Button>
-              </div>
+              <Button href="/free-estimate" size="lg" arrow className="mt-7">
+                Get this quoted
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
       {/* Process recap */}
-      <section className="relative overflow-hidden bg-navy-950 py-16 text-white md:py-24">
-        <div className="blueprint absolute inset-0 opacity-70" aria-hidden="true" />
-        <div className="wrap relative">
-          <SectionHeading
-            tone="light"
-            eyebrow="How it runs"
-            title="From the first call to the final sweep"
-          />
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[4px] bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
-            {processSteps.map((step) => (
-              <div key={step.n} className="bg-navy-950 p-7">
-                <span className="font-display text-[12px] font-bold tabular-nums tracking-[0.18em] text-copper-400">
-                  {step.n}
+      <section className="bg-navy-900">
+        <div className="wrap py-14 lg:py-20">
+          <SectionHeading tone="light" eyebrow="How it runs" title="From the first call to the final sweep" />
+          <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {processSteps.map((step, i) => (
+              <li key={step.n} className="rounded-2xl bg-navy-800 p-6 ring-1 ring-white/10">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-accent-500 text-base font-extrabold text-white">
+                  {i + 1}
                 </span>
-                <h3 className="mt-5 text-[16px] leading-snug text-white">
-                  {step.title}
-                </h3>
-                <p className="mt-3 text-[13px] leading-[1.7] text-white/50">
-                  {step.text}
-                </p>
-              </div>
+                <h3 className="mt-4 text-base font-bold text-white">{step.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-navy-200">{step.text}</p>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 
       {/* Where + other services */}
-      <section className="bg-white py-16 md:py-24">
-        <div className="wrap">
-          <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
+      <section className="bg-white">
+        <div className="wrap py-14 lg:py-20">
+          <div className="grid gap-12 lg:grid-cols-2 lg:gap-14">
             <div>
-              <Eyebrow tone="accent" className="mb-5">
+              <Eyebrow tone="accent" className="mb-2">
                 Where we do it
               </Eyebrow>
-              <h2 className="text-[26px] leading-tight text-ink">
+              <h2 className="text-2xl font-extrabold tracking-tight text-navy-900 sm:text-3xl">
                 {service.name} across {townCount} towns
               </h2>
-              <p className="mt-4 max-w-[54ch] text-[14.5px] leading-[1.8] text-stone-600">
+              <p className="mt-3 max-w-[54ch] text-base leading-relaxed text-charcoal-500">
                 Southern New Hampshire is the core of our service area, with
                 the Northern Massachusetts towns closest to Salem covered from
                 the same crew.
               </p>
-              <div className="mt-7 flex flex-wrap gap-2.5">
+              <div className="mt-6 flex flex-wrap gap-2">
                 {townPages.map((t) => (
                   <Link
                     key={t.slug}
                     href={`/service-areas/${t.slug}`}
-                    className="inline-flex items-center gap-2 rounded-[3px] border border-ink/14 px-4 py-2.5 font-display text-[12.5px] font-bold text-ink transition-colors hover:border-ink/40"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-navy-200 px-3.5 py-2 text-sm font-semibold text-navy-700 transition hover:border-navy-600 hover:bg-navy-50"
                   >
-                    <IconPin className="h-[13px] w-[13px] text-copper-600" />
+                    <IconPin className="h-3.5 w-3.5 text-accent-600" />
                     {t.town}, {t.state}
                   </Link>
                 ))}
                 <Link
                   href="/service-areas"
-                  className="inline-flex items-center gap-2 rounded-[3px] border border-dashed border-ink/25 px-4 py-2.5 font-display text-[12.5px] font-bold text-stone-600 hover:border-ink/50 hover:text-ink"
+                  className="inline-flex items-center rounded-lg border border-dashed border-navy-200 px-3.5 py-2 text-sm font-semibold text-charcoal-500 transition hover:border-navy-600 hover:text-navy-900"
                 >
-                  All towns
-                  <IconArrow className="h-3.5 w-3.5" />
+                  All towns →
                 </Link>
               </div>
             </div>
 
             <div>
-              <Eyebrow tone="accent" className="mb-5">
+              <Eyebrow tone="accent" className="mb-2">
                 Also available
               </Eyebrow>
-              <h2 className="text-[26px] leading-tight text-ink">
+              <h2 className="text-2xl font-extrabold tracking-tight text-navy-900 sm:text-3xl">
                 Other roofing services
               </h2>
-              <ul className="mt-7">
+              <ul className="mt-6 grid gap-3">
                 {others.map((o) => (
-                  <li key={o.slug} className="border-t border-ink/10 last:border-b">
+                  <li key={o.slug}>
                     <Link
                       href={`/services/${o.slug}`}
-                      className="group flex items-center gap-4 py-5"
+                      className="group flex items-center gap-4 rounded-2xl border border-mist-200 bg-white p-4 transition hover:border-navy-200 hover:shadow-lg"
                     >
-                      <ServiceIcon
-                        name={o.icon}
-                        className="h-6 w-6 shrink-0 text-copper-600"
-                      />
+                      <IconTile size="sm">
+                        <ServiceIcon name={o.icon} />
+                      </IconTile>
                       <span className="flex-1">
-                        <span className="block font-display text-[15px] font-bold text-ink">
-                          {o.name}
-                        </span>
-                        <span className="mt-1 block text-[13px] leading-snug text-stone-500">
+                        <span className="block text-base font-bold text-navy-900">{o.name}</span>
+                        <span className="mt-0.5 block text-sm leading-snug text-charcoal-500">
                           {o.blurb.split(" — ")[0]}
                         </span>
                       </span>
-                      <IconArrow className="h-4 w-4 shrink-0 text-stone-400 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-copper-600" />
+                      <IconArrow className="h-5 w-5 shrink-0 text-navy-400 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-accent-600" />
                     </Link>
                   </li>
                 ))}
               </ul>
+              <ArrowLink href="/services" className="mt-5">
+                All roofing services
+              </ArrowLink>
             </div>
           </div>
         </div>
@@ -230,7 +208,7 @@ export default async function ServicePage({ params }: Params) {
 
       <CtaBand
         title={`Get ${service.name.toLowerCase()} quoted`}
-        lede="Call during business hours, or start the form and we will call you back to arrange the inspection."
+        lede="Call during business hours, or start the form — we call back within one business day, and many estimates need no visit."
       />
     </>
   );

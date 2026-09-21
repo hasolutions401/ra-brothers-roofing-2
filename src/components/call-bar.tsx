@@ -1,44 +1,33 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { PHONE_MA, PHONE_NH } from "@/lib/site";
 import { IconPhone } from "./icons";
 
 /**
- * Persistent mobile action bar. The client asked for a call button that is
- * always visible; on phones that means pinning it rather than relying on
- * the header.
+ * Call / Free Inspection bar fixed to the bottom of phones and tablets. The
+ * client asked for a call button that is always visible, so it never hides.
+ * The bottom padding on <body> in app/layout.tsx keeps it off the footer, and
+ * env(safe-area-inset-bottom) lifts it above the iPhone home indicator.
  */
 export function CallBar({ state = "NH" }: { state?: "NH" | "MA" }) {
-  const [visible, setVisible] = useState(false);
   const phone = state === "MA" ? PHONE_MA : PHONE_NH;
-
-  useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 420);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-navy-950/97 backdrop-blur transition-transform duration-300 lg:hidden ${
-        visible ? "translate-y-0" : "translate-y-full"
-      }`}
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-navy-800 bg-navy-900 pb-[env(safe-area-inset-bottom)] lg:hidden"
+      role="region"
+      aria-label="Quick contact"
     >
-      <div className="grid grid-cols-2 gap-2 p-2.5">
+      <div className="grid grid-cols-2 gap-2 p-2">
         <a
           href={phone.href}
-          className="flex h-[50px] items-center justify-center gap-2 rounded-[3px] border border-white/25 font-display text-[13.5px] font-bold text-white"
+          className="flex items-center justify-center gap-2 rounded-xl border border-white/25 py-3.5 text-sm font-bold text-white active:bg-white/10"
         >
           <IconPhone className="h-4 w-4" />
-          <span className="tabular-nums">{phone.display}</span>
+          Call Now
         </a>
         <Link
           href="/free-estimate"
-          className="flex h-[50px] items-center justify-center rounded-[3px] bg-copper-600 font-display text-[13.5px] font-bold text-white"
+          className="flex items-center justify-center rounded-xl bg-accent-500 py-3.5 text-sm font-bold text-white active:bg-accent-700"
         >
           Free Inspection
         </Link>

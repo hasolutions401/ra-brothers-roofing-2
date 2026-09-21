@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Archivo, Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -7,14 +7,8 @@ import { CallBar } from "@/components/call-bar";
 import { site, PHONE_NH, PHONE_MA } from "@/lib/site";
 import { towns } from "@/lib/areas";
 
-const archivo = Archivo({
-  variable: "--font-archivo",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -78,20 +72,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
-      <body className="min-h-screen antialiased">
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${geistSans.variable} h-full antialiased`}
+    >
+      {/*
+        The bottom padding leaves room for the fixed mobile call bar, which is
+        out of normal flow and would otherwise sit on top of the end of the
+        footer. The bar is hidden from lg upwards, so the padding is too.
+      */}
+      <body className="flex min-h-full flex-col bg-white pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-[3px] focus:bg-navy-900 focus:px-4 focus:py-2 focus:text-white"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-white focus:px-4 focus:py-3 focus:font-bold focus:text-navy-900"
         >
           Skip to content
         </a>
-        <SiteHeader overlay />
-        <main id="main">{children}</main>
+        <SiteHeader />
+        <main id="main" tabIndex={-1} className="flex-1">
+          {children}
+        </main>
         <SiteFooter />
         <CallBar />
       </body>
