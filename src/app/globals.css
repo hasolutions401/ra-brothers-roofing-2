@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   RA Brothers Roofing — design tokens
+   Brand core: deep navy + charcoal + stone grey (per client direction).
+   Single warm accent ("copper") is used sparingly for calls-to-action and
+   small marks. To go all-blue, change --brand-accent-* values below only.
+   ========================================================================== */
+
+@theme {
+  --color-ink: #0a1626;
+  --color-navy-950: #071322;
+  --color-navy-900: #0c1f38;
+  --color-navy-800: #123052;
+  --color-navy-700: #17406b;
+  --color-navy-600: #1e5389;
+  --color-navy-500: #2a6baa;
+  --color-navy-200: #bed2e6;
+  --color-navy-100: #dce6f1;
+  --color-navy-50: #eef4fa;
+
+  --color-copper-700: #8c4217;
+  --color-copper-600: #a94f1d;
+  --color-copper-500: #c05c21;
+  --color-copper-400: #d9752f;
+  --color-copper-200: #f0cdb2;
+  --color-copper-50: #fbf2ea;
+
+  --color-paper: #f7f6f3;
+  --color-paper-2: #efede7;
+
+  --color-stone-700: #4a5361;
+  --color-stone-500: #76808f;
+  --color-stone-300: #b9c0c9;
+
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-brand: 3px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04";
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.022em;
+    font-weight: 700;
+  }
+  ::selection {
+    background: var(--color-navy-800);
+    color: #fff;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-copper-500);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Small letterspaced label used above headings */
+  .eyebrow {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  /* Page gutter */
+  .wrap {
+    width: 100%;
+    max-width: 1220px;
+    margin-inline: auto;
+    padding-inline: 20px;
+  }
+  @media (min-width: 768px) {
+    .wrap { padding-inline: 32px; }
+  }
+
+  /* Faint blueprint grid for dark panels */
+  .blueprint {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  /* Hairline divider that carries the brand accent on its left edge */
+  .rule-accent {
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      var(--color-copper-500) 0 44px,
+      rgba(10, 22, 38, 0.12) 44px 100%
+    );
+  }
+  .rule-accent-dark {
+    height: 2px;
+    background: linear-gradient(
+      to right,
+      var(--color-copper-400) 0 44px,
+      rgba(255, 255, 255, 0.16) 44px 100%
+    );
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .link-underline:hover { background-size: 100% 1px; }
+}
+
+/* Scroll reveal. `scripting: enabled` means content is never hidden when
+   JavaScript is off, and browsers that do not know the feature simply skip
+   the rule and render everything visible. Reduced motion skips it too. */
+@media (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+}
