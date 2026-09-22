@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DEMO_MODE: ${{ vars.DEMO_MODE || 'true' }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://hasolutions401.github.io/ra-brothers-roofing-2/' }}
 
     steps:
       - name: Checkout
@@ -25,7 +28,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Setup Pages
@@ -36,6 +39,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Verify exported pages
+        run: npm run verify:export
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4

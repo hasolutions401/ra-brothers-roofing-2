@@ -1,89 +1,87 @@
 export const processSteps = [
   {
-    n: "01",
     title: "Tell us what is going on",
-    text: "Call us or send the form. We will ask what you are seeing, how long it has been happening and roughly when the roof was last done — enough to know whether this is a repair conversation or a replacement conversation. We call back within one business day.",
+    text: "Call or send the form. We will ask what you are seeing, how long it has been happening and roughly when the roof was last done. That is usually enough to know whether this is a repair or a replacement. We call back within one business day.",
   },
   {
-    n: "02",
     title: "We assess the roof",
-    text: "Often we can price the job from your photos and aerial imagery of the roof, with no visit needed. When the roof needs a closer look — an active leak, storm damage, an insurance claim — we come out, check the flashing, valleys and attic, and photograph anything we flag. Either way, the estimate is free.",
+    text: "Often we can price the job from your photos and aerial imagery of the roof, with no visit needed. When a roof needs a closer look, such as an active leak, storm damage or an insurance claim, we come out, check the flashing, valleys and attic, and photograph anything we flag. Either way, the estimate is free.",
   },
   {
-    n: "03",
     title: "You get a written estimate",
-    text: "Itemised, in writing, with the scope spelled out. If there is something we cannot see until tear-off — decking is the usual one — we tell you up front what it would cost rather than discovering it on the day.",
+    text: "Itemised and in writing, with the scope spelled out. If something cannot be seen until tear-off (decking is the usual one), the estimate tells you up front what it would cost, so it never turns into a surprise on the day.",
   },
   {
-    n: "04",
     title: "We schedule and do the work",
-    text: "We agree a date, tell you what access we need and what will be noisy, and we clean up properly at the end of each day. Magnetic sweep of the drive and lawn before we leave.",
+    text: "We agree a date, tell you what access we need and when it will be noisy, and clean up at the end of every day, including a magnetic sweep of the drive and lawn.",
   },
 ];
 
 export const differentiators = [
   {
     title: "Free estimates, often without a visit",
-    text: "Send a few photos and your address and we can usually price the job from those and aerial imagery of the roof. No waiting around for an appointment, no obligation, and it is free for repairs as well as replacements.",
+    text: "Send a few photos and your address and we can usually price the job from those and aerial imagery of the roof. No appointment to wait for, no obligation, and free for repairs as well as replacements.",
   },
   {
     title: "A fair price, in writing",
-    text: "Every estimate spells out what is being removed, what is going back on and what happens if we find bad decking. You should be able to put our quote beside anyone else's and compare them line for line.",
+    text: "Every estimate spells out what comes off, what goes back on and what happens if we find bad decking, so you can put our quote beside anyone else's and compare them line for line.",
   },
   {
     title: "Help with your insurance claim",
-    text: "Storm damage is stressful enough. We document the damage, write up a scope your adjuster can work from, and meet the adjuster at the property so nothing gets missed.",
+    text: "Storm damage is stressful enough. We document the damage, write a scope your adjuster can work from, and meet the adjuster at the property so nothing gets missed.",
   },
   {
     title: "Backed by a satisfaction guarantee",
-    text: "We started this company to give people a roofer they can trust at a price that is fair. If you are not satisfied with the work, tell us and we will make it right.",
+    text: "We started this company to give people a roofer they can trust at a fair price. If you are not satisfied with the work, tell us and we will make it right.",
   },
 ];
 
-export const faqs = [
+export type Faq = { q: string; a: string };
+
+export const faqs: Faq[] = [
   {
     q: "Do you charge for an estimate?",
-    a: "No — estimates are always free, for repairs as well as replacements and new roofs. We will give you our honest recommendation even when that recommendation is that your roof does not need work yet.",
+    a: "No. Estimates are free for repairs as well as replacements and new roofs, and if your roof does not need work yet, that is what we will tell you.",
   },
   {
     q: "Do you need to come out to give me an estimate?",
-    a: "Not always. For many jobs we can price the work from photos you send and aerial imagery of your roof, which is faster for you. We come out in person when a job needs it — active leaks, storm damage, insurance claims, or anything we cannot judge properly from a picture.",
+    a: "Not always. For many jobs we can price the work from photos you send and aerial imagery of your roof, which is faster for you. We come out when a job needs it: active leaks, storm damage, insurance claims, or anything a picture cannot show.",
   },
   {
     q: "How quickly will I hear back?",
-    a: "Within one business day of your call or form. If you reach us during business hours it is often the same day.",
+    a: "Within one business day of your call or form, and often the same day if you reach us during business hours.",
   },
   {
     q: "How do I know whether I need a repair or a full replacement?",
-    a: "Age and pattern. A roof under about fifteen years old with a single point of failure — one valley, one pipe boot, one section of flashing — is usually a repair. A roof past eighteen years with leaks appearing in several unrelated places is usually telling you it is done. The inspection settles it either way, and we will show you the photographs behind the recommendation.",
+    a: "Look at the cause and extent of the problem as well as the roof's age. A localised flashing or pipe-boot failure may be repairable, while widespread deterioration can make replacement more practical. An inspection should explain the condition of the roof and the options before you decide.",
   },
   {
     q: "How long does a roof replacement take?",
-    a: "A straightforward single-family asphalt shingle roof is typically one to two working days from tear-off to clean-up. Complex rooflines with multiple valleys, dormers or steep pitches, and anything where the decking needs significant replacement, will run longer. We give you the expected duration in writing with the estimate.",
+    a: "A straightforward single-family asphalt shingle roof typically takes one to two working days from tear-off to clean-up. Complex rooflines with several valleys, dormers or steep pitches take longer, as does any job where a lot of decking needs replacing. The expected duration is in writing with the estimate.",
   },
   {
     q: "What happens if you find rotted decking after tear-off?",
-    a: "We stop and show you. Rotted or soft sheathing is the one thing nobody can see until the old shingles are off, so we price it per sheet in the original estimate. You know the unit cost before we start, and you approve the quantity before we replace anything.",
+    a: "We stop and show you. Rotted or soft sheathing is the one thing nobody can see until the old shingles are off, so the estimate prices it per sheet. You know the unit cost before we start, and you approve the quantity before we replace anything.",
   },
   {
     q: "How long does a new asphalt shingle roof last around here?",
-    a: "In Southern New Hampshire and Northern Massachusetts a properly installed and properly ventilated architectural shingle roof generally gives eighteen to twenty-five years. Ventilation is the variable most people never think about — a roof that cannot breathe ages from underneath and will not reach the top of that range no matter which shingle you buy.",
+    a: "There is no single lifespan that applies to every asphalt roof. The product, installation, ventilation, exposure and maintenance all matter. Check the condition of the shingles and flashing as the roof ages, and ask what the manufacturer's coverage includes separately from the expected service life.",
   },
   {
     q: "Do you work in the winter?",
-    a: "Repairs and emergency work, yes. Full replacements depend on temperature — asphalt shingles need to be warm enough to seal properly, so a mid-January tear-off is usually the wrong call unless the roof has actually failed. We will tell you if waiting for spring is the better decision.",
+    a: "Repairs, yes. Full replacements depend on temperature, because asphalt shingles need warmth to seal. A mid-January tear-off is usually the wrong call unless the roof has failed, and we will tell you if waiting for spring makes more sense.",
   },
   {
     q: "Can you help with my insurance claim?",
-    a: "Yes, and it is a big part of what we do for storm damage. We inspect and photograph the damage, write up a detailed scope, meet your adjuster at the property, and point out anything the adjuster's estimate has missed so it can be added. The claim itself stays in your name and the final decision is your insurer's — but you will not be handling the roofing side of it on your own.",
+    a: "Yes, it is a big part of storm damage work. We inspect and photograph the damage, write a detailed scope, meet your adjuster at the property and point out anything the adjuster's estimate missed so it can be added. The claim stays in your name and the decision is your insurer's, but you will not be handling the roofing side of it on your own.",
   },
   {
     q: "Which towns do you cover?",
-    a: "We are starting in Southern New Hampshire, centred on Salem, and the Northern Massachusetts towns closest to the line — the full list is on the service areas page. The area is growing, so if you are outside it, call anyway and we will tell you honestly whether we can help.",
+    a: "We are starting in Southern New Hampshire, centred on Salem, plus the Northern Massachusetts towns closest to the line. The full list is on the service areas page. If you are just outside it, call anyway and we will tell you whether we can help.",
   },
 ];
 
-/** Homeowner-facing checklist used on the home page. */
+/** Homeowner observations for discussion, not a diagnostic score. */
 export const warningSigns = [
   "Shingles cupping, curling or lifting at the edges",
   "Granules collecting in the gutters or at the downspouts",

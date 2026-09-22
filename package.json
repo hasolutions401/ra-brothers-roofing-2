@@ -4,10 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "next build && node scripts/finalize-export.mjs",
+    "start": "node scripts/preview.mjs",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "images": "node scripts/optimize-images.mjs",
+    "verify:export": "node scripts/verify-export.mjs"
   },
   "dependencies": {
     "next": "16.3.5",
@@ -21,8 +23,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "sharp": "0.35.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "description": "Marketing site for RA Brothers Roofing \u2014 Southern NH & Northern MA"
+  "description": "Marketing site for RA Brothers Roofing — Southern NH & Northern MA"
 }

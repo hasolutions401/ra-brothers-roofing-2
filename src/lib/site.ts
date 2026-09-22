@@ -1,9 +1,9 @@
 /**
  * Single source of truth for everything the client still has to confirm.
- * Flip DEMO_MODE to false once the real details are in and every
- * "pending confirmation" note disappears from the site.
+ * Build with DEMO_MODE=false for launch. Confirmation of business facts is
+ * separate from deployment mode; a launch build must never invent them.
  */
-export const DEMO_MODE = true;
+export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 
 export type Phone = {
   region: string;
@@ -36,30 +36,25 @@ export const site = {
   short: "RA Brothers",
   legal: "RA Brothers Roofing",
   nameIsFinal: false,
-  // Placeholder only. Do not buy a domain until the final name is chosen.
-  url: "https://www.example-roofing.com",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://hasolutions401.github.io/ra-brothers-roofing-2",
   description:
     "Residential and commercial roofing across Southern New Hampshire and Northern Massachusetts. Roof replacement, repair, new installation, storm damage and inspections.",
   phones: [PHONE_NH, PHONE_MA],
   email: null as string | null,
-  emailNote: "Business email pending setup — please call for now.",
+  emailNote: "Business email coming soon. Please call for now.",
+  hoursConfirmed: false,
   hours: [
-    { day: "Monday – Friday", time: "7:00 AM – 5:00 PM" },
+    { day: "Monday – Friday", time: "7:00 AM – 5:00 PM", days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], opens: "07:00", closes: "17:00" },
     { day: "Saturday", time: "By appointment" },
     { day: "Sunday", time: "Closed" },
   ],
   hoursNote:
-    "Proposed hours, typical for roofing contractors in the area — pending your confirmation.",
-  primaryCta: { label: "Get a Free Roof Inspection", href: "/free-estimate" },
+    "Proposed hours, typical for roofing contractors in the area. Pending your confirmation.",
+  /** The site's one call to action. "Estimate" because many are done from photos, without a visit. */
+  primaryCta: { label: "Get a Free Estimate", short: "Free Estimate", href: "/free-estimate" },
 
-  /* Promises the client has explicitly approved (21 Sep 2026). */
+  /* Promise the client has explicitly approved (21 Sep 2026). */
   callback: "We call you back within one business day.",
-  callbackShort: "Call back within 1 business day",
-  guarantee: "Satisfaction guarantee",
-  // Client approved offering a satisfaction guarantee; the written terms
-  // (what it covers, for how long, what happens if you are not satisfied)
-  // still have to be drafted before launch.
-  guaranteeNote: "Written guarantee terms to be finalised before launch.",
 };
 
 export function phoneFor(state: "NH" | "MA" | null | undefined): Phone {

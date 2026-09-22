@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { notFound } from "next/navigation";
 import { townCount, townPages, towns } from "@/lib/areas";
 import { services } from "@/lib/services";
-import { site } from "@/lib/site";
-import { Eyebrow } from "@/components/ui";
-import { IconArrow, IconCheck } from "@/components/icons";
+import { DEMO_MODE, site } from "@/lib/site";
+import { Button, Eyebrow } from "@/components/ui";
+import { IconCheck } from "@/components/icons";
 
-export const metadata: Metadata = {
-  title: "Growth Plan — Internal",
-  description:
-    "Internal growth plan: hosting, Google Business Profile, SEO, Google Ads, insurance work, the AI instant estimate and estimated ongoing costs.",
-  robots: { index: false, follow: false },
-};
+// Once DEMO_MODE is off this route renders the 404 page, so its metadata must
+// not describe the plan either.
+export const metadata: Metadata = DEMO_MODE
+  ? {
+      title: "Growth Plan — Internal",
+      description:
+        "Internal growth plan: hosting, Google Business Profile, SEO, Google Ads, insurance work, the AI instant estimate and estimated ongoing costs.",
+      robots: { index: false, follow: false },
+    }
+  : { title: "Page not found", robots: { index: false, follow: false } };
 
 /*
  * The client confirmed on 21 Sep 2026 that "RA Brothers" will NOT be the final
@@ -51,7 +55,7 @@ const phases = [
   {
     n: "Stage 1",
     when: "Launch week",
-    cost: "≈ $27 / month",
+    cost: "≈ $30 / month",
     items: [
       "Deploy the site and point the domain at it",
       "Connect the estimate form to email and SMS notifications",
@@ -161,20 +165,24 @@ const costs = [
 const adsNumbers = [
   ["Typical cost per click, roofing, Boston / Southern NH", "$15 – 60"],
   ["Form or call conversion rate on a focused landing page", "6 – 12% of clicks"],
-  ["Resulting cost per lead", "$150 – 500"],
+  ["Resulting cost per lead", "$125 – 1,000"],
   ["Lead to signed job, typical for a new company", "20 – 30%"],
-  ["Resulting cost per job won", "$600 – 2,000"],
+  ["Resulting cost per job won", "$420 – 5,000"],
   ["Average residential replacement ticket, New England", "$12,000 – 25,000"],
 ];
 
 export default function PlanPage() {
+  // Internal. Only built while DEMO_MODE is on, so it disappears from the
+  // live site together with the footer link, not just the link.
+  if (!DEMO_MODE) notFound();
+
   return (
-    <>
+    <div data-internal-plan>
       {/* Hero */}
       <section className="bg-navy-900 text-white">
         <div className="wrap py-14 lg:py-20">
           <span className="inline-flex rounded-lg border border-accent-400/45 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-400">
-            Internal — not linked from the public site
+            Internal · demo build only
           </span>
           {!site.nameIsFinal && (
             <span className="ml-2 inline-flex rounded-lg bg-white/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white">
@@ -210,11 +218,11 @@ export default function PlanPage() {
                 `${townPages.length} town landing pages (Salem NH, Windham NH, Methuen MA)`,
                 "Free estimate page with a four-step enquiry form",
                 "About page, mobile navigation, always-visible call button",
-                "Two phone lines — NH number on NH pages, MA number on MA pages",
+                "Two phone lines: the MA number on Massachusetts pages, NH everywhere else",
                 "Search-engine structured data, sitemap and metadata",
                 "Remote-estimate option and photo upload in the estimate form",
                 "Storm Damage & Insurance Claims page and an insurance question in the form",
-                "Call-back-in-one-business-day and satisfaction guarantee shown site-wide",
+                "Call-back-in-one-business-day and satisfaction guarantee on the key pages",
                 "Company name set in one file, so renaming the whole site is a one-line change",
               ].map((i) => (
                 <li key={i} className="flex items-start gap-2.5">
@@ -225,7 +233,7 @@ export default function PlanPage() {
             </ul>
           </div>
           <div>
-            <Eyebrow className="mb-4">Waiting on you</Eyebrow>
+            <Eyebrow tone="muted" className="mb-4">Waiting on you</Eyebrow>
             <ul className="space-y-2.5">
               {[
                 "The final company name (RA Brothers is a working name)",
@@ -248,9 +256,9 @@ export default function PlanPage() {
               ))}
             </ul>
             <p className="mt-6 rounded-xl bg-mist-50 px-5 py-4 ring-1 ring-mist-200 text-sm leading-relaxed text-charcoal-500">
-              Indexing by Google is currently switched off site-wide, so nothing
-              goes public by accident before you are ready. It is one line to
-              turn on at launch.
+              Search indexing is disabled for this demo. Anyone with its URL
+              can still view it, including this plan. The launch build removes
+              the plan from the deployed output.
             </p>
           </div>
         </div>
@@ -364,7 +372,7 @@ export default function PlanPage() {
           </div>
 
           <div>
-            <Eyebrow className="mb-5">Realistic timeline</Eyebrow>
+            <Eyebrow tone="muted" className="mb-5">Realistic timeline</Eyebrow>
             <ol className="space-y-0">
               {[
                 ["Weeks 1 – 4", "Google finds and indexes the site. Almost no traffic. This is normal."],
@@ -608,7 +616,7 @@ export default function PlanPage() {
                   : "border-mist-200 bg-white"
               }`}
             >
-              <Eyebrow tone={i === 1 ? "accent" : "dark"} className="mb-3">
+              <Eyebrow tone={i === 1 ? "accent" : "muted"} className="mb-3">
                 {t}
               </Eyebrow>
               <p className="text-2xl font-extrabold leading-none text-navy-900">
@@ -664,17 +672,13 @@ export default function PlanPage() {
             quickly. Start collecting both from the very first job.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/"
-              className="group inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600"
-            >
+            <Button href="/" arrow>
               Back to the website
-              <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
 

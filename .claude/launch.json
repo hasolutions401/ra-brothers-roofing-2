@@ -10,19 +10,6 @@
       ],
       "port": 3000,
       "autoPort": true
-    },
-    {
-      "name": "static-preview",
-      "runtimeExecutable": "python",
-      "runtimeArgs": [
-        "-m",
-        "http.server",
-        "4173",
-        "--directory",
-        "C:/Users/Hamza/AppData/Local/Temp/claude/C--Users-Hamza-Desktop-Roof/b36ea343-d2eb-4470-a797-a352024e1e48/scratchpad/preview"
-      ],
-      "port": 4173,
-      "autoPort": false
     }
   ]
 }

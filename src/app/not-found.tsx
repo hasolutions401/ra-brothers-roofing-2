@@ -1,8 +1,8 @@
-import Link from "next/link";
+import { SiteLink as Link } from "@/components/site-link";
 import { services } from "@/lib/services";
 import { townPages } from "@/lib/areas";
 import { PHONE_NH } from "@/lib/site";
-import { Eyebrow } from "@/components/ui";
+import { Button, Eyebrow } from "@/components/ui";
 import { IconArrow, IconPhone } from "@/components/icons";
 
 export default function NotFound() {
@@ -14,25 +14,18 @@ export default function NotFound() {
           That page is not here
         </h1>
         <p className="mt-5 max-w-xl text-base leading-relaxed text-navy-100 sm:text-lg">
-          The link may be out of date. Here is everything on the site — or call
-          us and skip the browsing entirely.
+          The link may be out of date. Here is everything on the site, or call
+          us and skip the browsing.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3">
-          <Link
-            href="/"
-            className="group inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600"
-          >
+          <Button href="/" arrow>
             Back to the home page
-            <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-          <a
-            href={PHONE_NH.href}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/25 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
-          >
+          </Button>
+          <Button href={PHONE_NH.href} variant="outlineLight">
             <IconPhone className="h-4 w-4 text-accent-400" />
             <span className="tabular-nums">{PHONE_NH.display}</span>
-          </a>
+          </Button>
         </div>
 
         <div className="mt-14 grid gap-10 border-t border-navy-700 pt-10 sm:grid-cols-2">
@@ -59,8 +52,12 @@ export default function NotFound() {
                 </li>
               ))}
               <li>
-                <Link href="/service-areas" className="font-semibold text-accent-400 transition hover:text-accent-300">
-                  All towns →
+                <Link
+                  href="/service-areas"
+                  className="group inline-flex items-center gap-1.5 font-semibold text-accent-400 transition hover:text-accent-300"
+                >
+                  All towns
+                  <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               </li>
             </ul>

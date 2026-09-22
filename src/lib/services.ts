@@ -12,19 +12,24 @@ export type Service = {
   name: string;
   navLabel: string;
   icon: IconKey;
-  /** One line for cards and nav */
+  /** One line for cards and lists */
   blurb: string;
+  /** A few words for the Services menu */
+  short: string;
   /** Opening paragraph on the service page */
   intro: string;
+  /** An /images/<name> path (see images-src/). Stock — never captioned as our own work. */
   image: string;
   imageAlt: string;
   /** Concrete scope. No claims about warranty, history or certifications. */
   includes: string[];
   /** Symptom-led list that helps a homeowner self-diagnose */
   signals: string[];
+  /** Heading of the closing call-to-action band */
+  cta: string;
+  /** Page part of the <title>; the site name is appended, so keep it under ~40 characters. */
   metaTitle: string;
   metaDescription: string;
-  featured?: boolean;
 };
 
 export const services: Service[] = [
@@ -33,16 +38,16 @@ export const services: Service[] = [
     name: "Roof Replacement",
     navLabel: "Roof Replacement",
     icon: "replace",
-    featured: true,
     blurb:
-      "Full tear-off, deck inspection and a complete new shingle system — flashing, underlayment and ventilation included.",
+      "Full tear-off, deck inspection and a complete new shingle system, with flashing, underlayment and ventilation included.",
+    short: "Tear-off to ridge cap, one complete system.",
     intro:
-      "Most asphalt shingle roofs in Southern New Hampshire reach the end of their service life somewhere between year 18 and year 25. Freeze-thaw cycles, ice damming and nor'easter wind take more out of a roof here than they do further south. When a repair stops being worth the money, a full replacement is the honest answer — and we will tell you plainly which side of that line your roof is on.",
-    image: "/images/roofer-shingles.jpg",
-    imageAlt: "Roofer sealing a detail on an asphalt shingle roof",
+      "Replacing a roof means looking beyond the surface shingles. The condition of the decking, flashing and ventilation affects what the new assembly needs. If damage is localised, a repair may still be practical. A replacement estimate should explain why replacement is recommended and what is included in the work.",
+    image: "/images/roofer-tear-off",
+    imageAlt: "Roofer tearing off old asphalt shingles from a house",
     includes: [
       "Complete tear-off of existing shingles down to the deck",
-      "Deck inspection — soft or rotted sheathing identified and priced before it is replaced",
+      "Deck inspection, with soft or rotted sheathing priced before it is replaced",
       "Ice and water shield at eaves, valleys and penetrations",
       "Synthetic underlayment across the field",
       "New drip edge, step flashing and pipe boots",
@@ -57,7 +62,8 @@ export const services: Service[] = [
       "Leaks are appearing in more than one area",
       "Repair bills are stacking up year after year",
     ],
-    metaTitle: "Roof Replacement in Southern NH & Northern MA",
+    cta: "Get a roof replacement estimate",
+    metaTitle: "Roof Replacement in Southern NH & MA",
     metaDescription:
       "Full asphalt shingle roof replacement in Salem NH, Windham NH, Methuen MA and surrounding towns. Tear-off, deck inspection, ice and water shield, ventilation.",
   },
@@ -66,13 +72,13 @@ export const services: Service[] = [
     name: "Roof Repair",
     navLabel: "Roof Repair",
     icon: "repair",
-    featured: true,
     blurb:
-      "Leaks, missing shingles, failed flashing and chimney details — found properly, then fixed properly.",
+      "Leaks, missing shingles, failed flashing and chimney details, traced to the source and fixed there.",
+    short: "Leaks, flashing and missing shingles.",
     intro:
-      "A leak almost never starts where the water shows up inside. Water runs along rafters and decking before it drops, so the stain on your ceiling can sit ten feet from the actual failure. We trace it back to the source — usually flashing, a valley, a pipe boot or a chimney counterflashing — and repair the cause instead of smearing sealant over the symptom.",
-    image: "/images/gutter-detail.jpg",
-    imageAlt: "Close-up of a roof edge, drip edge and gutter detail",
+      "A leak almost never starts where the water shows up inside. Water runs along rafters and decking before it drops, so the stain on your ceiling can sit ten feet from the failure itself. We trace it back to the source, usually flashing, a valley, a pipe boot or chimney counterflashing, and repair the cause instead of smearing sealant over the symptom.",
+    image: "/images/gutter-rain",
+    imageAlt: "Rain running off the edge of an asphalt shingle roof",
     includes: [
       "Leak tracing from inside the attic wherever there is access",
       "Shingle replacement colour-matched as closely as the existing roof allows",
@@ -88,7 +94,8 @@ export const services: Service[] = [
       "Daylight around a chimney or vent, seen from the attic",
       "Drips during heavy rain but not during light rain",
     ],
-    metaTitle: "Roof Repair & Leak Repair in Southern NH & Northern MA",
+    cta: "Get a roof repair estimate",
+    metaTitle: "Roof & Leak Repair in Southern NH & MA",
     metaDescription:
       "Roof leak repair, shingle replacement and flashing repair across Salem NH, Windham NH, Methuen MA and nearby towns. We find the source, not just the stain.",
   },
@@ -98,11 +105,12 @@ export const services: Service[] = [
     navLabel: "New Roof Installation",
     icon: "new",
     blurb:
-      "Roofing for new construction, additions, dormers and garages — coordinated around your build schedule.",
+      "Roofing for new construction, additions, dormers and garages, scheduled around your build.",
+    short: "New builds, additions and garages.",
     intro:
-      "New construction roofing runs on somebody else's clock. The frame goes up, the building has to be dried in, and every trade behind you is waiting. We schedule around the build rather than around our own calendar, and we install the assembly the design actually calls for — including the ventilation a tight new envelope needs in order to work.",
-    image: "/images/roofer-safety.jpg",
-    imageAlt: "Roofing crew member in safety gear working on new framing",
+      "New construction roofing runs on somebody else's clock. The frame goes up, the building has to be dried in, and every trade behind you is waiting. We schedule around the build rather than around our own calendar, and we install the assembly the design calls for, including the ventilation a tight new envelope needs in order to work.",
+    image: "/images/new-construction-roof",
+    imageAlt: "Roof trusses in place on a house under construction",
     includes: [
       "Roofing for new builds, additions, dormers, porches and detached garages",
       "Dry-in coordinated with your framing schedule",
@@ -117,7 +125,8 @@ export const services: Service[] = [
       "A detached garage or outbuilding needs roofing",
       "Your builder needs the structure dried in on a fixed date",
     ],
-    metaTitle: "New Roof Installation for New Construction — NH & MA",
+    cta: "Get a quote for your build",
+    metaTitle: "New Roof Installation in NH & MA",
     metaDescription:
       "New roof installation for new construction, additions, dormers and garages in Southern New Hampshire and Northern Massachusetts. Scheduled around your build.",
   },
@@ -126,13 +135,13 @@ export const services: Service[] = [
     name: "Storm Damage & Insurance Claims",
     navLabel: "Storm Damage & Insurance",
     icon: "storm",
-    featured: true,
     blurb:
-      "Wind, ice and fallen-limb damage — stabilised first, documented for your insurance claim, then repaired.",
+      "Wind, ice and fallen-limb damage: stabilised first, documented for your insurance claim, then repaired.",
+    short: "Stabilise, document, then repair.",
     intro:
-      "Nor'easters and summer thunderstorms are the two events that put roofs on our schedule at short notice. When a section of roof opens up, the order of operations matters: stop the water, photograph everything before it changes, then work through the claim with you and your insurer. We handle the roofing side of the claim — the documentation, the scope, the adjuster meeting — so you are not left sorting out the roofing details with your insurer on your own.",
-    image: "/images/shingle-dark.jpg",
-    imageAlt: "Weathered dark asphalt shingles",
+      "Nor'easters and summer thunderstorms are what put most roofs around here in trouble at short notice. When a section of roof opens up, the order of operations matters: stop the water, photograph everything before it changes, then work through the claim with you and your insurer. We handle the roofing side of the claim (the documentation, the scope and the adjuster meeting) so you are not sorting out the roofing details with your insurer on your own.",
+    image: "/images/storm-damage-tree",
+    imageAlt: "Large tree uprooted by a storm beside a house",
     includes: [
       "Temporary tarping and stabilisation to stop active water entry",
       "Full photo documentation of the damage before anything is touched",
@@ -150,7 +159,8 @@ export const services: Service[] = [
       "You are thinking about filing an insurance claim",
       "Your insurer has asked for a contractor's assessment",
     ],
-    metaTitle: "Storm Damage Roof Repair & Insurance Claims — NH & MA",
+    cta: "Get storm damage looked at",
+    metaTitle: "Storm Damage Roof Repair, NH & MA",
     metaDescription:
       "Storm and wind damage roof repair with insurance claim help across Southern NH and Northern MA: documentation, adjuster meetings and a detailed scope.",
   },
@@ -160,11 +170,12 @@ export const services: Service[] = [
     navLabel: "Roof Inspections",
     icon: "inspect",
     blurb:
-      "A documented look at the whole system — field, flashing, ventilation and attic — with photos and a straight recommendation.",
+      "A documented look at the whole roof, from field and flashing to ventilation and attic, with photos and a clear recommendation.",
+    short: "Photos and a clear recommendation.",
     intro:
-      "An inspection is the cheapest thing you will ever do to a roof — ours are free, and many start remotely, from your photos and aerial imagery, before anyone climbs a ladder. We go over the field, the flashing, the penetrations and the gutters, and — where there is access — the attic, because half of what kills a roof in New England is happening underneath it. You get photographs and a plain-English recommendation, including the one people do not expect to hear: this roof is fine, call us in three years.",
-    image: "/images/hero-roofer.jpg",
-    imageAlt: "Roofer inspecting shingles against a clear blue sky",
+      "An inspection is the cheapest thing you will ever do for a roof. Ours are free, and many start remotely, from your photos and aerial imagery, before anyone climbs a ladder. We go over the field, the flashing, the penetrations and the gutters, plus the attic where there is access, because half of what ruins a roof in New England happens underneath it. You get photographs and a plain-English recommendation, including the one people do not expect to hear: this roof is fine, call us in three years.",
+    image: "/images/roof-inspection",
+    imageAlt: "Worker on an asphalt shingle roof with old shingles partially removed",
     includes: [
       "A full walk of the roof wherever it is safe to do so",
       "Flashing, valley, chimney, skylight and penetration check",
@@ -178,9 +189,10 @@ export const services: Service[] = [
       "The age of the roof is unknown or undocumented",
       "A storm has come through and you want it checked",
       "You want a second opinion on a replacement quote",
-      "It has been several years since anyone looked properly",
+      "It has been several years since anyone looked at it",
     ],
-    metaTitle: "Free Roof Inspections — Southern NH & Northern MA",
+    cta: "Book a free roof inspection",
+    metaTitle: "Free Roof Inspections in NH & MA",
     metaDescription:
       "Documented roof inspections with photographs across Salem NH, Windham NH, Methuen MA and surrounding towns. Repair, replace, or leave it alone.",
   },
@@ -191,10 +203,11 @@ export const services: Service[] = [
     icon: "maintain",
     blurb:
       "Seasonal checks, sealant renewal, debris clearing and the small fixes that keep a good roof from becoming a bad one.",
+    short: "Seasonal checks and small fixes.",
     intro:
-      "Roofs rarely fail all at once. They fail at one detail — a lifted nail, a dried-out pipe boot, a valley packed with pine needles — and then water does the rest over two or three winters. Maintenance is the unglamorous business of catching those details while they still cost forty dollars to fix.",
-    image: "/images/shingle-texture.jpg",
-    imageAlt: "Close-up of architectural asphalt shingles",
+      "A lifted nail, a deteriorated pipe boot or a valley packed with pine needles can allow water into an otherwise serviceable roof. Maintenance means checking those details and addressing small problems before they cause more extensive damage. The scope and price depend on what the roof needs.",
+    image: "/images/roofer-sealant",
+    imageAlt: "Roofer renewing sealant on an asphalt shingle roof",
     includes: [
       "Seasonal visual inspection, spring and fall",
       "Debris cleared from valleys, behind chimneys and in gutters",
@@ -210,7 +223,8 @@ export const services: Service[] = [
       "You have just had a roof installed and want it looked after",
       "You manage a rental or investment property",
     ],
-    metaTitle: "Roof Maintenance Programs — Southern NH & Northern MA",
+    cta: "Set up roof maintenance",
+    metaTitle: "Roof Maintenance in Southern NH & MA",
     metaDescription:
       "Seasonal roof maintenance, debris clearing, sealant renewal and small repairs across Southern New Hampshire and Northern Massachusetts.",
   },
@@ -221,10 +235,11 @@ export const services: Service[] = [
     icon: "commercial",
     blurb:
       "Low-slope and steep-slope work for small commercial buildings, scheduled around your operating hours.",
+    short: "Low-slope and small commercial.",
     intro:
-      "A commercial roof is a business problem before it is a building problem: water over a stock room or a server rack costs far more than the repair does. We work on small commercial and mixed-use buildings — retail blocks, offices, light industrial, multi-family — and we schedule the loud, disruptive parts around the hours your building is actually empty.",
-    image: "/images/aerial-rooftops.jpg",
-    imageAlt: "Aerial view of building rooftops",
+      "A commercial roof is a business problem before it is a building problem: water over a stock room or a server rack costs far more than the repair does. We work on small commercial and mixed-use buildings, including retail blocks, offices, light industrial and multi-family, and we schedule the loud, disruptive parts around the hours your building is empty.",
+    image: "/images/commercial-flat-roof",
+    imageAlt: "Low-slope commercial roof with rooftop HVAC equipment and ducting",
     includes: [
       "Low-slope membrane repair and replacement",
       "Steep-slope commercial and multi-family roofing",
@@ -240,7 +255,8 @@ export const services: Service[] = [
       "Seams or membrane lifting at the edges",
       "You are budgeting a capital roof replacement",
     ],
-    metaTitle: "Commercial Roofing — Southern NH & Northern MA",
+    cta: "Get a commercial roofing estimate",
+    metaTitle: "Commercial Roofing in Southern NH & MA",
     metaDescription:
       "Commercial and multi-family roofing for small buildings in Southern New Hampshire and Northern Massachusetts. Low-slope membrane, flashing and phased replacement.",
   },
@@ -248,5 +264,3 @@ export const services: Service[] = [
 
 export const serviceBySlug = (slug: string) =>
   services.find((s) => s.slug === slug);
-
-export const featuredServices = services.filter((s) => s.featured);

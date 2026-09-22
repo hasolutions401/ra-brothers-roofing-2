@@ -5,9 +5,8 @@ import type { IconKey } from "@/lib/services";
 type P = { className?: string };
 
 /**
- * One line-art family on a 24px grid, shared with the live RA Brothers site.
- * Everything strokes with currentColor, so an icon takes the text colour of
- * whatever it sits in.
+ * One line-art family on a 24px grid. Everything strokes with currentColor,
+ * so an icon takes the text colour of whatever it sits in.
  */
 function Svg({
   className,
@@ -32,84 +31,78 @@ function Svg({
 
 /* --- service icons ------------------------------------------------------- */
 
-const servicePaths: Record<IconKey, string> = {
-  replace: "M2 12 12 4l10 8M5 11v9h14v-9M9 20v-5h6v5",
-  repair: "M14.5 4.5a4 4 0 0 0 5 5L21 8l-8 8-5 5-3-3 5-5 8-8-1.5 1.5Z",
-  new: "M3 13 12 5l9 8M6 12v8h12v-8M12 5V2M9 20v-4h6v4",
-  storm: "M13 3 4 14h6l-1 7 9-11h-6l1-7Z",
-  inspect: "M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14Zm5 12 5 5",
-  maintain: "M15 3a5 5 0 0 0-4.6 7L3 17.4V21h3.6l7.4-7.4A5 5 0 1 0 15 3Z",
-  commercial: "M3 21h18M5 21V8l7-4 7 4v13M9 12h2m3 0h2M9 16h2m3 0h2",
+/*
+  Drawn for this site rather than taken from a library, so each one shows the
+  trade itself: shingle courses, a hammer, a truss, wind, a ladder, a season,
+  a flat roof with its plant.
+*/
+const serviceIcons: Record<IconKey, ReactNode> = {
+  // Roof plane with shingle courses, over the walls.
+  replace: (
+    <>
+      <path d="M2.5 13 12 5l9.5 8Z" />
+      <path d="M7.2 10.5h9.6M9.6 8.2h4.8" />
+      <path d="M5.5 13v7h13v-7" />
+    </>
+  ),
+  // Claw hammer.
+  repair: (
+    <g transform="rotate(45 12 12)">
+      <path d="M12 9.5V21" />
+      <path d="M8 4h7.5A1.5 1.5 0 0 1 17 5.5v2A1.5 1.5 0 0 1 15.5 9H8L6 6.5Z" />
+    </g>
+  ),
+  // A roof truss: top chords, bottom chord, king post and webs.
+  new: (
+    <>
+      <path d="M2.5 16.5 12 6.5l9.5 10Z" />
+      <path d="M12 6.5v10M7.25 16.5 12 12l4.75 4.5" />
+      <path d="M4 20.5h16" />
+    </>
+  ),
+  // Wind gusts.
+  storm: (
+    <>
+      <path d="M3 8.5h10a2.5 2.5 0 1 0-2.5-2.5" />
+      <path d="M3 12.5h14.5a2.5 2.5 0 1 1-2.5 2.5" />
+      <path d="M3 16.5h7" />
+    </>
+  ),
+  // Ladder.
+  inspect: (
+    <>
+      <path d="M7.5 3v18M16.5 3v18" />
+      <path d="M7.5 7h9M7.5 11h9M7.5 15h9M7.5 19h9" />
+    </>
+  ),
+  // Calendar with a roof on it: seasonal roof care.
+  maintain: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="1.5" />
+      <path d="M3.5 9.5h17M8 3v4M16 3v4" />
+      <path d="M8 17.5l4-3.5 4 3.5" />
+    </>
+  ),
+  // Flat-roof building with a rooftop unit.
+  commercial: (
+    <>
+      <path d="M2.5 21h19" />
+      <path d="M4.5 21V10.5h15V21" />
+      <path d="M13 10.5V7.5h4.5v3" />
+      <path d="M8 14h2M14 14h2M8 17.5h2M14 17.5h2" />
+    </>
+  ),
 };
 
-export function ServiceIcon({
-  name,
-  className,
-}: {
-  name: IconKey;
-  className?: string;
-}) {
+export function ServiceIcon({ name, className }: { name: IconKey; className?: string }) {
   return (
     <Svg className={className} strokeWidth={1.6}>
-      <path d={servicePaths[name]} />
+      {serviceIcons[name]}
     </Svg>
   );
 }
 
-/**
- * The navy tile an icon sits in on cards, the trust strip and the menus.
- * Same treatment as the live site: dark tile, light-blue line icon.
- */
-export function IconTile({
-  children,
-  size = "md",
-  tone = "navy",
-  className = "",
-}: {
-  children: ReactNode;
-  size?: "sm" | "md";
-  /** "glass" is for tiles that already sit on a navy background. */
-  tone?: "navy" | "glass";
-  className?: string;
-}) {
-  return (
-    <span
-      className={`flex shrink-0 items-center justify-center rounded-xl text-accent-400 transition ${
-        tone === "glass" ? "bg-white/10" : "bg-navy-900 group-hover:bg-navy-800"
-      } ${
-        size === "sm" ? "h-11 w-11 [&>svg]:h-5 [&>svg]:w-5" : "h-12 w-12 [&>svg]:h-6 [&>svg]:w-6"
-      } ${className}`}
-    >
-      {children}
-    </span>
-  );
-}
-
-/* --- trust-strip icons ---------------------------------------------------- */
-
-export function IconEye({ className }: P) {
-  return (
-    <Svg className={className} strokeWidth={1.7}>
-      <path d="M12 5c-5 0-8.5 4.2-9.5 6.2a1.7 1.7 0 0 0 0 1.6C3.5 14.8 7 19 12 19s8.5-4.2 9.5-6.2a1.7 1.7 0 0 0 0-1.6C20.5 9.2 17 5 12 5Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z" />
-    </Svg>
-  );
-}
-
-export function IconDocument({ className }: P) {
-  return (
-    <Svg className={className} strokeWidth={1.7}>
-      <path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm6 1.5V9h4.5M9 13h6M9 17h4" />
-    </Svg>
-  );
-}
-
-export function IconHome({ className }: P) {
-  return (
-    <Svg className={className} strokeWidth={1.7}>
-      <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9Z" />
-    </Svg>
-  );
-}
+/* --- interface icons ------------------------------------------------------ */
 
 export function IconPin({ className }: P) {
   return (
@@ -118,8 +111,6 @@ export function IconPin({ className }: P) {
     </Svg>
   );
 }
-
-/* --- interface icons ------------------------------------------------------ */
 
 export function IconPhone({ className }: P) {
   return (
@@ -154,11 +145,11 @@ export function IconCheck({ className }: P) {
   );
 }
 
-/** Check in a soft blue disc — the hero bullet from the live site. */
+/** Check in a soft blue disc, for the promise list on dark backgrounds. */
 export function IconCheckCircle({ className }: P) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" fill="var(--color-accent-500)" opacity="0.18" />
+      <circle cx="12" cy="12" r="10" fill="var(--color-accent-500)" opacity="0.22" />
       <path
         d="m8 12 3 3 5-6"
         stroke="var(--color-accent-400)"
@@ -198,9 +189,9 @@ export function IconSearch({ className }: P) {
 /* --- wordmark ------------------------------------------------------------- */
 
 /**
- * The brand mark from the live site: a roof line with a blue ridge
- * accent over two open walls, and the name beside it. Colour comes from
- * className (navy in the header, white in the footer); the ridge stays blue.
+ * The brand mark from the live site: a roof line with a blue ridge accent
+ * over two open walls, and the name beside it. Colour comes from className
+ * (navy in the header, white in the footer); the ridge stays blue.
  */
 export function Logo({ className = "" }: P) {
   return (
@@ -223,7 +214,7 @@ export function Logo({ className = "" }: P) {
         />
       </svg>
       <span className="flex flex-col leading-none">
-        <span className="text-lg font-extrabold tracking-tight sm:text-xl">{site.short}</span>
+        <span className="font-display text-lg font-extrabold tracking-tight sm:text-xl">{site.short}</span>
         <span className="mt-0.5 text-[0.63rem] font-semibold uppercase tracking-[0.22em] opacity-70">
           Roofing
         </span>

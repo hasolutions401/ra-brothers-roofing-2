@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
+import { basePath, siteUrl, demoMode } from "./src/lib/deployment.mjs";
 
 // GitHub Pages serves the site from /ra-brothers-roofing-2, not the domain root.
-const basePath = "/ra-brothers-roofing-2";
 
 const nextConfig: NextConfig = {
   output: "export",
@@ -13,11 +13,10 @@ const nextConfig: NextConfig = {
   // src/lib/site.ts reads this to prefix every photo path.
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
+    NEXT_PUBLIC_SITE_URL: siteUrl,
+    NEXT_PUBLIC_DEMO_MODE: String(demoMode),
   },
 
-  images: {
-    unoptimized: true,
-  },
 };
 
 export default nextConfig;

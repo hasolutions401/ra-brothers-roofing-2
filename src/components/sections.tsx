@@ -1,15 +1,18 @@
-import Image from "next/image";
-import Link from "next/link";
+import { ResponsiveImage as Image } from "./responsive-image";
+import { SiteLink as Link } from "./site-link";
 import type { ReactNode } from "react";
-import { asset, DEMO_MODE, PHONE_MA, PHONE_NH, site, type Phone } from "@/lib/site";
+import { asset, PHONE_NH, site, type Phone } from "@/lib/site";
+import { processSteps } from "@/lib/content";
 import { EstimateForm } from "./estimate-form";
 import { IconPhone } from "./icons";
-import { Eyebrow } from "./ui";
+import { Button, Eyebrow } from "./ui";
+import { BusinessHours } from "./business-hours";
 
 /**
- * Full-screen photo banner at the top of every inner page, as on the live
- * site. Without an aside the copy is centred; with one (phone cards on the
- * area pages) the copy sits left and the aside sits right.
+ * Compact photo banner at the top of inner pages. Without an aside
+ * the copy is centred; with one (phone cards on the area pages) the copy sits
+ * left, the aside sits right, and the hero's own call button is dropped so
+ * the number is not shown twice.
  */
 export function PageHero({
   eyebrow,
@@ -20,12 +23,12 @@ export function PageHero({
   image,
   phone = PHONE_NH,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   lede?: ReactNode;
   crumbs?: { href: string; label: string }[];
   aside?: ReactNode;
-  /** A /public/images path. Stock photography — never captioned as our work. */
+  /** An /images/<name> path. Stock photography — never captioned as our work. */
   image: string;
   /** The line the hero's call button dials. */
   phone?: Phone;
@@ -33,11 +36,11 @@ export function PageHero({
   const centred = !aside;
 
   return (
-    <section className="page-hero relative isolate flex items-center overflow-hidden bg-navy-950">
+    <section className="page-banner relative isolate flex items-center overflow-hidden bg-navy-950">
       <Image src={asset(image)} alt="" fill priority sizes="100vw" className="object-cover" />
       {/* Dark layer so white text stays readable. 0.6 is the lightest that keeps 4.5:1 on any photo. */}
       <div
-        className={`absolute inset-0 ${centred ? "bg-navy-950/60" : "bg-navy-950/65 lg:bg-transparent lg:bg-gradient-to-r lg:from-navy-950/80 lg:via-navy-950/65 lg:to-navy-950/60"}`}
+        className={`absolute inset-0 ${centred ? "bg-navy-950/65" : "bg-navy-950/70 lg:bg-transparent lg:bg-gradient-to-r lg:from-navy-950/85 lg:via-navy-950/70 lg:to-navy-950/60"}`}
         aria-hidden="true"
       />
 
@@ -78,11 +81,13 @@ export function PageHero({
             </nav>
           )}
 
-          <Eyebrow tone="light" className="mt-6">
-            {eyebrow}
-          </Eyebrow>
+          {eyebrow && (
+            <Eyebrow tone="light" className="mt-6">
+              {eyebrow}
+            </Eyebrow>
+          )}
           <h1
-            className={`mt-3 font-extrabold leading-[1.1] tracking-tight ${
+            className={`${eyebrow ? "mt-3" : "mt-6"} font-extrabold leading-[1.08] tracking-tight ${
               centred ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl lg:text-5xl"
             }`}
           >
@@ -97,19 +102,15 @@ export function PageHero({
           )}
 
           <div className={`mt-8 flex flex-wrap gap-3 ${centred ? "justify-center" : ""}`}>
-            <Link
-              href={site.primaryCta.href}
-              className="rounded-xl bg-accent-500 px-5 py-3.5 text-sm font-bold text-white transition hover:bg-accent-600"
-            >
+            <Button href={site.primaryCta.href} arrow>
               {site.primaryCta.label}
-            </Link>
-            <a
-              href={phone.href}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-5 py-3.5 text-sm font-bold transition hover:bg-white/10"
-            >
-              <IconPhone className="h-4 w-4 text-accent-400" />
-              Call {phone.display}
-            </a>
+            </Button>
+            {centred && (
+              <Button href={phone.href} variant="outlineLight">
+                <IconPhone className="h-4 w-4 text-accent-400" />
+                <span className="tabular-nums">Call {phone.display}</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -139,10 +140,14 @@ export function PhoneCard({ phone }: { phone: Phone }) {
 /** Closing conversion band with the multi-step form. Every page ends with it. */
 export function CtaBand({
   title = "Get your free roof estimate",
-  lede = "Call during business hours to talk through what you are seeing, or start the form — we call back within one business day. Many estimates can be done from photos, without a visit.",
+  lede = "Call during business hours to talk it through, or start the form and we will call you back within one business day. Many estimates can be done from photos, without a visit.",
+  initialTown = "",
+  initialService = "",
 }: {
   title?: string;
   lede?: string;
+  initialTown?: string;
+  initialService?: string;
 }) {
   return (
     <section id="estimate-bottom" className="scroll-mt-24 bg-navy-800">
@@ -154,46 +159,66 @@ export function CtaBand({
           <p className="mt-3 max-w-lg text-base leading-relaxed text-navy-100">{lede}</p>
 
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:max-w-lg">
-            {[PHONE_NH, PHONE_MA].map((p) => (
+            {site.phones.map((p) => (
               <PhoneCard key={p.state} phone={p} />
             ))}
           </div>
 
-          {DEMO_MODE && <p className="mt-7 text-xs text-navy-200">{site.hoursNote}</p>}
-          <dl className="mt-3 space-y-1.5 text-sm text-navy-200 lg:max-w-lg">
-            {site.hours.map((h) => (
-              <div key={h.day} className="flex justify-between gap-4 border-b border-navy-700 pb-1.5">
-                <dt>{h.day}</dt>
-                <dd className="text-navy-100">{h.time}</dd>
-              </div>
-            ))}
-          </dl>
+          <BusinessHours className="mt-7 text-navy-200 lg:max-w-lg" />
         </div>
 
         <div className="mt-9 lg:mt-0">
-          <EstimateForm />
+          <EstimateForm key={`${initialTown}-${initialService}`} initialTown={initialTown} initialService={initialService} />
         </div>
       </div>
     </section>
   );
 }
 
-/** Small honesty panel — turned into a selling point rather than a caveat. */
+/** Honesty note, shown once, on the home page. */
 export function StraightAnswer() {
   return (
-    <div className="rounded-2xl border border-mist-200 bg-mist-50 p-6 sm:p-7">
-      <Eyebrow tone="accent" className="mb-2">
-        Straight answer
-      </Eyebrow>
-      <p className="max-w-[64ch] text-sm leading-relaxed text-charcoal-500 sm:text-base">
-        <strong className="font-semibold text-navy-900">
-          We are a new company,
-        </strong>{" "}
-        and we would rather say that plainly than borrow someone else&apos;s
-        reviews. What we will give you is a free estimate, an itemised written
-        quote, a straight recommendation — including telling you when your roof
-        does not need replacing yet — and a satisfaction guarantee on the work.
-      </p>
-    </div>
+    <p className="max-w-[68ch] border-l-4 border-accent-500 pl-5 text-base leading-relaxed text-charcoal-700">
+      <strong className="font-semibold text-navy-900">We are a new company.</strong> What you get from us is a free
+      estimate, an itemised written quote, a clear recommendation (including when your roof does
+      not need replacing yet) and a satisfaction guarantee on the work.
+    </p>
+  );
+}
+
+/**
+ * The four-step process as a numbered timeline. The one list on the site
+ * that is numbered, because it is the one that happens in order.
+ */
+export function ProcessList({ tone = "dark" }: { tone?: "dark" | "light" }) {
+  const onNavy = tone === "dark";
+  return (
+    <ol className="space-y-8">
+      {processSteps.map((step, i) => (
+        <li key={step.title} className="relative flex gap-5">
+          {i < processSteps.length - 1 && (
+            <span
+              className={`absolute left-5 top-12 h-[calc(100%-1rem)] w-px ${onNavy ? "bg-navy-700" : "bg-mist-300"}`}
+              aria-hidden="true"
+            />
+          )}
+          <span
+            className={`relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-display text-base font-extrabold ${
+              onNavy ? "bg-accent-500 text-white" : "border-2 border-accent-500 bg-white text-accent-600"
+            }`}
+          >
+            {i + 1}
+          </span>
+          <div className="pt-1.5">
+            <h3 className={`text-lg font-bold ${onNavy ? "text-white" : "text-navy-900"}`}>{step.title}</h3>
+            <p
+              className={`mt-1.5 max-w-xl text-sm leading-relaxed sm:text-base ${onNavy ? "text-navy-200" : "text-charcoal-500"}`}
+            >
+              {step.text}
+            </p>
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
