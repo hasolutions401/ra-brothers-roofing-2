@@ -42,6 +42,22 @@ async function walk(dir) {
   }))).flat();
 }
 
+// Removes everything named .git under dir (repository folders, and the
+// pointer files submodules use) and returns how many there were.
+async function removeGitData(dir) {
+  let removed = 0;
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const item = path.join(dir, entry.name);
+    if (entry.name === ".git") {
+      await rm(item, { recursive: true, force: true, maxRetries: 3 });
+      removed++;
+    } else if (entry.isDirectory()) {
+      removed += await removeGitData(item);
+    }
+  }
+  return removed;
+}
+
 // 1. Settings --------------------------------------------------------------
 let envText;
 try {
@@ -131,6 +147,12 @@ console.log("\n→ Installing Laravel's production dependencies");
 const composerCommand = composer.endsWith(".phar") ? [php, [composer]] : [composer, []];
 run(composerCommand[0], [...composerCommand[1], "install", "--no-dev", "--no-interaction", "--prefer-dist", "--no-progress"], { cwd: backendOut });
 
+// When a dist download fails (GitHub rate limits, proxies) Composer falls
+// back to git clones, leaving each package's full history in vendor/. That
+// is dead weight on a file-limited host and should never be web-reachable.
+const gitData = await removeGitData(path.join(backendOut, "vendor"));
+if (gitData) console.log(`→ Removed ${gitData} .git item(s) left by Composer source installs`);
+
 // 4. database.sql for phpMyAdmin (kept OUTSIDE htdocs: it holds the admin's
 // password hash). Generating it needs no database connection.
 run(php, ["artisan", "deploy:schema-sql", path.join(target, "database.sql")], { cwd: backendOut });
@@ -138,6 +160,10 @@ await rm(path.join(backendOut, "storage", "logs", "laravel.log"), { force: true 
 
 // 5. Checks ------------------------------------------------------------------
 const files = await walk(htdocs);
+const history = files.filter((file) => file.split(path.sep).includes(".git"));
+if (history.length) {
+  fail(`Git data must not be uploaded, but ${history.length} .git file(s) are in ${path.relative(root, htdocs)}, e.g.\n  ${path.relative(htdocs, history[0])}`);
+}
 const sizes = await Promise.all(files.map(async (file) => (await stat(file)).size));
 const oversized = files.filter((file, i) => file.endsWith(".php") && sizes[i] > 1_000_000);
 if (oversized.length) {

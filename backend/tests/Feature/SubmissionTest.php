@@ -58,7 +58,8 @@ class SubmissionTest extends TestCase
         $this->assertSame('jordan@example.com', $submission->email);
         $this->assertSame('Windham, NH', $submission->town);
         $this->assertSame("Leak over the kitchen.\nDog in the yard.", $submission->message);
-        $this->assertSame([
+        // assertEquals: MySQL's JSON type does not keep the keys' order.
+        $this->assertEquals([
             'property_type' => 'Residential',
             'roof_age' => '15 – 20 years',
             'conditions' => ['Active leak or water stain', 'Ice dams in winter'],

@@ -44,7 +44,7 @@ export function SubmissionsTable({
     <section aria-labelledby="results-heading" className="mt-4 overflow-hidden rounded-2xl bg-white ring-1 ring-mist-200">
       <h2 id="results-heading" className="sr-only">Submissions</h2>
       <p className="sr-only" aria-live="polite">
-        {loading ? "Loading submissions" : page ? `${page.meta.total} submissions` : ""}
+        {loading ? "Loading submissions" : page ? `${page.meta.total} ${page.meta.total === 1 ? "submission" : "submissions"}` : ""}
       </p>
 
       {/* Table, md and up */}
