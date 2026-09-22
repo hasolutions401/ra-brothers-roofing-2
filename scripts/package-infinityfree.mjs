@@ -42,6 +42,20 @@ async function walk(dir) {
   }))).flat();
 }
 
+// Every .git directory below `dir`, without descending into them.
+async function gitDirectories(dir) {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+  return (await Promise.all(entries.filter((entry) => entry.isDirectory()).map((entry) => {
+    const child = path.join(dir, entry.name);
+    return entry.name === ".git" ? [child] : gitDirectories(child);
+  }))).flat();
+}
+
 // 1. Settings --------------------------------------------------------------
 let envText;
 try {
@@ -130,6 +144,17 @@ await cp(path.join(root, "deploy", "infinityfree", "htaccess-backend-public"), p
 console.log("\n→ Installing Laravel's production dependencies");
 const composerCommand = composer.endsWith(".phar") ? [php, [composer]] : [composer, []];
 run(composerCommand[0], [...composerCommand[1], "install", "--no-dev", "--no-interaction", "--prefer-dist", "--no-progress"], { cwd: backendOut });
+
+// Composer falls back to installing from source whenever a dist download
+// fails (GitHub API rate limits are the usual cause). Those installs are git
+// clones, so each package keeps a .git directory: hundreds of megabytes of
+// repository history, uploaded to a web host that must never serve it.
+// Dist installs have none, so on a normal run this removes nothing.
+const repos = await gitDirectories(path.join(backendOut, "vendor"));
+if (repos.length) {
+  await Promise.all(repos.map((dir) => rm(dir, { recursive: true, force: true })));
+  console.log(`  Removed ${repos.length} .git director${repos.length === 1 ? "y" : "ies"} left by source installs.`);
+}
 
 // 4. database.sql for phpMyAdmin (kept OUTSIDE htdocs: it holds the admin's
 // password hash). Generating it needs no database connection.
