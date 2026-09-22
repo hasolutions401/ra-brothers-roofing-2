@@ -1,0 +1,33 @@
+{
+  "_comment": "Allowed answers for the website forms. The API rejects anything else, and the Next.js forms import this same file, so edit choices here only. The build fails if src/lib/services.ts names a service that is missing below.",
+  "quickNeeds": [
+    "Roof replacement",
+    "Roof repair or leak",
+    "Storm damage / insurance claim",
+    "Inspection only",
+    "Something else"
+  ],
+  "services": [
+    "Roof Replacement",
+    "Roof Repair",
+    "New Roof Installation",
+    "Storm Damage & Insurance Claims",
+    "Roof Inspections",
+    "Roof Maintenance",
+    "Commercial Roofing"
+  ],
+  "propertyTypes": ["Residential", "Commercial"],
+  "roofAges": ["Under 10 years", "10 – 15 years", "15 – 20 years", "Over 20 years", "Not sure"],
+  "conditions": [
+    "Active leak or water stain",
+    "Missing or lifted shingles",
+    "Ice dams in winter",
+    "Storm or fallen limb damage",
+    "Moss, streaking or granule loss",
+    "Nothing visible, just a routine check"
+  ],
+  "insurance": ["Yes", "No", "Not sure yet"],
+  "estimateTypes": ["Remote, from photos (fastest)", "In-person visit", "Whatever you recommend"],
+  "bestTimes": ["Anytime", "Morning", "Afternoon", "Evening"],
+  "photos": { "maxFiles": 8, "maxKilobytes": 4096, "maxDimension": 1600 }
+}

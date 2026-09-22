@@ -12,7 +12,12 @@ npm run lint
 npm run typecheck
 npm run images   # rebuild public/images/ from images-src/
 npm run verify:export # links, assets, image widths, metadata and sitemap
+npm run package:infinityfree # upload-ready site + Laravel API for InfinityFree
 ```
+
+The forms and the admin dashboard are backed by a Laravel 13 API in
+**[`backend/`](backend/README.md)**. Its README covers local setup, the database
+schema, the API, security, and deploying to InfinityFree and Hostinger.
 
 ---
 
@@ -28,6 +33,11 @@ npm run verify:export # links, assets, image widths, metadata and sitemap
 | `/free-estimate` | Four-step estimate form, the main conversion page |
 | `/about` | Company and principles; the pending-items list appears only in demo mode |
 | `/plan` | **Internal.** Present in demo output; excluded from launch output |
+| `/admin/login` | Staff sign-in for the leads dashboard. Never indexed, not in the sitemap; linked from the footer only on builds with an API |
+| `/admin` | Leads dashboard: counts, search, filters, details with photos, status, delete, CSV export (`?id=` opens one lead) |
+
+Public pages live in the route group `src/app/(site)/`, which adds the header, footer and
+call bar; the folder name does not appear in URLs. `src/app/admin/` has its own chrome.
 
 ---
 
@@ -42,6 +52,10 @@ Pages — the same setup as the other RA Brothers site.
 `src/lib/deployment.mjs` derives the base path and canonical origin from
 `SITE_URL`, which defaults to the GitHub Pages URL above. Navigation, photos,
 social previews, canonicals and sitemap URLs use the same configuration.
+It also reads `API_URL`, where the forms send: `/api` when the Laravel API
+shares the site's domain (InfinityFree, Hostinger), `http://localhost:8000/api`
+in development. GitHub Pages cannot run PHP, so that build leaves `API_URL`
+empty and its forms stay in preview mode.
 For a custom domain, set `SITE_URL` to its root URL before building and configure
 the domain in GitHub Pages. Do not edit individual asset paths.
 
@@ -71,19 +85,22 @@ Setting it to `false` does all of this at once:
   and scans the exported HTML, data and JavaScript for internal plan markers
 - hides the About page's internal pending-items list
 - omits unconfirmed hours rather than silently treating them as confirmed
-- keeps unconnected forms honest: a launch submission reports that it was not sent
+- keeps unconnected forms honest: on a build without `API_URL`, a launch
+  submission reports that it was not sent
 
 Then, separately:
 
 1. Confirm the company name, email, service scope and guarantee terms.
    Update `hours` and set `hoursConfirmed: true` only after client confirmation.
    Displayed and structured hours derive from the same entries.
-2. **Connect the forms later, as requested by the client.** Both forms are
-   currently local previews. The long form retains `File` objects, supports
-   adding/removing photos and keeps them across steps, but sends no requests.
-   Integration must add multipart delivery, upload limits, abuse controls,
-   loading/retry behavior and a real server-confirmed success state. Test the
-   chosen recipient and failure cases before enabling live submissions.
+2. **Forms.** With `API_URL` set, both forms send to the Laravel API
+   (`backend/`), which stores every request in MySQL for the dashboard.
+   Photos are resized on the visitor's device and uploaded with the
+   estimate. Rate limits, a honeypot and a minimum fill time block spam.
+   A form shows success only after the server has stored it; otherwise the
+   answers stay on screen with the reason and the phone number. Optional
+   new-lead emails need a host that can send mail (Hostinger, not
+   InfinityFree). See `backend/README.md`.
 
 For GitHub Actions, set repository variables `DEMO_MODE` and, if needed,
 `SITE_URL`. The workflow defaults to demo and validates the export before

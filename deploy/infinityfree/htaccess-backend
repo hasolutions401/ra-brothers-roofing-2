@@ -1,0 +1,13 @@
+# htdocs/backend/.htaccess
+#
+# Nothing in the Laravel folder may be downloaded: not .env, not storage
+# (customer photos), not vendor. Only public/index.php runs, and only through
+# the /api rewrite in htdocs/.htaccess (public/.htaccess re-allows it).
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>

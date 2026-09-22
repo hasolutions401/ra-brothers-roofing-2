@@ -2,6 +2,7 @@ import { SiteLink as Link } from "./site-link";
 import { services } from "@/lib/services";
 import { townPages, townCount } from "@/lib/areas";
 import { DEMO_MODE, site } from "@/lib/site";
+import { API_ENABLED } from "@/lib/api";
 import { IconArrow, Logo } from "./icons";
 import { BusinessHours } from "./business-hours";
 
@@ -121,7 +122,16 @@ export function SiteFooter() {
           <p>
             © {year} {site.legal}. All rights reserved.
           </p>
-          <p>Serving Southern NH &amp; Northern MA</p>
+          <p className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span>Serving Southern NH &amp; Northern MA</span>
+            {/* Staff sign-in for the leads dashboard; kept quiet for customers.
+                Only on builds that have the API behind them. */}
+            {API_ENABLED && (
+              <Link href="/admin/login/" rel="nofollow" className="text-navy-300 underline-offset-4 transition hover:text-white hover:underline">
+                Admin
+              </Link>
+            )}
+          </p>
         </div>
       </div>
     </footer>

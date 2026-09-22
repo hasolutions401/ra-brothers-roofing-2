@@ -32,6 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but keep the documented templates, which contain no secrets
+!.env*.example
+
+# upload-ready hosting packages built by scripts/package-infinityfree.mjs
+/deploy-build/
 
 # vercel
 .vercel

@@ -42,6 +42,8 @@ for (const [file, html] of pages) {
   const relative = path.relative(root, file).replaceAll(path.sep, "/");
   const is404 = relative === "404.html" || relative.startsWith("404/") || relative.startsWith("_not-found/");
   const isPlan = relative.startsWith("plan/");
+  // The dashboard: never indexed, never in the sitemap, in any build.
+  const isAdmin = relative.startsWith("admin/");
   check((html.match(/<h1[\s>]/g) || []).length === 1, `${relative}: expected one H1`);
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((m) => m[1]);
   check(new Set(ids).size === ids.length, `${relative}: duplicate IDs`);
@@ -51,8 +53,8 @@ for (const [file, html] of pages) {
   }
   for (const match of html.matchAll(/<img\b[^>]*>/g)) check(/\balt="/.test(match[0]), `${relative}: image missing alt`);
   const robots = html.match(/<meta name="robots" content="([^"]+)"/)?.[1] || "";
-  check(is404 || isPlan || (demoMode ? robots.includes("noindex") : !robots.includes("noindex")), `${relative}: wrong indexing mode`);
-  if (!is404 && !isPlan) {
+  check(is404 || isPlan || (isAdmin ? robots.includes("noindex") : demoMode ? robots.includes("noindex") : !robots.includes("noindex")), `${relative}: wrong indexing mode`);
+  if (!is404 && !isPlan && !isAdmin) {
     const url = `${siteUrl}/${relative.replace(/index\.html$/, "")}`;
     expectedUrls.push(url);
     check(html.includes(`<link rel="canonical" href="${url}"`), `${relative}: incorrect canonical`);

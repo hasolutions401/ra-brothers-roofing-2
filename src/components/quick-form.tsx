@@ -2,9 +2,13 @@
 
 import { SiteLink as Link } from "./site-link";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
-import { DEMO_MODE, PHONE_NH } from "@/lib/site";
+import { DEMO_MODE, PHONE_NH, site } from "@/lib/site";
+import { API_ENABLED, toProblem } from "@/lib/api";
+import { formOptions } from "@/lib/form-options";
+import { sendSubmission, useFormTimer } from "@/lib/submissions";
 import { IconArrow, IconCheck } from "./icons";
 import { Button } from "./ui";
+import { Honeypot } from "./honeypot";
 import { errorClass, inputClass, isPhone, labelClass, selectStyle } from "./form-styles";
 
 type Errors = { name?: string; phone?: string };
@@ -13,20 +17,27 @@ type Errors = { name?: string; phone?: string };
  * Compact hero card. Deliberately short — name, phone, town — because the
  * job of this form is to start a conversation, not to qualify the lead.
  * The full multi-step version lives on /free-estimate.
+ *
+ * With an API configured it sends to Laravel; without one (the GitHub Pages
+ * demo) it stays a preview that says plainly that nothing was sent.
  */
 export function QuickForm() {
   const id = useId();
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
   const [v, setV] = useState({ name: "", phone: "", town: "", need: "" });
   const [errors, setErrors] = useState<Errors>({});
   const [deliveryError, setDeliveryError] = useState("");
   const message = useRef<HTMLParagraphElement>(null);
   const confirmation = useRef<HTMLHeadingElement>(null);
+  const honeypot = useRef<HTMLInputElement>(null);
+  const elapsed = useFormTimer();
   useEffect(() => { if (deliveryError) message.current?.focus(); }, [deliveryError]);
   useEffect(() => { if (sent) confirmation.current?.focus(); }, [sent]);
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
+    if (sending) return;
     const next: Errors = {
       name: v.name.trim() ? undefined : "Please add your name.",
       phone: isPhone(v.phone) ? undefined : "Please add a phone number we can call back.",
@@ -37,11 +48,35 @@ export function QuickForm() {
       document.getElementById(`${id}-${firstBad}`)?.focus();
       return;
     }
-    if (!DEMO_MODE) {
-      setDeliveryError("Your request has not been sent. Please call to arrange an estimate; online requests are not connected yet.");
+    if (!API_ENABLED) {
+      if (!DEMO_MODE) {
+        setDeliveryError("Your request has not been sent. Please call to arrange an estimate; online requests are not connected yet.");
+        return;
+      }
+      setSent(true);
       return;
     }
-    setSent(true);
+
+    setSending(true);
+    setDeliveryError("");
+    try {
+      await sendSubmission(
+        { form_type: "quick", name: v.name, phone: v.phone, town: v.town, service: v.need },
+        { elapsedMs: elapsed(), honeypot: honeypot.current?.value ?? "" },
+      );
+      setSent(true);
+    } catch (error) {
+      const problem = toProblem(error);
+      const fieldErrors: Errors = { name: problem.fields.name, phone: problem.fields.phone };
+      setErrors(fieldErrors);
+      if (fieldErrors.name || fieldErrors.phone) {
+        document.getElementById(`${id}-${fieldErrors.name ? "name" : "phone"}`)?.focus();
+      } else {
+        setDeliveryError(`Your request has not been sent. ${problem.message} You can also call ${PHONE_NH.display}.`);
+      }
+    } finally {
+      setSending(false);
+    }
   };
 
   if (sent) {
@@ -50,10 +85,23 @@ export function QuickForm() {
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent-500/10">
           <IconCheck className="h-6 w-6 text-accent-600" />
         </div>
-        <h2 ref={confirmation} tabIndex={-1} className="mt-5 text-xl font-bold text-navy-900">Preview complete. Nothing was sent.</h2>
-        <p className="mt-2 text-sm leading-relaxed text-charcoal-500">
-          Your details have not been sent or saved. Please call to arrange an estimate.
-        </p>
+        {API_ENABLED ? (
+          <>
+            <h2 ref={confirmation} tabIndex={-1} className="mt-5 text-xl font-bold text-navy-900">
+              Thank you, {v.name.trim().split(/\s+/)[0]}. We have your request.
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-charcoal-500">
+              {site.callback} If it is urgent, call us now.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 ref={confirmation} tabIndex={-1} className="mt-5 text-xl font-bold text-navy-900">Preview complete. Nothing was sent.</h2>
+            <p className="mt-2 text-sm leading-relaxed text-charcoal-500">
+              Your details have not been sent or saved. Please call to arrange an estimate.
+            </p>
+          </>
+        )}
         <Button href={PHONE_NH.href} className="mt-5">
           Call {PHONE_NH.display}
         </Button>
@@ -69,8 +117,9 @@ export function QuickForm() {
         estimates need no visit at all.
       </p>
 
-      <form className="mt-5 grid gap-3.5" onSubmit={submit} noValidate>
+      <form className="relative mt-5 grid gap-3.5" onSubmit={submit} noValidate aria-busy={sending}>
         <p className="sr-only" role="alert">{Object.values(errors).filter(Boolean).join(" ")}</p>
+        <Honeypot inputRef={honeypot} />
         <div>
           <label htmlFor={`${id}-name`} className={labelClass}>
             Full name
@@ -79,6 +128,7 @@ export function QuickForm() {
             id={`${id}-name`}
             name="name"
             required
+            maxLength={120}
             value={v.name}
             onChange={(e) => setV({ ...v, name: e.target.value })}
             autoComplete="name"
@@ -102,6 +152,7 @@ export function QuickForm() {
             required
             type="tel"
             inputMode="tel"
+            maxLength={30}
             value={v.phone}
             onChange={(e) => setV({ ...v, phone: e.target.value })}
             autoComplete="tel"
@@ -123,6 +174,7 @@ export function QuickForm() {
             <input
               id={`${id}-town`}
               name="town"
+              maxLength={120}
               value={v.town}
               onChange={(e) => setV({ ...v, town: e.target.value })}
               autoComplete="address-level2"
@@ -142,11 +194,9 @@ export function QuickForm() {
               style={selectStyle}
             >
               <option value="">Not sure yet</option>
-              <option>Roof replacement</option>
-              <option>Roof repair or leak</option>
-              <option>Storm damage / insurance claim</option>
-              <option>Inspection only</option>
-              <option>Something else</option>
+              {formOptions.quickNeeds.map((need) => (
+                <option key={need}>{need}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -154,15 +204,18 @@ export function QuickForm() {
         {deliveryError && <p ref={message} tabIndex={-1} role="alert" className="rounded-lg border border-red-700 p-3 text-sm text-red-700">{deliveryError}</p>}
         <button
           type="submit"
-          className="group mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-accent-600 active:bg-accent-700"
+          disabled={sending}
+          className="group mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-accent-600 active:bg-accent-700 disabled:cursor-wait disabled:opacity-80"
         >
-          {DEMO_MODE ? "Preview estimate request" : "Request my free estimate"}
-          <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          {sending ? "Sending…" : API_ENABLED || !DEMO_MODE ? "Request my free estimate" : "Preview estimate request"}
+          {!sending && <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
         </button>
       </form>
 
       <p className="mt-4 border-t border-mist-200 pt-4 text-xs leading-relaxed text-charcoal-500">
-        <span className="mr-1 font-semibold">{DEMO_MODE ? "Preview form, not connected yet." : "Online requests are not available yet."}</span>
+        {!API_ENABLED && (
+          <span className="mr-1 font-semibold">{DEMO_MODE ? "Preview form, not connected yet." : "Online requests are not available yet."}</span>
+        )}
         Prefer to talk?{" "}
         <a href={PHONE_NH.href} className="font-semibold text-accent-600 underline underline-offset-2">
           {PHONE_NH.display}

@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Laravel API (PHP, with Composer's vendor/) and upload-ready packages.
+    "backend/**",
+    "deploy-build/**",
   ]),
 ]);
 

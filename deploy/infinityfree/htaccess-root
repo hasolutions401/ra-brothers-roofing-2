@@ -1,0 +1,46 @@
+# htdocs/.htaccess on InfinityFree
+#
+# The website is plain files (the Next.js export) at the top of htdocs.
+# Everything under /api goes to Laravel, which lives in htdocs/backend.
+# Laravel sees the original /api/... path, so its routes match unchanged.
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. HTTPS. Uncomment these three lines once the free SSL certificate is
+    #    installed and https:// loads the site; before that they would lock
+    #    visitors out.
+    # RewriteCond %{HTTPS} !=on
+    # RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 2. Never serve the Laravel folder (.env, storage, vendor, ...) directly.
+    #    THE_REQUEST is the browser's own request line, so the internal
+    #    rewrite in step 3 is not affected. backend/.htaccess also denies.
+    RewriteCond %{THE_REQUEST} \s/+backend(/|\s|\?) [NC]
+    RewriteRule ^ - [F]
+
+    # 3. The API.
+    RewriteRule ^api(/.*)?$ backend/public/index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Pages only; the API sets its own headers.
+    <FilesMatch "\.html$">
+        Header set X-Content-Type-Options "nosniff"
+        Header set X-Frame-Options "SAMEORIGIN"
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+    # Build files have content hashes in their names, so they never change.
+    <FilesMatch "\.(js|css|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(webp|png|jpg|svg|ico)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>

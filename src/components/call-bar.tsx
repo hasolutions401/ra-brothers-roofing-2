@@ -10,7 +10,7 @@ import { Button } from "./ui";
  * Call / Free Estimate bar fixed to the bottom of phones and tablets. The
  * client asked for a call button that is always visible, so it never hides.
  * On a Massachusetts town page it dials the MA line; everywhere else, NH.
- * The bottom padding on <body> in app/layout.tsx keeps it off the footer, and
+ * The bottom padding on the wrapper in site-shell.tsx keeps it off the footer, and
  * env(safe-area-inset-bottom) lifts it above the iPhone home indicator.
  */
 export function CallBar() {

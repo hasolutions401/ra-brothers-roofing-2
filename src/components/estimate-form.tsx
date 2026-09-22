@@ -1,28 +1,29 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { services } from "@/lib/services";
 import { states } from "@/lib/areas";
-import { DEMO_MODE, PHONE_MA, PHONE_NH } from "@/lib/site";
+import { DEMO_MODE, PHONE_MA, PHONE_NH, site } from "@/lib/site";
+import { API_ENABLED, toProblem } from "@/lib/api";
+import { formOptions } from "@/lib/form-options";
+import { sendSubmission, useFormTimer } from "@/lib/submissions";
+import { resizePhoto } from "@/lib/resize-photo";
 import { IconArrow, IconCheck, IconPhone } from "./icons";
 import { Button } from "./ui";
+import { Honeypot } from "./honeypot";
 import { errorClass, inputClass, isEmail, isPhone, labelClass, selectStyle } from "./form-styles";
 
 const STEPS = ["What you need", "The property", "Location and photos", "Your details"];
 
-const conditions = [
-  "Active leak or water stain",
-  "Missing or lifted shingles",
-  "Ice dams in winter",
-  "Storm or fallen limb damage",
-  "Moss, streaking or granule loss",
-  "Nothing visible, just a routine check",
-];
-
-const estimateTypes = ["Remote, from photos (fastest)", "In-person visit", "Whatever you recommend"];
-const insuranceOptions = ["Yes", "No", "Not sure yet"];
-const roofAges = ["Under 10 years", "10 – 15 years", "15 – 20 years", "Over 20 years", "Not sure"];
-const bestTimes = ["Anytime", "Morning", "Afternoon", "Evening"];
+// Shared with the API's validation (backend/config/form-options.json).
+const {
+  conditions,
+  estimateTypes,
+  insurance: insuranceOptions,
+  roofAges,
+  bestTimes,
+  photos: photoLimits,
+} = formOptions;
 
 type Data = {
   service: string;
@@ -58,7 +59,29 @@ const empty: Data = {
   notes: "",
 };
 
-type Errors = Partial<Record<"service" | "roofAge" | "town" | "name" | "phone" | "email", string>>;
+type Errors = Partial<Record<"service" | "roofAge" | "town" | "photos" | "name" | "phone" | "email", string>>;
+
+/**
+ * Where each API field lives in the form, so a server-side rejection sends
+ * the visitor back to the right step. Fields without their own message slot
+ * are summarised above the buttons instead.
+ */
+const serverFields: Record<string, { key?: keyof Errors; step: number }> = {
+  service: { key: "service", step: 0 },
+  property_type: { step: 1 },
+  roof_age: { key: "roofAge", step: 1 },
+  conditions: { step: 1 },
+  insurance: { step: 1 },
+  town: { key: "town", step: 2 },
+  address: { step: 2 },
+  estimate_type: { step: 2 },
+  photos: { key: "photos", step: 2 },
+  name: { key: "name", step: 3 },
+  phone: { key: "phone", step: 3 },
+  email: { key: "email", step: 3 },
+  best_time: { step: 3 },
+  notes: { step: 3 },
+};
 
 /** What each step needs before it lets you continue. */
 function validate(step: number, d: Data): Errors {
@@ -84,13 +107,19 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
   const [errors, setErrors] = useState<Errors>({});
   const [done, setDone] = useState(false);
   const [deliveryError, setDeliveryError] = useState("");
+  const [sending, setSending] = useState(false);
+  const [progress, setProgress] = useState<number | null>(null);
+  const [preparingPhotos, setPreparingPhotos] = useState(false);
   const deliveryMessage = useRef<HTMLParagraphElement>(null);
   const shell = useRef<HTMLDivElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
+  const honeypot = useRef<HTMLInputElement>(null);
   const moved = useRef(false);
+  const elapsed = useFormTimer();
   const Heading = headingLevel === 2 ? "h2" : "h3";
+  const phone = data.town.endsWith(", MA") ? PHONE_MA : PHONE_NH;
 
-  const set = <K extends keyof Data>(k: K, v: Data[K]) => {
+  const set =<K extends keyof Data>(k: K, v: Data[K]) => {
     setData((d) => ({ ...d, [k]: v }));
     setErrors((e) => ({ ...e, [k]: undefined }));
   };
@@ -125,6 +154,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
+    if (sending || preparingPhotos) return;
     const found = validate(step, data);
     setErrors(found);
     const first = Object.keys(found)[0];
@@ -132,17 +162,99 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
       document.getElementById(`${id}-${first}`)?.focus();
       return;
     }
-    if (step === STEPS.length - 1 && !DEMO_MODE) {
-      // Delivery will be connected after the client chooses an inbox/service.
-      // Keep the entered details and files; never report success for an unsent request.
+    if (step < STEPS.length - 1) {
+      goTo(step + 1);
+      return;
+    }
+    if (API_ENABLED) {
+      void send();
+      return;
+    }
+    if (!DEMO_MODE) {
+      // No backend in this build. Keep the entered details and files; never
+      // report success for an unsent request.
       setDeliveryError("Your request has not been sent. Online requests are not connected yet. Please call the number above to arrange your estimate.");
       return;
     }
-    goTo(step === STEPS.length - 1 ? "done" : step + 1);
+    goTo("done");
   };
 
-  const phone = useMemo(() => (data.town.endsWith(", MA") ? PHONE_MA : PHONE_NH), [data.town]);
-  const err = (k: keyof Errors) => (errors[k] ? `${id}-${k}-error` : undefined);
+  /** Deliver to the API. Success is only shown once the server has stored it. */
+  const send = async () => {
+    setSending(true);
+    setProgress(data.photos.length > 0 ? 0 : null);
+    setDeliveryError("");
+    try {
+      await sendSubmission(
+        {
+          form_type: "estimate",
+          service: data.service,
+          property_type: data.propertyType,
+          roof_age: data.roofAge,
+          conditions: data.conditions,
+          insurance: data.insurance,
+          town: data.town,
+          address: data.address,
+          estimate_type: data.estimateType,
+          photos: data.photos,
+          name: data.name,
+          phone: data.phone,
+          email: data.email,
+          best_time: data.best,
+          notes: data.notes,
+        },
+        { elapsedMs: elapsed(), honeypot: honeypot.current?.value ?? "", onProgress: setProgress },
+      );
+      goTo("done");
+    } catch (error) {
+      const problem = toProblem(error);
+      const found: Errors = {};
+      const unplaced: string[] = [];
+      let earliest = STEPS.length - 1;
+      for (const [field, message] of Object.entries(problem.fields)) {
+        const place = serverFields[field.split(".")[0]];
+        if (place?.key) found[place.key] ??= message;
+        else unplaced.push(message);
+        if (place) earliest = Math.min(earliest, place.step);
+      }
+
+      if (problem.kind === "validation" && Object.keys(found).length > 0) {
+        if (earliest !== step) goTo(earliest);
+        setErrors(found);
+      }
+      if (problem.kind !== "validation" || unplaced.length > 0 || Object.keys(found).length === 0) {
+        const detail = unplaced.length > 0 ? unplaced.join(" ") : problem.message;
+        setDeliveryError(`Your request has not been sent. ${detail} Your answers are still here, or call ${phone.display}.`);
+      }
+    } finally {
+      setSending(false);
+      setProgress(null);
+    }
+  };
+
+  /** Add photos, shrunk on this device first so they upload quickly. */
+  const addPhotos = async (files: File[]) => {
+    const fresh = files.filter((file) => !data.photos.some((old) => old.lastModified === file.lastModified && old.name.replace(/\.[^.]+$/, "") === file.name.replace(/\.[^.]+$/, "")));
+    const room = photoLimits.maxFiles - data.photos.length;
+    const problems: string[] = [];
+    if (fresh.length > room) problems.push(`You can attach up to ${photoLimits.maxFiles} photos.`);
+
+    setPreparingPhotos(true);
+    const ready: File[] = [];
+    for (const file of fresh.slice(0, Math.max(0, room))) {
+      try {
+        ready.push(await resizePhoto(file, photoLimits.maxDimension));
+      } catch {
+        problems.push(`“${file.name}” could not be read. Please choose a JPG or PNG photo.`);
+      }
+    }
+    setPreparingPhotos(false);
+
+    setData((d) => ({ ...d, photos: [...d.photos, ...ready] }));
+    setErrors((e) => ({ ...e, photos: problems.join(" ") || undefined }));
+  };
+
+  const err =(k: keyof Errors) => (errors[k] ? `${id}-${k}-error` : undefined);
 
   if (done) {
     return (
@@ -151,18 +263,27 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
           <IconCheck className="h-6 w-6 text-accent-600" />
         </div>
         <Heading ref={heading} tabIndex={-1} className="mt-5 text-xl font-bold text-navy-900 outline-none">
-          Preview complete. Nothing was sent.
+          {API_ENABLED ? `Thank you, ${data.name.trim().split(/\s+/)[0]}. Your request is in.` : "Preview complete. Nothing was sent."}
         </Heading>
         {
           <>
             <p className="mt-3 text-sm leading-relaxed text-charcoal-500 sm:text-base">
-              This is a preview of the site, so the form is not connected to an
-              inbox yet. Your details and selected photos remain in this page
-              only. Please call to arrange an estimate.
+              {API_ENABLED ? (
+                <>
+                  {site.callback} We will look over your answers
+                  {data.photos.length > 0 ? " and photos" : ""} before we call.
+                </>
+              ) : (
+                <>
+                  This is a preview of the site, so the form is not connected to an
+                  inbox yet. Your details and selected photos remain in this page
+                  only. Please call to arrange an estimate.
+                </>
+              )}
             </p>
             <div className="mt-6 rounded-xl bg-mist-50 p-5 ring-1 ring-mist-200">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-charcoal-500">
-                What would have been sent
+                {API_ENABLED ? "What you sent" : "What would have been sent"}
               </p>
               <dl className="space-y-2 text-sm">
                 <Row k="Service" v={data.service} />
@@ -173,7 +294,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
                 <Row k="Location" v={data.town} />
                 {data.address && <Row k="Address" v={data.address} />}
                 <Row k="Estimate" v={data.estimateType} />
-                {data.photos.length > 0 && <Row k="Photos" v={`${data.photos.length} attached`} />}
+                {data.photos.length > 0 && <Row k="Photos" v={`${data.photos.length} ${API_ENABLED ? "sent" : "attached"}`} />}
                 <Row k="Name" v={data.name} />
                 <Row k="Phone" v={data.phone} />
                 {data.email && <Row k="Email" v={data.email} />}
@@ -200,7 +321,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
             }}
             className="text-sm font-semibold text-accent-600 underline underline-offset-4 hover:text-accent-700"
           >
-            Start over
+            {API_ENABLED ? "Send another request" : "Start over"}
           </button>
         </div>
       </div>
@@ -209,7 +330,8 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
 
   return (
     <div id={anchorId} ref={shell} tabIndex={-1} className="scroll-mt-24 rounded-2xl bg-white shadow-xl ring-1 ring-mist-200">
-      <form onSubmit={submit} noValidate>
+      <form onSubmit={submit} noValidate aria-busy={sending} className="relative">
+        <Honeypot inputRef={honeypot} />
         {/* Progress */}
         <div className="px-5 pt-6 sm:px-7">
           <div className="flex items-baseline justify-between gap-3">
@@ -224,7 +346,14 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
             Step {step + 1} of {STEPS.length}: {STEPS[step]}
           </p>
           <p className="sr-only" role="alert">{Object.values(errors).filter(Boolean).join(" ")}</p>
-          {
+          {API_ENABLED ? (
+            <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
+              Prefer to talk?{" "}
+              <a href={phone.href} className="font-semibold text-accent-600 underline underline-offset-2">
+                Call {phone.display}
+              </a>
+            </p>
+          ) : (
             <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
               {DEMO_MODE ? "Preview form, not connected yet." : "Online requests are not available yet."}{" "}
               <a href={phone.href} className="font-semibold text-accent-600 underline underline-offset-2">
@@ -232,7 +361,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
               </a>{" "}
               to make an enquiry now.
             </p>
-          }
+          )}
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-mist-200" aria-hidden="true">
             <div
               className="h-full rounded-full bg-accent-500 transition-[width] duration-500 ease-out"
@@ -402,10 +531,12 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
                   <span className="font-normal text-charcoal-500">(optional, speeds up a remote estimate)</span>
                 </label>
                 <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-dashed border-navy-400 px-4 py-3.5 text-sm text-charcoal-500 transition hover:border-navy-600 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent-500">
-                  <span>
-                    {data.photos.length > 0
-                      ? `${data.photos.length} photo${data.photos.length === 1 ? "" : "s"} selected`
-                      : "Add photos from your phone or computer"}
+                  <span aria-live="polite">
+                    {preparingPhotos
+                      ? "Preparing photos…"
+                      : data.photos.length > 0
+                        ? `${data.photos.length} photo${data.photos.length === 1 ? "" : "s"} selected`
+                        : "Add photos from your phone or computer"}
                   </span>
                   <span className="shrink-0 font-semibold text-accent-600">Browse</span>
                   <input
@@ -414,14 +545,26 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
                     name="photos"
                     accept="image/*"
                     multiple
+                    disabled={preparingPhotos}
+                    aria-invalid={!!errors.photos}
+                    aria-describedby={errors.photos ? `${id}-photos-error` : undefined}
                     className="sr-only"
                     onChange={(e) => {
                       const added = Array.from(e.target.files ?? []);
-                      set("photos", [...data.photos, ...added.filter((file) => !data.photos.some((old) => old.name === file.name && old.size === file.size && old.lastModified === file.lastModified))]);
                       e.target.value = "";
+                      if (API_ENABLED) {
+                        void addPhotos(added);
+                        return;
+                      }
+                      set("photos", [...data.photos, ...added.filter((file) => !data.photos.some((old) => old.name === file.name && old.size === file.size && old.lastModified === file.lastModified))]);
                     }}
                   />
                 </label>
+                {errors.photos && (
+                  <p id={`${id}-photos-error`} className={errorClass}>
+                    {errors.photos}
+                  </p>
+                )}
                 {data.photos.length > 0 && (
                   <ul className="mt-3 space-y-2 text-sm" aria-label="Selected photos">
                     {data.photos.map((file, i) => (
@@ -432,7 +575,11 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
                     ))}
                   </ul>
                 )}
-                <p className="mt-2 text-xs leading-relaxed text-charcoal-500">Use photos taken safely from the ground. Files stay in this page until it is closed or refreshed; they have not been uploaded.</p>
+                <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
+                  {API_ENABLED
+                    ? `Use photos taken safely from the ground. Up to ${photoLimits.maxFiles}; they are resized on your device and sent with your request, and only our team sees them.`
+                    : "Use photos taken safely from the ground. Files stay in this page until it is closed or refreshed; they have not been uploaded."}
+                </p>
               </div>
             </>
           )}
@@ -511,7 +658,8 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
             <button
               type="button"
               onClick={() => goTo(step - 1)}
-              className="rounded-xl px-4 py-3 text-sm font-semibold text-charcoal-500 transition hover:bg-mist-100 hover:text-navy-900"
+              disabled={sending}
+              className="rounded-xl px-4 py-3 text-sm font-semibold text-charcoal-500 transition hover:bg-mist-100 hover:text-navy-900 disabled:opacity-50"
             >
               ← Back
             </button>
@@ -521,10 +669,13 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
 
           <button
             type="submit"
-            className="group inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-accent-600 active:bg-accent-700"
+            disabled={sending || preparingPhotos}
+            className="group inline-flex items-center gap-2 rounded-xl bg-accent-500 px-5 py-3.5 text-base font-bold text-white shadow-sm transition hover:bg-accent-600 active:bg-accent-700 disabled:cursor-wait disabled:opacity-80"
           >
-            {step === STEPS.length - 1 ? (DEMO_MODE ? "Preview request" : "Send request") : "Continue"}
-            <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            {sending
+              ? progress !== null && progress < 100 ? `Uploading… ${progress}%` : "Sending…"
+              : step === STEPS.length - 1 ? (DEMO_MODE && !API_ENABLED ? "Preview request" : "Send request") : "Continue"}
+            {!sending && <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
           </button>
         </div>
       </form>
