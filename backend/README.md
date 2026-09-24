@@ -20,7 +20,7 @@ Browser ── https://your-domain/            static Next.js export (the websit
 
 Contents: [Local development](#local-development) · [Database](#database-schema) ·
 [API](#api) · [Security](#security) · [Deploy to alwaysdata](#deploy-to-alwaysdata) ·
-[Maintenance](#maintenance) · [Troubleshooting](#troubleshooting)
+[Deploy to Hostinger](#deploy-to-hostinger-planned-move) · [Maintenance](#maintenance) · [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -203,6 +203,122 @@ API share one domain:
 
 ---
 
+## Deploy to Hostinger (planned move)
+
+A plan with SSH (Premium or higher). The Laravel project lives **outside** `public_html`. Only its
+`public/` folder is linked in, and `/api` still reaches it, so the website needs no changes.
+
+```
+~/domains/example.com/
+├── app/                   ← git clone of this repository
+│   └── backend/           ← Laravel (.env, vendor/, storage/)
+└── public_html/           ← the website (out/), plus
+    ├── .htaccess          ← deploy/hostinger/htaccess-public_html
+    └── laravel → ../app/backend/public   (symlink)
+```
+
+### 1. Domain and SSL
+
+1. **hPanel → Websites → Add website** and choose your domain.
+2. **If the domain was bought elsewhere:** either set its nameservers (at the registrar) to
+   `ns1.dns-parking.com` and `ns2.dns-parking.com`, or keep your DNS and point an **A record** for
+   `@` and `www` to the IP shown in hPanel. Changes can take up to 24 hours.
+3. **hPanel → Security → SSL:** install the free certificate and wait until it shows *Active*.
+   `.htaccess` redirects everything to https.
+4. Decide on `www.example.com` or `example.com`. Use it in `APP_URL`, and uncomment the matching
+   redirect in `deploy/hostinger/htaccess-public_html`.
+
+### 2. PHP, database, SSH
+
+1. **hPanel → Advanced → PHP Configuration:** PHP **8.3 or newer**. Make sure `pdo_mysql`,
+   `mbstring`, `fileinfo`, `gd` and `openssl` are enabled.
+2. **hPanel → Databases → MySQL Databases:** create a database and user (names start with
+   `u123456789_`). The host is `localhost`.
+3. **hPanel → Advanced → SSH Access:** enable it. Note the IP, port (usually `65002`) and
+   username. Add your public key there, or use the password.
+
+### 3. First install (over SSH)
+
+```bash
+ssh -p 65002 u123456789@YOUR.SERVER.IP
+cd ~/domains/example.com
+
+# Private repository: give the server a read-only deploy key.
+ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519      # then add ~/.ssh/id_ed25519.pub on GitHub:
+cat ~/.ssh/id_ed25519.pub                              #   repo Settings → Deploy keys → Add
+git clone git@github.com:hasolutions401/ra-brothers-roofing-2.git app
+
+cd app/backend
+cp .env.hostinger.example .env
+nano .env                          # fill in every FILL IN; APP_URL=https://www.example.com
+composer install --no-dev --optimize-autoloader
+php artisan key:generate
+php artisan migrate --force
+php artisan db:seed --force        # creates the admin from ADMIN_EMAIL / ADMIN_PASSWORD
+bash ../deploy/hostinger/deploy.sh # caches config and routes, sets permissions
+
+cd ~/domains/example.com/public_html
+rm -f default.php index.php        # Hostinger's placeholder
+ln -s ../app/backend/public laravel
+cp ../app/deploy/hostinger/htaccess-public_html .htaccess
+```
+
+**Permissions** (`deploy.sh` sets them):
+
+- **Folders and files:** `storage/` and `bootstrap/cache/` are writable (775 folders, 664 files).
+  Code keeps Hostinger's defaults (755 folders, 644 files).
+- **`.env`:** 600, readable only by your account.
+
+Never make anything 777.
+
+### 4. Upload the website
+
+**Option A (automatic, GitHub Actions).** Add repository **secrets**:
+
+- `HOSTINGER_SSH_HOST`
+- `HOSTINGER_SSH_PORT`
+- `HOSTINGER_SSH_USER`
+- `HOSTINGER_SSH_KEY`: a private key whose public half is in hPanel → SSH Access.
+
+Add **variables**:
+
+- `HOSTINGER_SITE_URL` (`https://www.example.com/`)
+- `HOSTINGER_APP_DIR` (`domains/example.com/app`)
+- `HOSTINGER_PUBLIC_DIR` (`domains/example.com/public_html`)
+
+Then run **Actions → Deploy to Hostinger**. It builds the site with `DEMO_MODE=false` and
+`API_URL=/api`. It then pulls the code, runs composer, migrations and caches through `deploy.sh`,
+uploads `out/`, and checks `/api/health`.
+
+**Option B (by hand).** Build on your computer and upload `out/`:
+
+```powershell
+$env:SITE_URL="https://www.example.com/"; $env:API_URL="/api"; $env:DEMO_MODE="false"
+npm run build; npm run verify:export
+Remove-Item Env:SITE_URL, Env:API_URL, Env:DEMO_MODE
+```
+
+Upload the contents of `out/` into `public_html` (hPanel File Manager can upload a zip and extract
+it). Keep the `laravel` link and `.htaccess`.
+
+### 5. After going live
+
+- **Check:** `https://www.example.com/api/health` shows `ok`. Send a form, then sign in at
+  `/admin/login/`.
+- **New-lead emails:** create a mailbox in **hPanel → Emails**. Fill in `MAIL_*` and
+  `LEAD_NOTIFY_EMAIL` in `.env`, then run `php artisan config:cache`. **After any `.env` change on
+  Hostinger, run `php artisan config:cache` again**, because the cached settings win.
+- **Moving the alwaysdata data:** export the database there with phpMyAdmin (*Export*) and import
+  it here. Then copy `backend/storage/app/private/submissions/` (photos) across with SFTP.
+- **Stop the alwaysdata deploy:** once Hostinger is live, delete
+  `.github/workflows/deploy-alwaysdata.yml` (or its `push:` trigger) so pushes stop updating it.
+
+**Updating later:** push to `main`, then run the *Deploy to Hostinger* workflow. By hand, run
+`cd ~/domains/example.com/app && git pull && bash deploy/hostinger/deploy.sh`, then upload a
+fresh `out/`.
+
+---
+
 ## Maintenance
 
 - **Reset the admin password:** change `ADMIN_PASSWORD` in `.env`, then run
@@ -221,7 +337,7 @@ API share one domain:
   request" note.
 - **Logs:** `storage/logs/laravel.log`. Discarded spam is logged at `info` level.
 - **Backups:** export the database from phpMyAdmin now and then, and keep
-  `storage/app/private/submissions/` (photos).
+  `storage/app/private/submissions/` (photos). Hostinger plans also take automatic backups.
 
 ---
 

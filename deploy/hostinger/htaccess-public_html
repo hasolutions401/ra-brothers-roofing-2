@@ -1,0 +1,53 @@
+# public_html/.htaccess on Hostinger
+#
+# The website is plain files (the Next.js export) in public_html. The Laravel
+# project lives OUTSIDE public_html; only its public/ folder is reachable,
+# through the symlink public_html/laravel -> <app>/backend/public, and only
+# via /api. Laravel sees the original /api/... path.
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Always HTTPS (install the free SSL certificate in hPanel first).
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 2. One address for the site. Uncomment the pair that matches APP_URL.
+    # www -> bare domain:
+    # RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    # RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+    # bare domain -> www:
+    # RewriteCond %{HTTP_HOST} !^www\. [NC]
+    # RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # 3. The symlink is an implementation detail; do not serve it directly.
+    RewriteCond %{THE_REQUEST} \s/+laravel(/|\s|\?) [NC]
+    RewriteRule ^ - [F]
+
+    # 4. The API.
+    RewriteRule ^api(/.*)?$ laravel/index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Browsers only honour this over https, and every http request is redirected.
+    Header always set Strict-Transport-Security "max-age=31536000"
+    <FilesMatch "\.html$">
+        Header set X-Content-Type-Options "nosniff"
+        Header set X-Frame-Options "SAMEORIGIN"
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+        # Same policy as deploy/alwaysdata/htaccess-root; see the notes there.
+        Header set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+        Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+    <FilesMatch "\.(js|css|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(webp|png|jpg|svg|ico)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>

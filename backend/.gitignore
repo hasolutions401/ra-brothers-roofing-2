@@ -28,3 +28,4 @@ Thumbs.db
 
 # Real hosting settings (contain secrets)
 .env.alwaysdata
+.env.hostinger

@@ -17,7 +17,8 @@ npm run package:alwaysdata # upload-ready site + Laravel API (used by the deploy
 
 The forms and the admin dashboard are backed by a Laravel 13 API in
 **[`backend/`](backend/README.md)**. Its README covers local setup, the database
-schema, the API, security and maintenance.
+schema, the API, security, deploying to alwaysdata (live now) and to Hostinger
+(the planned move).
 
 ---
 
@@ -133,7 +134,8 @@ Then, separately:
    estimate. Rate limits, a honeypot and a minimum fill time block spam.
    A form shows success only after the server has stored it; otherwise the
    answers stay on screen with the reason and the phone number. Optional
-   new-lead emails go through alwaysdata SMTP. See `backend/README.md`.
+   new-lead emails go through alwaysdata SMTP (a Hostinger mailbox after the
+   move). See `backend/README.md`.
 3. **Test lead delivery end to end** after every mail or hosting change:
    run `php artisan leads:test-email` on the server, then send both forms
    (the full one with a photo) from a phone. Check each appears in the
