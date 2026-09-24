@@ -64,13 +64,13 @@ the alwaysdata account's SSH user (alwaysdata admin → **Remote access → SSH*
 make sure password login is enabled there). Or, instead, add
 `ALWAYSDATA_SSH_KEY`, a private key whose public key is in `~/.ssh/authorized_keys`
 on the server. Until one of them is set, the workflow skips with a warning.
-The defaults assume the account `rabrothersroofing` with the site in `~/www`;
+The defaults assume the account `rabrothersroofing` with the site in `~/www/htdocs`;
 change them with the repository variables listed at the top of the workflow.
 To preview what would change without changing anything, run the workflow by
 hand from the Actions tab with **dry run** ticked.
 
-The server layout is the InfinityFree one: the site at the top of `www/`,
-Laravel in `www/backend/`. The workflow checks that `www/backend/.env`
+The site's root on alwaysdata is `www/htdocs/`: the static site at its top,
+Laravel in `www/htdocs/backend/`. The workflow checks that `www/htdocs/backend/.env`
 exists before uploading, and refuses to run otherwise.
 `backend/.env.alwaysdata.example` documents that file's settings, including
 alwaysdata SMTP for new-lead emails.

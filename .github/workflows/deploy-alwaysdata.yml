@@ -11,7 +11,7 @@ name: Deploy to alwaysdata
 #        account's ~/.ssh/authorized_keys; the key wins if both are set)
 #   Optional repository variables (defaults in brackets):
 #     ALWAYSDATA_ACCOUNT   [rabrothersroofing]  SSH user, also ssh-<account>.alwaysdata.net
-#     ALWAYSDATA_PATH      [www]                site folder, relative to the home directory
+#     ALWAYSDATA_PATH      [www/htdocs]         site folder, relative to the home directory
 #     ALWAYSDATA_SITE_URL  [https://rabrothersroofing.alwaysdata.net/]
 #     ALWAYSDATA_DEMO_MODE [true]               set to false at launch to allow indexing
 on:
@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ACCOUNT: ${{ vars.ALWAYSDATA_ACCOUNT || 'rabrothersroofing' }}
-      REMOTE_PATH: ${{ vars.ALWAYSDATA_PATH || 'www' }}
+      REMOTE_PATH: ${{ vars.ALWAYSDATA_PATH || 'www/htdocs' }}
       SITE_URL: ${{ vars.ALWAYSDATA_SITE_URL || 'https://rabrothersroofing.alwaysdata.net/' }}
       DEMO_MODE: ${{ vars.ALWAYSDATA_DEMO_MODE || 'true' }}
       SSH_KEY: ${{ secrets.ALWAYSDATA_SSH_KEY }}
