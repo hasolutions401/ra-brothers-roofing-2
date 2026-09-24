@@ -27,5 +27,4 @@ Homestead.yaml
 Thumbs.db
 
 # Real hosting settings (contain secrets)
-.env.infinityfree
-.env.hostinger
+.env.alwaysdata

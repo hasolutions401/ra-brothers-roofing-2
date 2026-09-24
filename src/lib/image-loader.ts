@@ -1,7 +1,7 @@
 import manifest from "./image-manifest.json";
 
 /**
- * Static image sources for GitHub Pages. The generated manifest records
+ * Static image sources for the exported site. The generated manifest records
  * actual widths, so the browser can choose a suitable WebP without upscaling
  * small originals or downloading misleadingly labelled 2400w files.
  */

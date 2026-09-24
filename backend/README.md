@@ -7,7 +7,7 @@ itself.
 ```
 Browser ── https://your-domain/            static Next.js export (the website + /admin pages)
         └─ https://your-domain/api/...     this Laravel app (same domain, so no CORS and no
-                                            third-party cookies; InfinityFree requires this)
+                                            third-party cookies)
                                   └─ MySQL  submissions, submission_photos, users
 ```
 
@@ -19,9 +19,8 @@ Browser ── https://your-domain/            static Next.js export (the websit
   status (new / read / contacted), delete, CSV export.
 
 Contents: [Local development](#local-development) · [Database](#database-schema) ·
-[API](#api) · [Security](#security) · [Deploy to InfinityFree](#deploy-to-infinityfree-phase-1) ·
-[Deploy to Hostinger](#deploy-to-hostinger-phase-2) · [Maintenance](#maintenance) ·
-[Troubleshooting](#troubleshooting)
+[API](#api) · [Security](#security) · [Deploy to alwaysdata](#deploy-to-alwaysdata) ·
+[Maintenance](#maintenance) · [Troubleshooting](#troubleshooting)
 
 ---
 
@@ -54,13 +53,12 @@ php artisan serve                                        # http://localhost:8000
 # 2. The website (repository root, second terminal)
 copy .env.example .env.local        # API_URL=http://localhost:8000/api
 npm install
-npm run dev                         # http://localhost:3000/ra-brothers-roofing-2/
+npm run dev                         # http://localhost:3000/
 ```
 
-Sign in at <http://localhost:3000/ra-brothers-roofing-2/admin/login/>.
+Sign in at <http://localhost:3000/admin/login/>.
 
-Without `API_URL` the forms stay in their honest preview mode ("nothing was sent"). That is how
-the GitHub Pages demo is built.
+Without `API_URL` the forms stay in their honest preview mode ("nothing was sent").
 
 ```powershell
 php artisan test        # in backend/: 42 tests, SQLite in memory
@@ -176,226 +174,39 @@ imports too, so the two can never disagree. Every submission also carries `sourc
 
 ---
 
-## Deploy to InfinityFree (phase 1)
+## Deploy to alwaysdata
 
-InfinityFree has no SSH or Composer and only lets you upload into `htdocs/`. Its browser check
-blocks API calls from other domains, so the site and API share one domain:
+Live at <https://rabrothersroofing.alwaysdata.net>. Every push to `main` deploys automatically
+through `.github/workflows/deploy-alwaysdata.yml` (see the root README, *Deploying to
+alwaysdata*): tests, build, upload, `php artisan migrate --force` and fresh caches. The site and
+API share one domain:
 
 ```
-htdocs/
-├── .htaccess              ← serves the site; sends /api/* to backend/public/index.php;
-│                            refuses any direct request for /backend/...
+~/www/htdocs/              ← the alwaysdata site's root
+├── .htaccess              ← deploy/alwaysdata/htaccess-root: serves the site, sends /api/* to
+│                            Laravel, refuses any direct request for /backend/...
 ├── index.html, 404.html, _next/, images/, services/, free-estimate/, admin/ ...  (the website)
 └── backend/               ← the whole Laravel app, including vendor/
     ├── .htaccess          ← "deny all"
-    ├── .env               ← production settings
+    ├── .env               ← production settings (never touched by a deploy)
+    ├── storage/           ← customer photos and logs (never touched by a deploy)
     └── public/.htaccess   ← allows index.php only
 ```
 
-`npm run package:infinityfree` builds all of that on your computer.
-
-### 1. Create the account and database
-
-1. In the InfinityFree client area, create a hosting account (a free `…infinityfreeapp.com`
-   subdomain is fine for testing). Note its address.
-2. **Control Panel → MySQL Databases:** create a database, for example `leads`. Note the
-   **MySQL hostname** (like `sql312.infinityfree.com`, *not* `localhost`), the database name
-   (`if0_12345678_leads`) and the username (`if0_12345678`). The MySQL password is your hosting
-   account password, shown under *Account details* in the client area.
-3. **SSL:** in the client area, open *SSL Certificates* and request a free certificate for the
-   domain. Some InfinityFree subdomains may already work over https, so check before requesting.
-
-### 2. Package the site and API
-
-On your computer, with PHP 8.3+ and Composer installed (Laragon has both):
-
-```powershell
-copy backend\.env.infinityfree.example backend\.env.infinityfree
-notepad backend\.env.infinityfree      # fill in every line marked FILL IN
-npm run package:infinityfree
-```
-
-The script:
-
-- builds the site for your address with `API_URL=/api` and checks it;
-- copies Laravel without local data or tests;
-- runs `composer install --no-dev` (without the optimized class map: InfinityFree silently drops
-  PHP files over 1 MB);
-- writes `.env`, generating `APP_KEY` and a `SETUP_TOKEN` and saving both back to
-  `.env.infinityfree`;
-- writes `deploy-build/infinityfree/database.sql`, and prints your next steps.
-
-`DEMO_MODE` defaults to `true` here, so the test site stays out of search engines. Set
-`$env:DEMO_MODE="false"` first to package the launch version.
-
-### 3. Upload
-
-1. In the client area, open *FTP details*. In FileZilla, connect to `ftpupload.net` with that
-   username and password, port 21.
-2. Turn on **Server → Force showing hidden files**, so `.htaccess` and `.env` are uploaded.
-3. Open `/htdocs` on the server and delete InfinityFree's placeholder page. Then upload
-   everything **inside** `deploy-build/infinityfree/htdocs/` into it.
-
-About 7,000 files take a while. If some fail, use *Failed transfers → Reset and requeue all*.
-
-### 4. Create the tables and the admin account (no SSH)
-
-**Option A (recommended): the setup page.** Open `https://your-site/api/setup` and paste the
-`SETUP_TOKEN` the package script printed. It runs the migrations and creates the admin from
-`ADMIN_EMAIL` / `ADMIN_PASSWORD`, then switches itself off (it writes
-`backend/storage/app/setup.lock`).
-
-**Option B: phpMyAdmin.** Open *Control Panel → MySQL Databases → Admin* for your database, then
-**Import** `deploy-build/infinityfree/database.sql`. That file creates the same tables, records
-the migrations as run and inserts the admin. It needs an empty database, and it contains the
-admin's password hash, so never upload it into `htdocs`.
-
-Then empty `SETUP_TOKEN=` in `backend/.env.infinityfree` and upload `htdocs/backend/.env` again
-(or edit it in the online file manager).
-
-### 5. Check
-
-1. `https://your-site/api/health` shows `{"status":"ok","database":"connected","migrated":true}`.
-2. Send the quick form on the home page. Then sign in at `https://your-site/admin/login/` and open
-   the lead.
-3. In the lead's details, **IP address** should be your own public IP. If every lead shows the same
-   IP that isn't yours, see [Troubleshooting](#troubleshooting).
-4. Once https works, uncomment the three HTTPS lines at the top of `htdocs/.htaccess`.
-
-**Updating later:** run `npm run package:infinityfree` again and upload the changed folders. Skip
-`backend/vendor/` if `composer.lock` has not changed. If a release adds a migration, delete
-`backend/storage/app/setup.lock`, set a `SETUP_TOKEN` and visit `/api/setup` again.
-
-**InfinityFree limits:**
-
-- No outgoing email, so new-lead emails stay off.
-- About 10 MB per upload; photos are resized to well under that.
-- Occasional short outages.
-
-It is for testing, not for real customers.
-
----
-
-## Deploy to Hostinger (phase 2)
-
-A plan with SSH (Premium or higher). The Laravel project lives **outside** `public_html`. Only its
-`public/` folder is linked in, and `/api` still reaches it, so the website needs no changes.
-
-```
-~/domains/example.com/
-├── app/                   ← git clone of this repository
-│   └── backend/           ← Laravel (.env, vendor/, storage/)
-└── public_html/           ← the website (out/), plus
-    ├── .htaccess          ← deploy/hostinger/htaccess-public_html
-    └── laravel → ../app/backend/public   (symlink)
-```
-
-### 1. Domain and SSL
-
-1. **hPanel → Websites → Add website** and choose your domain.
-2. **If the domain was bought elsewhere:** either set its nameservers (at the registrar) to
-   `ns1.dns-parking.com` and `ns2.dns-parking.com`, or keep your DNS and point an **A record** for
-   `@` and `www` to the IP shown in hPanel. Changes can take up to 24 hours.
-3. **hPanel → Security → SSL:** install the free certificate and wait until it shows *Active*.
-   `.htaccess` redirects everything to https.
-4. Decide on `www.example.com` or `example.com`. Use it in `APP_URL`, and uncomment the matching
-   redirect in `deploy/hostinger/htaccess-public_html`.
-
-### 2. PHP, database, SSH
-
-1. **hPanel → Advanced → PHP Configuration:** PHP **8.3 or newer**. Make sure `pdo_mysql`,
-   `mbstring`, `fileinfo`, `gd` and `openssl` are enabled.
-2. **hPanel → Databases → MySQL Databases:** create a database and user (names start with
-   `u123456789_`). The host is `localhost`.
-3. **hPanel → Advanced → SSH Access:** enable it. Note the IP, port (usually `65002`) and
-   username. Add your public key there, or use the password.
-
-### 3. First install (over SSH)
-
-```bash
-ssh -p 65002 u123456789@YOUR.SERVER.IP
-cd ~/domains/example.com
-
-# Private repository: give the server a read-only deploy key.
-ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519      # then add ~/.ssh/id_ed25519.pub on GitHub:
-cat ~/.ssh/id_ed25519.pub                              #   repo Settings → Deploy keys → Add
-git clone git@github.com:hasolutions401/ra-brothers-roofing-2.git app
-
-cd app/backend
-cp .env.hostinger.example .env
-nano .env                          # fill in every FILL IN; APP_URL=https://www.example.com
-composer install --no-dev --optimize-autoloader
-php artisan key:generate
-php artisan migrate --force
-php artisan db:seed --force        # creates the admin from ADMIN_EMAIL / ADMIN_PASSWORD
-bash ../deploy/hostinger/deploy.sh # caches config and routes, sets permissions
-
-cd ~/domains/example.com/public_html
-rm -f default.php index.php        # Hostinger's placeholder
-ln -s ../app/backend/public laravel
-cp ../app/deploy/hostinger/htaccess-public_html .htaccess
-```
-
-**Permissions** (`deploy.sh` sets them):
-
-- **Folders and files:** `storage/` and `bootstrap/cache/` are writable (775 folders, 664 files).
-  Code keeps Hostinger's defaults (755 folders, 644 files).
-- **`.env`:** 600, readable only by your account.
-
-Never make anything 777.
-
-### 4. Upload the website
-
-**Option A (automatic, GitHub Actions).** Add repository **secrets**:
-
-- `HOSTINGER_SSH_HOST`
-- `HOSTINGER_SSH_PORT`
-- `HOSTINGER_SSH_USER`
-- `HOSTINGER_SSH_KEY`: a private key whose public half is in hPanel → SSH Access.
-
-Add **variables**:
-
-- `HOSTINGER_SITE_URL` (`https://www.example.com/`)
-- `HOSTINGER_APP_DIR` (`domains/example.com/app`)
-- `HOSTINGER_PUBLIC_DIR` (`domains/example.com/public_html`)
-
-Then run **Actions → Deploy to Hostinger**. It builds the site with `DEMO_MODE=false` and
-`API_URL=/api`. It then pulls the code, runs composer, migrations and caches through `deploy.sh`,
-uploads `out/`, and checks `/api/health`.
-
-**Option B (by hand).** Build on your computer and upload `out/`:
-
-```powershell
-$env:SITE_URL="https://www.example.com/"; $env:API_URL="/api"; $env:DEMO_MODE="false"
-npm run build; npm run verify:export
-Remove-Item Env:SITE_URL, Env:API_URL, Env:DEMO_MODE
-```
-
-Upload the contents of `out/` into `public_html` (hPanel File Manager can upload a zip and extract
-it). Keep the `laravel` link and `.htaccess`.
-
-### 5. After going live
-
-- **Check:** `https://www.example.com/api/health` shows `ok`. Send a form, then sign in at
-  `/admin/login/`.
-- **New-lead emails:** create a mailbox in **hPanel → Emails**. Fill in `MAIL_*` and
-  `LEAD_NOTIFY_EMAIL` in `.env`, then run `php artisan config:cache`. **After any `.env` change on
-  Hostinger, run `php artisan config:cache` again**, because the cached settings win.
-- **Moving the InfinityFree data (optional):** export the database there with phpMyAdmin (*Export*)
-  and import it here. Then copy `backend/storage/app/private/submissions/` across with FTP/SFTP.
-- **GitHub Pages:** the workflow `deploy.yml` keeps publishing the preview build. Disable it in
-  *Actions* once the real site is live.
-
-**Updating later:** push to `main`, then run the *Deploy to Hostinger* workflow. By hand, run
-`cd ~/domains/example.com/app && git pull && bash deploy/hostinger/deploy.sh`, then upload a
-fresh `out/`.
+- **Settings:** `backend/.env` on the server, documented in `.env.alwaysdata.example`. After
+  changing it, run `php artisan config:cache` in `~/www/htdocs/backend` over SSH
+  (`ssh rabrothersroofing@ssh-rabrothersroofing.alwaysdata.net`), because the cached settings win.
+- **New-lead emails:** alwaysdata SMTP, set in `MAIL_*` and `LEAD_NOTIFY_EMAIL`. Check with
+  `php artisan leads:test-email`.
+- **Check after a deploy:** `/api/health` shows `{"status":"ok","database":"connected","migrated":true}`.
+  Send a form, then sign in at `/admin/login/` and open the lead.
 
 ---
 
 ## Maintenance
 
 - **Reset the admin password:** change `ADMIN_PASSWORD` in `.env`, then run
-  `php artisan db:seed --class=AdminUserSeeder --force`. On InfinityFree, delete
+  `php artisan db:seed --class=AdminUserSeeder --force`. Without SSH, delete
   `storage/app/setup.lock`, set `SETUP_TOKEN` and use `/api/setup`. The seeder updates the
   existing account.
 - **A different admin email:** the seeder creates a second account. Delete the old row in
@@ -410,7 +221,7 @@ fresh `out/`.
   request" note.
 - **Logs:** `storage/logs/laravel.log`. Discarded spam is logged at `info` level.
 - **Backups:** export the database from phpMyAdmin now and then, and keep
-  `storage/app/private/submissions/` (photos). Hostinger plans also take automatic backups.
+  `storage/app/private/submissions/` (photos).
 
 ---
 
@@ -419,12 +230,12 @@ fresh `out/`.
 | Symptom | Cause and fix |
 |---|---|
 | `/api/health` shows the site's 404 page | The root `.htaccess` is missing (hidden files not uploaded) or `mod_rewrite` is off. |
-| `/api/health` is `503` with `"database":"unreachable"` | Wrong `DB_*` values; on InfinityFree the host is `sqlXXX.infinityfree.com`, not `localhost`. |
-| `/api/health` is `503` with `"migrated":false` | Tables not created yet: `/api/setup`, `database.sql`, or `php artisan migrate --force`. |
+| `/api/health` is `503` with `"database":"unreachable"` | Wrong `DB_*` values; on alwaysdata the host is `mysql-rabrothersroofing.alwaysdata.net`, not `localhost`. |
+| `/api/health` is `503` with `"migrated":false` | Tables not created yet: `php artisan migrate --force` (or `/api/setup` without SSH). |
 | Blank page or `500` | Read `backend/storage/logs/laravel.log`. Usually a missing `APP_KEY`, an unwritable `storage/`, or PHP older than 8.3. |
 | Sign-in says *Sign in from the website's admin page* | The request did not come from `APP_URL`'s host (e.g. `www` vs bare domain). Set `SANCTUM_STATEFUL_DOMAINS=example.com,www.example.com`, and redirect to one host. |
 | Sign-in returns *Your session has expired* (419) | Cookies not kept: `SESSION_SECURE_COOKIE=true` while using http, or the browser blocks cookies for the site. |
-| A form says *The server did not answer properly* | The host answered with an HTML page (InfinityFree's browser check, or an error page). Reload the page and send again. |
+| A form says *The server did not answer properly* | The host answered with an HTML page (an error page). Reload the page and send again. |
 | Every lead shows the same IP | A proxy in front of PHP. Find its address ranges and set `TRUSTED_PROXIES` to them. Only use `*` if the server cannot be reached any other way. |
 | Photos fail with *too large* | The host's upload limit. The website sends at most 8 resized photos (about 5 MB), so this usually means the site bundle is outdated; rebuild it. |
-| Changed `.env` on Hostinger, nothing happened | `php artisan config:cache`. |
+| Changed `.env` on the server, nothing happened | `php artisan config:cache`. |

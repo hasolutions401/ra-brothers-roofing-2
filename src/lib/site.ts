@@ -38,7 +38,7 @@ export const site = {
   short: "RA Brothers",
   legal: "RA Brothers Roofing",
   nameIsFinal: false,
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://hasolutions401.github.io/ra-brothers-roofing-2",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://rabrothersroofing.alwaysdata.net",
   description:
     "Residential and commercial roofing across Southern New Hampshire and Northern Massachusetts. Roof replacement, repair, new installation, storm damage and inspections.",
   phones: [PHONE_NH, PHONE_MA],
@@ -84,7 +84,7 @@ export function phoneFor(state: "NH" | "MA" | null | undefined): Phone {
 }
 
 /**
- * Prefixes a /public path with the GitHub Pages base path. <Link> does this
+ * Prefixes a /public path with the base path (empty at a domain root). <Link> does this
  * on its own; <Image> does not, so every photo src goes through here.
  */
 export function asset(path: string): string {

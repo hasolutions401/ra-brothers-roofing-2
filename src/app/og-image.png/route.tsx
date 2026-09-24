@@ -5,7 +5,7 @@ import { site } from "@/lib/site";
  * Social preview image (Facebook, iMessage, WhatsApp, LinkedIn…), rendered
  * once at build time to out/og-image.png. A route rather than the
  * opengraph-image file convention because the export needs a real .png
- * filename for GitHub Pages to serve it as an image. Reads the name from
+ * filename for a static host to serve it as an image. Reads the name from
  * site.ts, so a rename updates it. Attached to every page in src/lib/seo.ts.
  */
 export const dynamic = "force-static";

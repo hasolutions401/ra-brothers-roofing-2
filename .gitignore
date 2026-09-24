@@ -35,7 +35,7 @@ yarn-error.log*
 # ...but keep the documented templates, which contain no secrets
 !.env*.example
 
-# upload-ready hosting packages built by scripts/package-infinityfree.mjs
+# upload-ready hosting packages built by scripts/package-alwaysdata.mjs
 /deploy-build/
 
 # vercel

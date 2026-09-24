@@ -3,7 +3,7 @@ import axios, { isAxiosError } from "axios";
 /**
  * Base URL of the Laravel API, fixed at build time from API_URL (see
  * src/lib/deployment.mjs): "/api" when the API shares the site's domain.
- * Empty on builds without a backend, such as the GitHub Pages demo; the
+ * Empty on builds without a backend (a local preview); the
  * forms then stay in preview mode and the dashboard says it is unavailable.
  */
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";

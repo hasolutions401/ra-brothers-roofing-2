@@ -19,8 +19,8 @@ type Errors = { name?: string; phone?: string };
  * job of this form is to start a conversation, not to qualify the lead.
  * The full multi-step version lives on /free-estimate.
  *
- * With an API configured it sends to Laravel; without one (the GitHub Pages
- * demo) it stays a preview that says plainly that nothing was sent.
+ * With an API configured it sends to Laravel; without one (a
+ * local preview) it stays a preview that says plainly that nothing was sent.
  */
 export function QuickForm() {
   const id = useId();

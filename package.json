@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit",
     "images": "node scripts/optimize-images.mjs",
     "verify:export": "node scripts/verify-export.mjs",
-    "package:infinityfree": "node scripts/package-infinityfree.mjs",
     "package:alwaysdata": "node scripts/package-alwaysdata.mjs"
   },
   "dependencies": {

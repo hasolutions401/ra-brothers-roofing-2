@@ -5,20 +5,19 @@ Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · TypeScript.
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000/ra-brothers-roofing-2/
+npm run dev      # http://localhost:3000/
 npm run build    # static export into out/
-npm start        # preview that export at the same repository base path
+npm start        # preview that export
 npm run lint
 npm run typecheck
 npm run images   # rebuild public/images/ from images-src/
 npm run verify:export # links, assets, image widths, metadata and sitemap
-npm run package:infinityfree # upload-ready site + Laravel API for InfinityFree
-npm run package:alwaysdata   # the same for alwaysdata (used by the deploy workflow)
+npm run package:alwaysdata # upload-ready site + Laravel API (used by the deploy workflow)
 ```
 
 The forms and the admin dashboard are backed by a Laravel 13 API in
 **[`backend/`](backend/README.md)**. Its README covers local setup, the database
-schema, the API, security, and deploying to InfinityFree and Hostinger.
+schema, the API, security and maintenance.
 
 ---
 
@@ -46,8 +45,7 @@ call bar; the folder name does not appear in URLs. `src/app/admin/` has its own 
 ## Hosting
 
 Live at **https://rabrothersroofing.alwaysdata.net** (site, forms and admin
-dashboard) and, as a static preview with the forms switched off,
-**https://hasolutions401.github.io/ra-brothers-roofing-2/**.
+dashboard).
 
 ### Deploying to alwaysdata
 
@@ -75,24 +73,21 @@ exists before uploading, and refuses to run otherwise.
 `backend/.env.alwaysdata.example` documents that file's settings, including
 alwaysdata SMTP for new-lead emails.
 
-### GitHub Pages
+### Build settings
 
-Every push to `main` runs `.github/workflows/deploy.yml`, which builds a static
-export (`output: "export"` in `next.config.ts`) and publishes `out/` to GitHub
-Pages — the same setup as the other RA Brothers site.
+The site is a static export (`output: "export"` in `next.config.ts`).
+`src/lib/deployment.mjs` derives the canonical origin from `SITE_URL`, which
+defaults to the alwaysdata address above. Navigation, photos, social previews,
+canonicals and sitemap URLs use the same configuration. It also reads
+`API_URL`, where the forms send: `/api` on alwaysdata, where the Laravel API
+shares the site's domain, `http://localhost:8000/api` in development. Without
+`API_URL` the forms stay in preview mode.
+For a custom domain, set the repository variable `ALWAYSDATA_SITE_URL` to its
+root URL and add the domain to the site in alwaysdata. Do not edit individual
+asset paths.
 
-`src/lib/deployment.mjs` derives the base path and canonical origin from
-`SITE_URL`, which defaults to the GitHub Pages URL above. Navigation, photos,
-social previews, canonicals and sitemap URLs use the same configuration.
-It also reads `API_URL`, where the forms send: `/api` when the Laravel API
-shares the site's domain (InfinityFree, Hostinger), `http://localhost:8000/api`
-in development. GitHub Pages cannot run PHP, so that build leaves `API_URL`
-empty and its forms stay in preview mode.
-For a custom domain, set `SITE_URL` to its root URL before building and configure
-the domain in GitHub Pages. Do not edit individual asset paths.
-
-`npm start` serves only `out/`, including repository paths, trailing-slash
-redirects and the site's 404 page. It replaces `next start`, which does not
+`npm start` serves only `out/`, including trailing-slash redirects and the
+site's 404 page. It replaces `next start`, which does not
 support static exports. `PORT` changes its default port of 3000.
 
 ---
@@ -138,18 +133,16 @@ Then, separately:
    estimate. Rate limits, a honeypot and a minimum fill time block spam.
    A form shows success only after the server has stored it; otherwise the
    answers stay on screen with the reason and the phone number. Optional
-   new-lead emails need a host that can send mail (alwaysdata or
-   Hostinger, not InfinityFree). See `backend/README.md`.
+   new-lead emails go through alwaysdata SMTP. See `backend/README.md`.
 3. **Test lead delivery end to end** after every mail or hosting change:
    run `php artisan leads:test-email` on the server, then send both forms
    (the full one with a photo) from a phone. Check each appears in the
    dashboard with its photo, the team's new-lead email arrives, and, with
    `LEAD_CONFIRM_CUSTOMER=true`, the customer's confirmation arrives.
 
-For the GitHub Pages workflow, set repository variables `DEMO_MODE` and, if
-needed, `SITE_URL`; for alwaysdata, `ALWAYSDATA_DEMO_MODE` and
-`ALWAYSDATA_SITE_URL`. Both default to demo and validate the export before
-uploading. Demo pages use `noindex`; robots permits crawling so that directive
+For the live site, set the repository variables `ALWAYSDATA_DEMO_MODE` and, if
+needed, `ALWAYSDATA_SITE_URL`. The deploy defaults to demo and validates the
+export before uploading. Demo pages use `noindex`; robots permits crawling so that directive
 can be read. `noindex` keeps pages out of search; it does not make them
 private.
 
@@ -164,7 +157,7 @@ generated output only; Linux deployment uses the same portable script.
 | File | Holds |
 |---|---|
 | `src/lib/site.ts` | Business name, both phone numbers, confirmed/proposed hours |
-| `src/lib/deployment.mjs` | Deployment URL, repository path, demo/launch environment |
+| `src/lib/deployment.mjs` | Deployment URL, API address, demo/launch environment |
 | `src/lib/services.ts` | All seven services — copy, lists, photo, CTA heading, SEO tags |
 | `src/lib/areas.ts` | All 51 towns, plus the full content and FAQs for the 3 town pages |
 | `src/lib/content.ts` | Process steps, what-you-get points, FAQs, warning signs |

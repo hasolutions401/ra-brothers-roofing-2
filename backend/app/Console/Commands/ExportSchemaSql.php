@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Schema;
  * host without SSH. Needs no database connection: Laravel only "pretends"
  * to run the migrations and records the SQL.
  *
- * A later `php artisan migrate` (e.g. after moving to Hostinger) sees the
+ * A later `php artisan migrate` (e.g. after moving hosts) sees the
  * recorded migrations and only runs newer ones.
  */
 class ExportSchemaSql extends Command
 {
     protected $signature = 'deploy:schema-sql
-        {path : File to write, e.g. ../deploy-build/infinityfree/database.sql}
+        {path : File to write, e.g. ../deploy-build/database.sql}
         {--without-admin : Leave out the admin account}';
 
     protected $description = 'Write a phpMyAdmin-ready SQL file with all tables and the admin account';

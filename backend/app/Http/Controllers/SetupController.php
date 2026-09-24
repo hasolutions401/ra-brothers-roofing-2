@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\File;
 use Throwable;
 
 /**
- * One-time setup from the browser, for hosts without SSH (InfinityFree):
+ * One-time setup from the browser, for hosts without SSH:
  * runs the migrations and creates the admin account from .env.
  *
  * Off unless SETUP_TOKEN is set to 32+ characters, and it switches itself

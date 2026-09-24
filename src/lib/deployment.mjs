@@ -1,6 +1,6 @@
 // Build-time configuration shared by Next, export verification and preview.
-// SITE_URL includes the repository path; use a root URL for a custom domain.
-const url = new URL(process.env.SITE_URL || "https://hasolutions401.github.io/ra-brothers-roofing-2/");
+// SITE_URL is the live address; a path in it becomes the base path.
+const url = new URL(process.env.SITE_URL || "https://rabrothersroofing.alwaysdata.net/");
 if (!/^https?:$/.test(url.protocol) || url.search || url.hash) {
   throw new Error("SITE_URL must be an HTTP(S) URL without a query or fragment.");
 }
@@ -21,8 +21,8 @@ if (process.env.INCLUDE_PLAN && !["true", "false"].includes(process.env.INCLUDE_
 export const includePlan = process.env.INCLUDE_PLAN === "true" || process.env.NODE_ENV === "development";
 
 // API_URL is where the Laravel API answers: "/api" when it shares the site's
-// domain (InfinityFree, Hostinger), or a full URL in local development. Left
-// empty (GitHub Pages), the forms stay in preview mode and send nothing.
+// domain (alwaysdata), or a full URL in local development. Left empty, the
+// forms stay in preview mode and send nothing.
 const api = (process.env.API_URL || "").trim().replace(/\/$/, "");
 if (api && !/^\/[^/]/.test(api) && !/^https?:\/\/[^/]+(\/.*)?$/.test(api)) {
   // Git Bash turns "/api" into a Windows path; use PowerShell or MSYS_NO_PATHCONV=1.

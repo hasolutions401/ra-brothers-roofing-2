@@ -1,8 +1,7 @@
-# www/.htaccess on alwaysdata
+# www/htdocs/.htaccess on alwaysdata
 #
-# Same layout as InfinityFree: the website is plain files (the Next.js
-# export) at the top of www/, and everything under /api goes to Laravel in
-# www/backend. Laravel sees the original /api/... path, so its routes match
+# The website is plain files (the Next.js export) at the top of www/htdocs/,
+# and everything under /api goes to Laravel in www/htdocs/backend. Laravel sees the original /api/... path, so its routes match
 # unchanged. Deployed by .github/workflows/deploy-alwaysdata.yml.
 #
 # HTTP -> HTTPS is done by alwaysdata itself: keep "Force HTTPS" switched on

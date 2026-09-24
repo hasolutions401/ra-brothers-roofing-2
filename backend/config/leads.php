@@ -25,8 +25,8 @@ return [
     'min_fill_seconds' => 3,
 
     /*
-     * Where new-lead emails go. Empty disables them (InfinityFree blocks
-     * outgoing mail, so leave it empty there).
+     * Where new-lead emails go. Empty disables them (on a host that blocks
+     * outgoing mail, leave it empty).
      */
     'notify_email' => env('LEAD_NOTIFY_EMAIL'),
 
