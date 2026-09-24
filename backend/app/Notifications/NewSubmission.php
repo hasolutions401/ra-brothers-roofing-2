@@ -13,9 +13,7 @@ use Illuminate\Notifications\Notification;
  */
 class NewSubmission extends Notification
 {
-    public function __construct(public Submission $submission)
-    {
-    }
+    public function __construct(public Submission $submission) {}
 
     /** @return array<int, string> */
     public function via(object $notifiable): array
@@ -60,7 +58,7 @@ class NewSubmission extends Notification
      * Visitor-typed text, with Markdown syntax escaped so that it cannot
      * become links or formatting in the email. Blade escapes the HTML.
      */
-    private static function text(string $value): string
+    public static function text(string $value): string
     {
         return preg_replace('/([\\\\`*_{}\[\]()#+\-.!|<>~])/', '\\\\$1', $value);
     }

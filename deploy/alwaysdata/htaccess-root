@@ -1,0 +1,62 @@
+# www/.htaccess on alwaysdata
+#
+# Same layout as InfinityFree: the website is plain files (the Next.js
+# export) at the top of www/, and everything under /api goes to Laravel in
+# www/backend. Laravel sees the original /api/... path, so its routes match
+# unchanged. Deployed by .github/workflows/deploy-alwaysdata.yml.
+#
+# HTTP -> HTTPS is done by alwaysdata itself: keep "Force HTTPS" switched on
+# in the site's settings (Web > Sites > the site > SSL). It is not repeated
+# here because TLS ends at alwaysdata's proxy, where a rule could loop.
+
+Options -Indexes
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Never serve the Laravel folder (.env, storage, vendor, ...) directly.
+    #    THE_REQUEST is the browser's own request line, so the internal
+    #    rewrite in step 3 is not affected. backend/.htaccess also denies.
+    RewriteCond %{THE_REQUEST} \s/+backend(/|\s|\?) [NC]
+    RewriteRule ^ - [F]
+
+    # 2. The internal growth plan is never deployed; make sure an old copy
+    #    left on the server is not served either.
+    RewriteRule ^plan(/|$) - [R=404,L]
+
+    # 3. The API.
+    RewriteRule ^api(/.*)?$ backend/public/index.php [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Every response, API included. Browsers only honour HSTS over https, and
+    # alwaysdata redirects every http request. No includeSubDomains: the
+    # domain is shared with other alwaysdata customers until the site moves
+    # to its own domain.
+    Header always set Strict-Transport-Security "max-age=31536000"
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Pages only; the API sets its own headers (backend/app/Http/Middleware/SecurityHeaders.php).
+    <FilesMatch "\.html$">
+        Header set X-Frame-Options "SAMEORIGIN"
+        Header set Referrer-Policy "strict-origin-when-cross-origin"
+        # Features the site never uses. Photo upload is a plain file picker
+        # and needs no camera permission.
+        Header set Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+        # Everything loads from this domain. Next.js needs inline scripts and
+        # styles for its page data; blob: and data: images are the photo
+        # previews and icons. Test in a browser console after any change:
+        # a violation shows as "Refused to load ...".
+        Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+    # Build files have content hashes in their names, so they never change.
+    <FilesMatch "\.(js|css|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+    <FilesMatch "\.(webp|png|jpg|svg|ico)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+</IfModule>

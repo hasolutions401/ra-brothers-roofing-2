@@ -71,10 +71,10 @@ export function Eyebrow({
   tone?: "light" | "accent" | "muted";
   className?: string;
 }) {
-  const colour =
+  const color =
     tone === "light" ? "text-accent-400" : tone === "muted" ? "text-charcoal-500" : "text-accent-600";
   return (
-    <p className={`text-xs font-bold uppercase tracking-[0.16em] sm:text-sm ${colour} ${className}`}>
+    <p className={`text-xs font-bold uppercase tracking-[0.16em] sm:text-sm ${color} ${className}`}>
       {children}
     </p>
   );

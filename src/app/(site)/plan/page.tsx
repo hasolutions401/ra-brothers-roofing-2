@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { townCount, townPages, towns } from "@/lib/areas";
 import { services } from "@/lib/services";
-import { DEMO_MODE, site } from "@/lib/site";
+import { INCLUDE_PLAN, site } from "@/lib/site";
 import { Button, Eyebrow } from "@/components/ui";
 import { IconCheck } from "@/components/icons";
 
-// Once DEMO_MODE is off this route renders the 404 page, so its metadata must
-// not describe the plan either.
-export const metadata: Metadata = DEMO_MODE
+// Outside `next dev` and INCLUDE_PLAN builds this route renders the 404 page,
+// so its metadata must not describe the plan either.
+export const metadata: Metadata = INCLUDE_PLAN
   ? {
       title: "Growth Plan — Internal",
       description:
@@ -48,7 +48,7 @@ const phases = [
       "Check trademark and domain, then register the .com",
       "Set up business email on the domain",
       "Confirm hours and write the satisfaction guarantee terms",
-      "Finalise licensing and insurance; add certificates to the site",
+      "Finalize licensing and insurance; add certificates to the site",
       "Replace stock photography with photos of real completed jobs",
     ],
   },
@@ -134,7 +134,7 @@ const costs = [
     item: "Google Local Services Ads",
     lean: "$0",
     rec: "Pay per lead",
-    note: "You pay for a lead, not a click, and appear above normal ads. Needs licence, insurance and background checks first, so it comes after licensing.",
+    note: "You pay for a lead, not a click, and appear above normal ads. Needs license, insurance and background checks first, so it comes after licensing.",
   },
   {
     item: "Insurance estimating software",
@@ -172,9 +172,9 @@ const adsNumbers = [
 ];
 
 export default function PlanPage() {
-  // Internal. Only built while DEMO_MODE is on, so it disappears from the
-  // live site together with the footer link, not just the link.
-  if (!DEMO_MODE) notFound();
+  // Internal. Deployed builds never include it (see INCLUDE_PLAN), so it is
+  // absent from the public site together with the footer link.
+  if (!INCLUDE_PLAN) notFound();
 
   return (
     <div data-internal-plan>
@@ -216,7 +216,7 @@ export default function PlanPage() {
                 `Home, Services, ${services.length} individual service pages`,
                 `Service Areas page with all ${townCount} towns, searchable`,
                 `${townPages.length} town landing pages (Salem NH, Windham NH, Methuen MA)`,
-                "Free estimate page with a four-step enquiry form",
+                "Free estimate page with a four-step inquiry form",
                 "About page, mobile navigation, always-visible call button",
                 "Two phone lines: the MA number on Massachusetts pages, NH everywhere else",
                 "Search-engine structured data, sitemap and metadata",
@@ -448,7 +448,7 @@ export default function PlanPage() {
           Based on $15 – 60 per click and 6 – 12% of clicks becoming a lead.
           With a small budget, Google Local Services Ads is often the better
           first spend, because you pay per lead rather than per click. It needs
-          your licence and insurance in place before Google will approve you.
+          your license and insurance in place before Google will approve you.
         </p>
 
         <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -478,7 +478,7 @@ export default function PlanPage() {
         </p>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           {[
-            ["Help the claim, do not negotiate it", "Documenting damage, writing the scope, meeting the adjuster and submitting supplements for missed roofing items is normal contractor work. Negotiating the claim itself on the homeowner's behalf is public adjusting, which needs a separate licence in both NH and MA. The site copy is written to stay on the right side of that line."],
+            ["Help the claim, do not negotiate it", "Documenting damage, writing the scope, meeting the adjuster and submitting supplements for missed roofing items is normal contractor work. Negotiating the claim itself on the homeowner's behalf is public adjusting, which needs a separate license in both NH and MA. The site copy is written to stay on the right side of that line."],
             ["Never waive or \"cover\" the deductible", "Offers like \"we'll pay your deductible\" or \"free roof\" are treated as insurance fraud. Keep them out of ads, door-knocking and sales conversations."],
             ["Use a proper agreement", "Insurance jobs usually run on a contingency agreement signed before the adjuster visit. Have a lawyer in each state review yours before the first job."],
             ["Be ready for storms", "Keep a storm-damage ad campaign built and paused, and switch it on the day after a major wind or hail event. That is when this work arrives."],

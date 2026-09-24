@@ -17,6 +17,11 @@ export function CallBar() {
   const pathname = usePathname();
   const town = towns.find((t) => t.slug && pathname.includes(`/service-areas/${t.slug}`));
   const phone = phoneFor(town?.state);
+  // Service and town pages end in an estimate form with that service or
+  // town already filled in, so send visitors there rather than starting over.
+  const estimateHref = pathname.startsWith("/free-estimate")
+    ? "/free-estimate/#estimate-form"
+    : /^\/(services|service-areas)\/[^/]+\/?$/.test(pathname) ? "#estimate-bottom" : site.primaryCta.href;
 
   return (
     <div
@@ -33,7 +38,7 @@ export function CallBar() {
           <IconPhone className="h-4 w-4" />
           Call Now
         </a>
-        <Button href={pathname.startsWith("/free-estimate") ? "/free-estimate/#estimate-form" : site.primaryCta.href}>{site.primaryCta.short}</Button>
+        <Button href={estimateHref}>{site.primaryCta.short}</Button>
       </div>
     </div>
   );

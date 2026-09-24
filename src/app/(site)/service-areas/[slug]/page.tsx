@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { townPageBySlug, townPages, townPageFor } from "@/lib/areas";
 import { services } from "@/lib/services";
 import { faqs } from "@/lib/content";
-import { phoneFor, site } from "@/lib/site";
+import { phoneFor } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 import { PageHero, CtaBand } from "@/components/sections";
 import { FaqList } from "@/components/faq-list";
@@ -82,7 +82,8 @@ export default async function TownPage({ params }: Params) {
               </div>
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
-                <Button href={site.primaryCta.href} size="lg" arrow>
+                {/* The form at the bottom of this page already has this town chosen. */}
+                <Button href="#estimate-bottom" size="lg" arrow>
                   Free estimate in {town.town}
                 </Button>
                 <Button href={phone.href} size="lg" variant="outline">

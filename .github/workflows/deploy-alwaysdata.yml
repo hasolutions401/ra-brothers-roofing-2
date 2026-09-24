@@ -1,0 +1,151 @@
+name: Deploy to alwaysdata
+
+# Every push to main updates https://rabrothersroofing.alwaysdata.net: the
+# static site, the Laravel API code and the database schema. The server's
+# backend/.env and backend/storage/ (customer photos) are never touched.
+#
+# One-time setup (see README, "Deploying to alwaysdata"):
+#   Settings > Secrets and variables > Actions > New repository secret
+#     ALWAYSDATA_SSH_PASSWORD  the SSH password of the alwaysdata account
+#       (or ALWAYSDATA_SSH_KEY, a private key whose public half is in the
+#        account's ~/.ssh/authorized_keys; the key wins if both are set)
+#   Optional repository variables (defaults in brackets):
+#     ALWAYSDATA_ACCOUNT   [rabrothersroofing]  SSH user, also ssh-<account>.alwaysdata.net
+#     ALWAYSDATA_PATH      [www]                site folder, relative to the home directory
+#     ALWAYSDATA_SITE_URL  [https://rabrothersroofing.alwaysdata.net/]
+#     ALWAYSDATA_DEMO_MODE [true]               set to false at launch to allow indexing
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only show what would change on the server"
+        type: boolean
+        default: false
+
+concurrency:
+  group: alwaysdata
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      ACCOUNT: ${{ vars.ALWAYSDATA_ACCOUNT || 'rabrothersroofing' }}
+      REMOTE_PATH: ${{ vars.ALWAYSDATA_PATH || 'www' }}
+      SITE_URL: ${{ vars.ALWAYSDATA_SITE_URL || 'https://rabrothersroofing.alwaysdata.net/' }}
+      DEMO_MODE: ${{ vars.ALWAYSDATA_DEMO_MODE || 'true' }}
+      SSH_KEY: ${{ secrets.ALWAYSDATA_SSH_KEY }}
+      SSH_PASSWORD: ${{ secrets.ALWAYSDATA_SSH_PASSWORD }}
+      DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+
+    steps:
+      - name: Check the deploy is set up
+        id: setup
+        run: |
+          if [ -z "$SSH_KEY" ] && [ -z "$SSH_PASSWORD" ]; then
+            echo "::warning title=alwaysdata deploy skipped::Add the ALWAYSDATA_SSH_PASSWORD (or ALWAYSDATA_SSH_KEY) repository secret to deploy automatically. See README, 'Deploying to alwaysdata'."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.setup.outputs.ready == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        if: steps.setup.outputs.ready == 'true'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup PHP
+        if: steps.setup.outputs.ready == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+
+      - name: Test the API
+        if: steps.setup.outputs.ready == 'true'
+        working-directory: backend
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          cp .env.example .env
+          php artisan key:generate
+          php artisan test
+
+      - name: Build the upload
+        if: steps.setup.outputs.ready == 'true'
+        run: |
+          npm ci
+          npm run package:alwaysdata
+
+      - name: Set up SSH
+        if: steps.setup.outputs.ready == 'true'
+        run: |
+          HOST="ssh-$ACCOUNT.alwaysdata.net"
+          echo "HOST=$HOST" >> "$GITHUB_ENV"
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          if [ -n "$SSH_KEY" ]; then
+            printf '%s\n' "$SSH_KEY" > ~/.ssh/alwaysdata
+            chmod 600 ~/.ssh/alwaysdata
+            echo "SSH=ssh -i $HOME/.ssh/alwaysdata -o BatchMode=yes" >> "$GITHUB_ENV"
+          else
+            sudo apt-get install -y -qq sshpass > /dev/null
+            echo "SSH=sshpass -e ssh -o PubkeyAuthentication=no" >> "$GITHUB_ENV"
+          fi
+
+      - name: Check the server layout
+        if: steps.setup.outputs.ready == 'true'
+        env:
+          SSHPASS: ${{ secrets.ALWAYSDATA_SSH_PASSWORD }}
+        run: |
+          # The deploy deletes files that are not in the new build, so refuse
+          # to run against a folder that is not this site.
+          $SSH "$ACCOUNT@$HOST" "test -f '$REMOTE_PATH/backend/.env'" || {
+            echo "::error::$REMOTE_PATH/backend/.env was not found on the server. Set ALWAYSDATA_PATH to the folder that holds the site (the one with backend/ in it)."
+            exit 1
+          }
+
+      - name: Upload
+        if: steps.setup.outputs.ready == 'true'
+        env:
+          SSHPASS: ${{ secrets.ALWAYSDATA_SSH_PASSWORD }}
+        run: |
+          # --delete removes pages that no longer exist (including /plan).
+          # Protected: the server's settings and data, and certificates.
+          rsync -rlz --delete --itemize-changes $DRY_RUN \
+            --filter='P backend/.env' \
+            --filter='P backend/storage/' \
+            --filter='P backend/bootstrap/cache/' \
+            --filter='P backend/database/*.sqlite' \
+            --filter='P .well-known/' \
+            --filter='P .user.ini' \
+            -e "$SSH" \
+            deploy-build/alwaysdata/www/ "$ACCOUNT@$HOST:$REMOTE_PATH/" | tail -n 200
+
+      - name: Update the API (migrations, caches)
+        if: steps.setup.outputs.ready == 'true' && !inputs.dry_run
+        env:
+          SSHPASS: ${{ secrets.ALWAYSDATA_SSH_PASSWORD }}
+        run: |
+          $SSH "$ACCOUNT@$HOST" "cd '$REMOTE_PATH/backend' && php -v | head -n 1 && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache"
+
+      - name: Check the live site
+        if: steps.setup.outputs.ready == 'true' && !inputs.dry_run
+        run: |
+          base="${SITE_URL%/}"
+          curl -fsS "$base/api/health"; echo
+          curl -fsS -o /dev/null "$base/"
+          curl -fsS -o /dev/null "$base/privacy/"
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$base/plan/")
+          [ "$code" = "404" ] || { echo "::error::/plan/ answered $code, expected 404"; exit 1; }
+          curl -sSI "$base/" | grep -i -E '^(strict-transport-security|content-security-policy|permissions-policy):'

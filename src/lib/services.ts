@@ -27,10 +27,19 @@ export type Service = {
   signals: string[];
   /** Heading of the closing call-to-action band */
   cta: string;
+  /** What to do when it cannot wait, shown above the scope. Only where it applies. */
+  urgent?: string;
   /** Page part of the <title>; the site name is appended, so keep it under ~40 characters. */
   metaTitle: string;
   metaDescription: string;
 };
+
+/**
+ * Shared by the storm page and the FAQ. The business does not offer a 24/7
+ * emergency service, so this must not promise one.
+ */
+export const urgentLeak =
+  "Water coming in now? Call rather than using the form: the phone is the fastest way to reach us. If we can get to you, the first job is stopping the water with a temporary tarp. We do not run a 24-hour emergency service, so outside business hours leave a message and we call back as soon as we can. Until then, keep people clear of any sagging ceiling and, if water is near wiring or fixtures, switch that circuit off at the breaker if it is safe to do so.";
 
 export const services: Service[] = [
   {
@@ -42,7 +51,7 @@ export const services: Service[] = [
       "Full tear-off, deck inspection and a complete new shingle system, with flashing, underlayment and ventilation included.",
     short: "Tear-off to ridge cap, one complete system.",
     intro:
-      "Replacing a roof means looking beyond the surface shingles. The condition of the decking, flashing and ventilation affects what the new assembly needs. If damage is localised, a repair may still be practical. A replacement estimate should explain why replacement is recommended and what is included in the work.",
+      "Replacing a roof means looking beyond the surface shingles. The condition of the decking, flashing and ventilation affects what the new assembly needs. If damage is localized, a repair may still be practical. A replacement estimate should explain why replacement is recommended and what is included in the work.",
     image: "/images/roofer-tear-off",
     imageAlt: "Roofer tearing off old asphalt shingles from a house",
     includes: [
@@ -52,7 +61,7 @@ export const services: Service[] = [
       "Synthetic underlayment across the field",
       "New drip edge, step flashing and pipe boots",
       "Ridge and soffit ventilation checked and corrected where needed",
-      "Architectural shingles in the colour you choose",
+      "Architectural shingles in the color you choose",
       "Magnetic sweep of the property and full debris haul-away",
     ],
     signals: [
@@ -81,7 +90,7 @@ export const services: Service[] = [
     imageAlt: "Rain running off the edge of an asphalt shingle roof",
     includes: [
       "Leak tracing from inside the attic wherever there is access",
-      "Shingle replacement colour-matched as closely as the existing roof allows",
+      "Shingle replacement color-matched as closely as the existing roof allows",
       "Step, counter and chimney flashing repair or replacement",
       "Valley and ridge repairs",
       "Pipe boot, vent and skylight resealing",
@@ -136,14 +145,14 @@ export const services: Service[] = [
     navLabel: "Storm Damage & Insurance",
     icon: "storm",
     blurb:
-      "Wind, ice and fallen-limb damage: stabilised first, documented for your insurance claim, then repaired.",
-    short: "Stabilise, document, then repair.",
+      "Wind, ice and fallen-limb damage: stabilized first, documented for your insurance claim, then repaired.",
+    short: "Stabilize, document, then repair.",
     intro:
       "Nor'easters and summer thunderstorms are what put most roofs around here in trouble at short notice. When a section of roof opens up, the order of operations matters: stop the water, photograph everything before it changes, then work through the claim with you and your insurer. We handle the roofing side of the claim (the documentation, the scope and the adjuster meeting) so you are not sorting out the roofing details with your insurer on your own.",
     image: "/images/storm-damage-tree",
     imageAlt: "Large tree uprooted by a storm beside a house",
     includes: [
-      "Temporary tarping and stabilisation to stop active water entry",
+      "Temporary tarping and stabilization to stop active water entry, once the roof is safe to work on",
       "Full photo documentation of the damage before anything is touched",
       "A detailed written scope your adjuster can work from",
       "Meeting your insurance adjuster at the property",
@@ -160,6 +169,7 @@ export const services: Service[] = [
       "Your insurer has asked for a contractor's assessment",
     ],
     cta: "Get storm damage looked at",
+    urgent: urgentLeak,
     metaTitle: "Storm Damage Roof Repair, NH & MA",
     metaDescription:
       "Storm and wind damage roof repair with insurance claim help across Southern NH and Northern MA: documentation, adjuster meetings and a detailed scope.",

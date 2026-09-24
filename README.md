@@ -13,6 +13,7 @@ npm run typecheck
 npm run images   # rebuild public/images/ from images-src/
 npm run verify:export # links, assets, image widths, metadata and sitemap
 npm run package:infinityfree # upload-ready site + Laravel API for InfinityFree
+npm run package:alwaysdata   # the same for alwaysdata (used by the deploy workflow)
 ```
 
 The forms and the admin dashboard are backed by a Laravel 13 API in
@@ -31,8 +32,9 @@ schema, the API, security, and deploying to InfinityFree and Hostinger.
 | `/service-areas` | All 51 towns, searchable and filterable by state |
 | `/service-areas/[slug]` | Town landing pages — Salem NH, Windham NH, Methuen MA |
 | `/free-estimate` | Four-step estimate form, the main conversion page |
-| `/about` | Company and principles; the pending-items list appears only in demo mode |
-| `/plan` | **Internal.** Present in demo output; excluded from launch output |
+| `/about` | Company, principles and the satisfaction guarantee terms (`site.guarantee`) |
+| `/privacy` | Privacy notice for both forms; linked beside each send button and in the footer |
+| `/plan` | **Internal.** Only in `npm run dev`, or a build with `INCLUDE_PLAN=true`. Never deployed |
 | `/admin/login` | Staff sign-in for the leads dashboard. Never indexed, not in the sitemap; linked from the footer only on builds with an API |
 | `/admin` | Leads dashboard: counts, search, filters, details with photos, status, delete, CSV export (`?id=` opens one lead) |
 
@@ -43,7 +45,37 @@ call bar; the folder name does not appear in URLs. `src/app/admin/` has its own 
 
 ## Hosting
 
-Live at **https://hasolutions401.github.io/ra-brothers-roofing-2/**.
+Live at **https://rabrothersroofing.alwaysdata.net** (site, forms and admin
+dashboard) and, as a static preview with the forms switched off,
+**https://hasolutions401.github.io/ra-brothers-roofing-2/**.
+
+### Deploying to alwaysdata
+
+Every push to `main` runs `.github/workflows/deploy-alwaysdata.yml`. It runs
+the API tests, builds the site with `npm run package:alwaysdata`, uploads it
+over SSH with rsync, then runs the database migrations and refreshes Laravel's
+caches. It never touches the server's `backend/.env` or `backend/storage/`
+(customer photos). It finishes by checking `/api/health`, that `/plan/`
+returns 404, and that the security headers are present.
+
+One-time setup: in GitHub, open **Settings → Secrets and variables → Actions**
+and add the repository secret **`ALWAYSDATA_SSH_PASSWORD`**: the password of
+the alwaysdata account's SSH user (alwaysdata admin → **Remote access → SSH**;
+make sure password login is enabled there). Or, instead, add
+`ALWAYSDATA_SSH_KEY`, a private key whose public key is in `~/.ssh/authorized_keys`
+on the server. Until one of them is set, the workflow skips with a warning.
+The defaults assume the account `rabrothersroofing` with the site in `~/www`;
+change them with the repository variables listed at the top of the workflow.
+To preview what would change without changing anything, run the workflow by
+hand from the Actions tab with **dry run** ticked.
+
+The server layout is the InfinityFree one: the site at the top of `www/`,
+Laravel in `www/backend/`. The workflow checks that `www/backend/.env`
+exists before uploading, and refuses to run otherwise.
+`backend/.env.alwaysdata.example` documents that file's settings, including
+alwaysdata SMTP for new-lead emails.
+
+### GitHub Pages
 
 Every push to `main` runs `.github/workflows/deploy.yml`, which builds a static
 export (`output: "export"` in `next.config.ts`) and publishes `out/` to GitHub
@@ -80,34 +112,46 @@ Remove-Item Env:DEMO_MODE
 
 Setting it to `false` does all of this at once:
 
-- allows indexing of public pages
-- renders no internal plan content, removes the generated `/plan` directory and footer link,
-  and scans the exported HTML, data and JavaScript for internal plan markers
-- hides the About page's internal pending-items list
-- omits unconfirmed hours rather than silently treating them as confirmed
+- allows indexing of public pages (sitemap and robots point at `SITE_URL`)
 - keeps unconnected forms honest: on a build without `API_URL`, a launch
   submission reports that it was not sent
 
+In every build, demo or launch:
+
+- `/plan` is left out, and the export is scanned for internal plan content.
+  A publicly hosted demo is not private, so nothing internal is ever deployed.
+- Unconfirmed hours are never shown; visitors see "call either number" and
+  the one-business-day callback instead. No "coming soon" placeholders appear.
+
 Then, separately:
 
-1. Confirm the company name, email, service scope and guarantee terms.
-   Update `hours` and set `hoursConfirmed: true` only after client confirmation.
-   Displayed and structured hours derive from the same entries.
+1. **Client to confirm** (all in `src/lib/site.ts`): the company name, a
+   business email (`email`; it appears in the footer and privacy notice once
+   set), the hours (`hours`, then `hoursConfirmed: true`), the guarantee
+   wording (`guarantee`), which promises its written terms are on every
+   estimate, and the privacy notice's retention period (`privacy.retention`).
+   Also confirm that every advertised service, including commercial membrane
+   work, is something the crew delivers.
 2. **Forms.** With `API_URL` set, both forms send to the Laravel API
    (`backend/`), which stores every request in MySQL for the dashboard.
    Photos are resized on the visitor's device and uploaded with the
    estimate. Rate limits, a honeypot and a minimum fill time block spam.
    A form shows success only after the server has stored it; otherwise the
    answers stay on screen with the reason and the phone number. Optional
-   new-lead emails need a host that can send mail (Hostinger, not
-   InfinityFree). See `backend/README.md`.
+   new-lead emails need a host that can send mail (alwaysdata or
+   Hostinger, not InfinityFree). See `backend/README.md`.
+3. **Test lead delivery end to end** after every mail or hosting change:
+   run `php artisan leads:test-email` on the server, then send both forms
+   (the full one with a photo) from a phone. Check each appears in the
+   dashboard with its photo, the team's new-lead email arrives, and, with
+   `LEAD_CONFIRM_CUSTOMER=true`, the customer's confirmation arrives.
 
-For GitHub Actions, set repository variables `DEMO_MODE` and, if needed,
-`SITE_URL`. The workflow defaults to demo and validates the export before
+For the GitHub Pages workflow, set repository variables `DEMO_MODE` and, if
+needed, `SITE_URL`; for alwaysdata, `ALWAYSDATA_DEMO_MODE` and
+`ALWAYSDATA_SITE_URL`. Both default to demo and validate the export before
 uploading. Demo pages use `noindex`; robots permits crawling so that directive
-can be read. A project-level GitHub Pages robots file is not a domain-root
-robots policy. **A publicly hosted demo is not private**: anyone with the URL
-can view `/plan`. Do not publish confidential information in demo mode.
+can be read. `noindex` keeps pages out of search; it does not make them
+private.
 
 The build's finalization step also normalizes a Next 16.3.5 Windows issue
 that exports navigation segment files into nested directories. This changes
@@ -162,10 +206,12 @@ URLs recovered; do not invent photographer attribution or location claims.
 
 Nothing on this site claims anything that is not yet true. There are no
 reviews, no years-in-business, no certifications, no workmanship warranty, no
-"24/7 emergency service", no project photos presented as our own work, and no
-photo is captioned as a particular town. The About page lists each missing
-item with its current status in the demo only. Service capabilities, specific
-crew procedures and guarantee terms still require client sign-off before launch.
+"24/7 emergency service" (the storm page and FAQ say how urgent leaks are
+handled instead), no project photos presented as our own work, and no
+photo is captioned as a particular town. Items not yet real (licensing and
+insurance certificates, reviews, warranty, financing) are simply absent
+rather than listed as pending. Service capabilities and guarantee terms still
+require client sign-off before launch. American spelling throughout.
 
 ## Design notes
 

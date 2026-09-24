@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSubmissionRequest;
 use App\Models\Submission;
 use App\Notifications\NewSubmission;
+use App\Notifications\RequestReceived;
 use App\Support\PhotoStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -43,14 +44,21 @@ class SubmissionController extends Controller
             throw $e;
         }
 
-        if ($to = config('leads.notify_email')) {
-            // After the response is sent, so a slow or failing mail server
-            // never delays or loses the visitor's request.
-            defer(function () use ($to, $submission) {
-                try {
-                    Notification::route('mail', $to)->notify(new NewSubmission($submission));
-                } catch (Throwable $e) {
-                    report($e);
+        // After the response is sent, so a slow or failing mail server never
+        // delays or loses the visitor's request.
+        $emails = array_filter([
+            [config('leads.notify_email'), NewSubmission::class],
+            [config('leads.confirm_customer') ? $submission->email : null, RequestReceived::class],
+        ], fn (array $email) => filled($email[0]));
+
+        if ($emails) {
+            defer(function () use ($emails, $submission) {
+                foreach ($emails as [$to, $notification]) {
+                    try {
+                        Notification::route('mail', $to)->notify(new $notification($submission));
+                    } catch (Throwable $e) {
+                        report($e);
+                    }
                 }
             });
         }

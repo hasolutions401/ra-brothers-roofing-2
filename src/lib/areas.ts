@@ -108,9 +108,9 @@ export type TownPage = {
   localNotes: { title: string; text: string }[];
   /** Questions specific to this town, shown before the general ones */
   faqs: Faq[];
-  /** Neighbouring towns we also cover, for internal linking */
+  /** Neighboring towns we also cover, for internal linking */
   nearby: string[];
-  /** Landmarks and neighbourhoods, used as light local signal */
+  /** Landmarks and neighborhoods, used as light local signal */
   landmarks: string[];
 };
 
@@ -127,7 +127,7 @@ export const townPages: TownPage[] = [
     image: "/images/home-cape",
     imageAlt: "Cape-style New England home with a gray asphalt shingle roof",
     body: [
-      "Salem sits right on the Massachusetts line at the bottom of I-93, and it is the centre of where we work. The housing stock here is a good cross-section of Southern New Hampshire: post-war ranches and split-levels off Route 28 and Lawrence Road, older capes and colonials closer to the village, and newer construction around the Tuscan Village and North Salem end of town.",
+      "Salem sits right on the Massachusetts line at the bottom of I-93, and it is the center of where we work. The housing stock here is a good cross-section of Southern New Hampshire: post-war ranches and split-levels off Route 28 and Lawrence Road, older capes and colonials closer to the village, and newer construction around the Tuscan Village and North Salem end of town.",
       "That mix matters when planning roof work. On an older split-level, ask about pitch, existing roof layers, decking and ventilation. On a colonial with dormers or intersecting rooflines, valleys and flashing deserve particular attention. The actual construction and condition of the house should guide the estimate.",
       "If you are comparing quotes in Salem, ask every contractor the same two questions: is the decking being inspected after tear-off, and what is happening with ventilation? Those two line items separate a roof that lasts its full life from one that quietly cooks itself from underneath.",
     ],
@@ -141,7 +141,7 @@ export const townPages: TownPage[] = [
         text: "After strong winds, look from the ground for missing shingles or disturbed roof edges. Damage is not always visible from below, so mention the storm when arranging an inspection.",
       },
       {
-        title: "Mature trees in the older neighbourhoods",
+        title: "Mature trees in the older neighborhoods",
         text: "Oak and pine around the village and the Canobie Lake end of town fill valleys with debris and shade north slopes enough to hold moss. Both trap moisture against the shingle.",
       },
     ],
@@ -176,7 +176,7 @@ export const townPages: TownPage[] = [
     image: "/images/colonial-asphalt-roof",
     imageAlt: "White New England colonial with black shutters and a dark roof",
     body: [
-      "Windham is mostly newer, larger homes on wooded lots: a lot of 1990s and 2000s colonials off Range Road, around Cobbetts Pond and up toward the Londonderry line, with the older village stock closer to the centre. Roofs here tend to be complicated, with multiple gables, dormers, bump-outs and long valleys, often with an attached garage running off at an angle.",
+      "Windham is mostly newer, larger homes on wooded lots: a lot of 1990s and 2000s colonials off Range Road, around Cobbetts Pond and up toward the Londonderry line, with the older village stock closer to the center. Roofs here tend to be complicated, with multiple gables, dormers, bump-outs and long valleys, often with an attached garage running off at an angle.",
       "Complexity is where roofs leak. A simple gable roof has almost nothing to go wrong; a house with six valleys, two chimneys, three skylights and a cathedral ceiling has thirty separate details that all have to be right. When we quote in Windham we spend most of the inspection on the transitions rather than the open field of the roof.",
       "The other Windham-specific issue is tree cover. Heavy pine and oak canopy keeps the north slope damp for most of the year, drops needles into every valley and gives limbs somewhere to fall from. That is a maintenance problem more than a replacement problem, and it is much cheaper to treat it as one.",
     ],
@@ -223,7 +223,7 @@ export const townPages: TownPage[] = [
     metaTitle: "Roofing Contractor in Methuen, MA",
     metaDescription: `Roof replacement, repair, inspections and storm damage work in Methuen, MA. ${site.name}: call ${PHONE_MA.display} for a free estimate.`,
     image: "/images/home-white-colonial",
-    imageAlt: "White two-storey New England home with black shutters",
+    imageAlt: "White two-story New England home with black shutters",
     body: [
       "Methuen sits in the Merrimack Valley directly across the line from Salem, which makes it the natural southern half of our service area. The housing here is older on average than in Southern New Hampshire: a lot of early and mid-century single-family homes, plus a significant number of two- and three-family properties around the Arlington and Marsh districts.",
       "Older housing stock changes the job. It is far more common in Methuen to find two or even three layers of shingles on a roof, plank decking rather than plywood, and original chimney flashing that has been patched with tar at some point in the last forty years. None of that is a problem. It just has to be found before the quote, not after the tear-off starts.",
@@ -232,7 +232,7 @@ export const townPages: TownPage[] = [
     localNotes: [
       {
         title: "Two and three layers of shingles",
-        text: "Common in older Methuen homes. It changes tear-off labour, disposal cost and sometimes the decking underneath, so it belongs in the estimate rather than in a change order.",
+        text: "Common in older Methuen homes. It changes tear-off labor, disposal cost and sometimes the decking underneath, so it belongs in the estimate rather than in a change order.",
       },
       {
         title: "Plank decking instead of plywood",

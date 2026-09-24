@@ -3,7 +3,7 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
 import sharp from "sharp";
-import { basePath, siteUrl, demoMode } from "../src/lib/deployment.mjs";
+import { basePath, siteUrl, demoMode, includePlan } from "../src/lib/deployment.mjs";
 
 const root = path.resolve("out");
 async function walk(dir) {
@@ -67,7 +67,7 @@ for (const [file, html] of pages) {
 const sitemap = await readFile(path.join(root, "sitemap.xml"), "utf8");
 const sitemapUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => decode(m[1]));
 assert.deepEqual(sitemapUrls.sort(), expectedUrls.sort(), "Sitemap must match every public page exactly");
-if (!demoMode) check(!files.some((file) => path.relative(root, file).startsWith(`plan${path.sep}`)), "Launch export includes /plan");
+if (!includePlan) check(!files.some((file) => path.relative(root, file).startsWith(`plan${path.sep}`)), "Export includes the internal /plan page");
 
 const manifest = JSON.parse(await readFile("src/lib/image-manifest.json", "utf8"));
 let imageBytes = 0;

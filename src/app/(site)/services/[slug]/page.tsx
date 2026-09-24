@@ -47,6 +47,21 @@ export default async function ServicePage({ params }: Params) {
             <div>
               <p className="max-w-[62ch] text-lg leading-relaxed text-charcoal-900">{service.intro}</p>
 
+              {service.urgent && (
+                <p role="note" className="mt-8 max-w-[62ch] border-l-4 border-accent-500 bg-mist-50 py-4 pl-5 pr-4 text-sm leading-relaxed text-charcoal-700 sm:text-base">
+                  <strong className="font-semibold text-navy-900">If it cannot wait: </strong>
+                  {service.urgent}{" "}
+                  {site.phones.map((p, i) => (
+                    <span key={p.state}>
+                      {i > 0 && " · "}
+                      <a href={p.href} className="whitespace-nowrap font-semibold text-accent-600 underline underline-offset-2">
+                        {p.state} {p.display}
+                      </a>
+                    </span>
+                  ))}
+                </p>
+              )}
+
               <h2 className="mt-12 text-2xl font-extrabold tracking-tight text-navy-900 sm:text-3xl">
                 What the job covers
               </h2>
@@ -73,7 +88,8 @@ export default async function ServicePage({ params }: Params) {
                   </li>
                 ))}
               </ul>
-              <Button href={site.primaryCta.href} arrow className="mt-7 w-full sm:w-auto">
+              {/* The form at the bottom of this page already has this service chosen. */}
+              <Button href="#estimate-bottom" arrow className="mt-7 w-full sm:w-auto">
                 {site.primaryCta.label}
               </Button>
             </aside>

@@ -160,8 +160,14 @@ imports too, so the two can never disagree. Every submission also carries `sourc
 - **Photos.** Resized in the browser, then re-encoded by the server to plain JPEG, which strips
   camera metadata including GPS location. They are stored outside the web root and served only to
   a signed-in admin through scoped routes.
-- **Headers.** API responses send `nosniff`, `X-Frame-Options: DENY` and `noindex`, and personal
-  data is `no-store`. Laravel's folder is never served directly (see `deploy/`).
+- **Headers.** API responses send `nosniff`, `X-Frame-Options: DENY`, `noindex` and a
+  `Permissions-Policy`; JSON also gets `Content-Security-Policy: default-src 'none'` and personal
+  data is `no-store`. On alwaysdata, `deploy/alwaysdata/htaccess-root` adds HSTS to everything and
+  a Content-Security-Policy and Permissions-Policy to the pages. Laravel's folder is never served
+  directly (see `deploy/`).
+- **Admin sign-in.** One account, from `.env`; five attempts a minute per account and IP, twenty
+  per IP. Every lead, photo, export, status and delete route requires the signed-in session
+  (`routes/api.php`). There is no two-factor sign-in yet: use a long, unique password.
 - **Production.** `APP_DEBUG=false` and `APP_ENV=production`. Secrets live only in `backend/.env`
   on the server. The website's code contains nothing secret: its only setting is the public
   `API_URL`.
@@ -397,6 +403,11 @@ fresh `out/`.
 - **Change a form choice:** edit `config/form-options.json`. Then rebuild and redeploy **both** the
   website and the API. The build fails if a service in `src/lib/services.ts` is missing from the
   file.
+- **Check email delivery:** `php artisan leads:test-email` (to `LEAD_NOTIFY_EMAIL`) or
+  `php artisan leads:test-email someone@example.com`. It prints the mail server's error if sending
+  fails; the website itself never shows mail errors, so a lead is never lost to one.
+  `LEAD_CONFIRM_CUSTOMER=true` also sends customers who gave an email a "we received your
+  request" note.
 - **Logs:** `storage/logs/laravel.log`. Discarded spam is logged at `info` level.
 - **Backups:** export the database from phpMyAdmin now and then, and keep
   `storage/app/private/submissions/` (photos). Hostinger plans also take automatic backups.

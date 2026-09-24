@@ -10,7 +10,7 @@ import { IconArrow, IconPhone } from "@/components/icons";
 
 export const metadata = pageMetadata({
   title: "Service Areas in Southern NH & MA",
-  description: `Roofing across ${townCount} towns in Southern New Hampshire and Northern Massachusetts, centred on Salem NH. Roof replacement, repair, storm damage and inspections.`,
+  description: `Roofing across ${townCount} towns in Southern New Hampshire and Northern Massachusetts, centered on Salem NH. Roof replacement, repair, storm damage and inspections.`,
   path: "/service-areas/",
 });
 

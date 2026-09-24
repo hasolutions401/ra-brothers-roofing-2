@@ -1,7 +1,7 @@
 import { pageMetadata } from "@/lib/seo";
 import { PageHero, CtaBand } from "@/components/sections";
 import { SectionHeading } from "@/components/ui";
-import { DEMO_MODE } from "@/lib/site";
+import { site } from "@/lib/site";
 
 export const metadata = pageMetadata({
   title: "About Us",
@@ -23,20 +23,6 @@ const principles = [
     title: "If you are not satisfied, we make it right",
     text: "Every job is backed by a satisfaction guarantee. If something about the work is not right, tell us and we will come back and put it right. That is the reason the company exists.",
   },
-];
-
-/*
- * Everything the business cannot claim yet, with where each item stands.
- * Add new pending items here rather than quietly leaving them off the site.
- */
-const notYet = [
-  ["Licensing & insurance", "Being finalised. Certificates will be listed here and available on request."],
-  ["Manufacturer certifications", "Not yet held. We will not display a manufacturer badge we have not earned."],
-  ["Customer reviews", "None yet, because this is a new company. Real reviews from real customers only, once there are some."],
-  ["Project photography", "The photographs on this site are stock. They will be replaced with our own completed work."],
-  ["Satisfaction guarantee — written terms", "We offer it; the written terms (what it covers and for how long) will be published here before launch."],
-  ["Workmanship warranty", "Separate from the guarantee. Length and terms are still being decided and will be published in full once they are."],
-  ["Financing", "Under consideration. Nothing is being offered until the terms are confirmed."],
 ];
 
 export default function AboutPage() {
@@ -100,25 +86,25 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Still to come — honest roadmap */}
-      {DEMO_MODE && <section className="bg-mist-50">
+      {/* The guarantee, spelled out */}
+      <section id="guarantee" className="scroll-mt-24 bg-mist-50">
         <div className="wrap py-14 lg:py-20">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16">
             <SectionHeading
-              title="What is not on this site yet"
-              lede="Rather than leave these blank, here is where each one stands. Each goes up the day it is real."
+              title="Our satisfaction guarantee"
+              lede="What it covers, and how to use it if you ever need to."
             />
-            <ul className="divide-y divide-mist-200 border-y border-mist-200">
-              {notYet.map(([title, text]) => (
-                <li key={title} className="flex flex-col gap-1.5 py-4 sm:flex-row sm:gap-6">
-                  <span className="shrink-0 text-sm font-bold text-navy-900 sm:w-52">{title}</span>
-                  <span className="text-sm leading-relaxed text-charcoal-500">{text}</span>
-                </li>
+            <dl className="divide-y divide-mist-200 border-y border-mist-200">
+              {site.guarantee.map(([title, text]) => (
+                <div key={title} className="flex flex-col gap-1.5 py-4 sm:flex-row sm:gap-6">
+                  <dt className="shrink-0 text-sm font-bold text-navy-900 sm:w-52">{title}</dt>
+                  <dd className="text-sm leading-relaxed text-charcoal-500">{text}</dd>
+                </div>
               ))}
-            </ul>
+            </dl>
           </div>
         </div>
-      </section>}
+      </section>
 
       <CtaBand />
     </>

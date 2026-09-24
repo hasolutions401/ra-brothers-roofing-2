@@ -1,3 +1,5 @@
+import { urgentLeak } from "./services";
+
 export const processSteps = [
   {
     title: "Tell us what is going on",
@@ -9,30 +11,11 @@ export const processSteps = [
   },
   {
     title: "You get a written estimate",
-    text: "Itemised and in writing, with the scope spelled out. If something cannot be seen until tear-off (decking is the usual one), the estimate tells you up front what it would cost, so it never turns into a surprise on the day.",
+    text: "Itemized and in writing, with the scope spelled out. If something cannot be seen until tear-off (decking is the usual one), the estimate tells you up front what it would cost, so it never turns into a surprise on the day.",
   },
   {
     title: "We schedule and do the work",
     text: "We agree a date, tell you what access we need and when it will be noisy, and clean up at the end of every day, including a magnetic sweep of the drive and lawn.",
-  },
-];
-
-export const differentiators = [
-  {
-    title: "Free estimates, often without a visit",
-    text: "Send a few photos and your address and we can usually price the job from those and aerial imagery of the roof. No appointment to wait for, no obligation, and free for repairs as well as replacements.",
-  },
-  {
-    title: "A fair price, in writing",
-    text: "Every estimate spells out what comes off, what goes back on and what happens if we find bad decking, so you can put our quote beside anyone else's and compare them line for line.",
-  },
-  {
-    title: "Help with your insurance claim",
-    text: "Storm damage is stressful enough. We document the damage, write a scope your adjuster can work from, and meet the adjuster at the property so nothing gets missed.",
-  },
-  {
-    title: "Backed by a satisfaction guarantee",
-    text: "We started this company to give people a roofer they can trust at a fair price. If you are not satisfied with the work, tell us and we will make it right.",
   },
 ];
 
@@ -52,8 +35,12 @@ export const faqs: Faq[] = [
     a: "Within one business day of your call or form, and often the same day if you reach us during business hours.",
   },
   {
+    q: "What if my roof is leaking right now?",
+    a: urgentLeak,
+  },
+  {
     q: "How do I know whether I need a repair or a full replacement?",
-    a: "Look at the cause and extent of the problem as well as the roof's age. A localised flashing or pipe-boot failure may be repairable, while widespread deterioration can make replacement more practical. An inspection should explain the condition of the roof and the options before you decide.",
+    a: "Look at the cause and extent of the problem as well as the roof's age. A localized flashing or pipe-boot failure may be repairable, while widespread deterioration can make replacement more practical. An inspection should explain the condition of the roof and the options before you decide.",
   },
   {
     q: "How long does a roof replacement take?",
@@ -77,7 +64,7 @@ export const faqs: Faq[] = [
   },
   {
     q: "Which towns do you cover?",
-    a: "We are starting in Southern New Hampshire, centred on Salem, plus the Northern Massachusetts towns closest to the line. The full list is on the service areas page. If you are just outside it, call anyway and we will tell you whether we can help.",
+    a: "We are starting in Southern New Hampshire, centered on Salem, plus the Northern Massachusetts towns closest to the line. The full list is on the service areas page. If you are just outside it, call anyway and we will tell you whether we can help.",
   },
 ];
 

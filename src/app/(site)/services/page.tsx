@@ -24,7 +24,7 @@ export default function ServicesPage() {
         lede={`Roofing is the whole business: seven services across ${townCount} towns in Southern New Hampshire and Northern Massachusetts, each with a free estimate.`}
       />
 
-      {/* Alternating service rows — reads like a catalogue, not a card grid */}
+      {/* Alternating service rows — reads like a catalog, not a card grid */}
       <div className="bg-white">
         {services.map((s, i) => {
           const flipped = i % 2 === 1;

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Submission;
 use App\Notifications\NewSubmission;
+use App\Notifications\RequestReceived;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Notifications\AnonymousNotifiable;
@@ -79,6 +80,13 @@ class SubmissionTest extends TestCase
         [$width, $height] = getimagesizefromstring(Storage::disk('local')->get($photo->path));
         $this->assertSame([1600, 1067], [$width, $height]);
         $this->assertSame('image/jpeg', $submission->photos->last()->mime_type);
+    }
+
+    public function test_estimate_accepts_not_sure_yet_as_the_service(): void
+    {
+        $this->postJson('/api/submissions', $this->estimatePayload(['service' => 'Not sure yet']))->assertCreated();
+
+        $this->assertSame('Not sure yet', Submission::sole()->service);
     }
 
     public function test_missing_fields_return_the_forms_own_messages(): void
@@ -225,6 +233,36 @@ class SubmissionTest extends TestCase
         Notification::fake();
 
         $this->withoutDefer()->postJson('/api/submissions', $this->quickPayload())->assertCreated();
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_customer_confirmation_is_sent_when_enabled_and_an_email_was_given(): void
+    {
+        Notification::fake();
+        config(['leads.confirm_customer' => true]);
+
+        $this->withoutDefer()->postJson('/api/submissions', $this->estimatePayload(['email' => 'jordan@example.com']))->assertCreated();
+
+        Notification::assertSentOnDemand(RequestReceived::class, function (RequestReceived $notification, array $channels, AnonymousNotifiable $notifiable) {
+            $mail = $notification->toMail($notifiable);
+
+            return $notifiable->routes['mail'] === 'jordan@example.com'
+                && str_starts_with($mail->subject, 'We received your estimate request')
+                && $mail->greeting === 'Thank you, Jordan.';
+        });
+        Notification::assertSentOnDemandTimes(RequestReceived::class, 1);
+    }
+
+    public function test_no_customer_confirmation_without_an_email_or_when_disabled(): void
+    {
+        Notification::fake();
+
+        config(['leads.confirm_customer' => true]);
+        $this->withoutDefer()->postJson('/api/submissions', $this->quickPayload())->assertCreated();
+
+        config(['leads.confirm_customer' => false]);
+        $this->withoutDefer()->postJson('/api/submissions', $this->estimatePayload(['email' => 'jordan@example.com']))->assertCreated();
 
         Notification::assertNothingSent();
     }

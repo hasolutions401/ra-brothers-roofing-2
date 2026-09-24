@@ -1,6 +1,6 @@
 import { readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { demoMode } from "../src/lib/deployment.mjs";
+import { demoMode, includePlan } from "../src/lib/deployment.mjs";
 
 const out = path.resolve("out");
 async function files(dir) {
@@ -25,9 +25,10 @@ for (const file of await files(out)) {
   }
 }
 
-if (!demoMode) {
+if (!includePlan) {
   // This directory contains only the generated /plan route. A rendering
   // guard alone leaves a 404 artifact at its old address; do not deploy it.
+  // Demo builds are public too, so this applies to them as well.
   const plan = path.resolve(out, "plan");
   if (path.dirname(plan) !== out) throw new Error("Invalid plan output path");
   await rm(plan, { recursive: true, force: true });
@@ -41,5 +42,5 @@ if (!demoMode) {
 }
 
 // Used only by the local preview command, excluded from deployed artifacts.
-await writeFile(path.resolve(".next/export-review.json"), JSON.stringify({ demoMode, normalized }));
-console.log(`Export finalized: ${demoMode ? "demo" : "launch"}, ${normalized} segment filenames normalized.`);
+await writeFile(path.resolve(".next/export-review.json"), JSON.stringify({ demoMode, includePlan, normalized }));
+console.log(`Export finalized: ${demoMode ? "demo" : "launch"}, ${includePlan ? "WITH the internal plan (do not deploy)" : "no internal plan"}, ${normalized} segment filenames normalized.`);

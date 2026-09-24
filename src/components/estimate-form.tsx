@@ -11,9 +11,13 @@ import { resizePhoto } from "@/lib/resize-photo";
 import { IconArrow, IconCheck, IconPhone } from "./icons";
 import { Button } from "./ui";
 import { Honeypot } from "./honeypot";
+import { PrivacyNote } from "./privacy-note";
 import { errorClass, inputClass, isEmail, isPhone, labelClass, selectStyle } from "./form-styles";
 
 const STEPS = ["What you need", "The property", "Location and photos", "Your details"];
+
+/** The last service choice, for visitors who do not know what the roof needs. */
+const NOT_SURE = "Not sure yet";
 
 // Shared with the API's validation (backend/config/form-options.json).
 const {
@@ -64,7 +68,7 @@ type Errors = Partial<Record<"service" | "roofAge" | "town" | "photos" | "name" 
 /**
  * Where each API field lives in the form, so a server-side rejection sends
  * the visitor back to the right step. Fields without their own message slot
- * are summarised above the buttons instead.
+ * are summarized above the buttons instead.
  */
 const serverFields: Record<string, { key?: keyof Errors; step: number }> = {
   service: { key: "service", step: 0 },
@@ -245,7 +249,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
       try {
         ready.push(await resizePhoto(file, photoLimits.maxDimension));
       } catch {
-        problems.push(`“${file.name}” could not be read. Please choose a JPG or PNG photo.`);
+        problems.push(`“${file.name}” could not be opened on this device. Try a JPG or PNG copy of it, or a screenshot of the photo.`);
       }
     }
     setPreparingPhotos(false);
@@ -359,7 +363,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
               <a href={phone.href} className="font-semibold text-accent-600 underline underline-offset-2">
                 Call {phone.display}
               </a>{" "}
-              to make an enquiry now.
+              to make an inquiry now.
             </p>
           )}
           <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-mist-200" aria-hidden="true">
@@ -374,15 +378,15 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
           {step === 0 && (
             <Group legend="Which service do you need?" error={errors.service} errorId={err("service")}>
               <div className="grid gap-2">
-                {services.map((s, i) => (
+                {[...services.map((s) => s.name), NOT_SURE].map((name, i) => (
                   <Choice
-                    key={s.slug}
+                    key={name}
                     id={i === 0 ? `${id}-service` : undefined}
                     type="radio"
                     name={`${id}-service`}
-                    label={s.name}
-                    checked={data.service === s.name}
-                    onChange={() => set("service", s.name)}
+                    label={name === NOT_SURE ? "Not sure yet: help me work out what the roof needs" : name}
+                    checked={data.service === name}
+                    onChange={() => set("service", name)}
                   />
                 ))}
               </div>
@@ -577,7 +581,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
                 )}
                 <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
                   {API_ENABLED
-                    ? `Use photos taken safely from the ground. Up to ${photoLimits.maxFiles}; they are resized on your device and sent with your request, and only our team sees them.`
+                    ? `Up to ${photoLimits.maxFiles} photos. Photos straight from your phone are fine (JPG, PNG, WebP, or HEIC from an iPhone): we shrink them on your device, so there is no size limit to worry about. Use photos taken safely from the ground. Only our team sees them.`
                     : "Use photos taken safely from the ground. Files stay in this page until it is closed or refreshed; they have not been uploaded."}
                 </p>
               </div>
@@ -678,6 +682,7 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
             {!sending && <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
           </button>
         </div>
+        {step === STEPS.length - 1 && <PrivacyNote className="px-5 pb-4 text-right sm:px-7" />}
       </form>
     </div>
   );

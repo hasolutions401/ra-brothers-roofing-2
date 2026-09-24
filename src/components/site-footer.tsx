@@ -1,10 +1,10 @@
 import { SiteLink as Link } from "./site-link";
 import { services } from "@/lib/services";
 import { townPages, townCount } from "@/lib/areas";
-import { DEMO_MODE, site } from "@/lib/site";
+import { INCLUDE_PLAN, site } from "@/lib/site";
 import { API_ENABLED } from "@/lib/api";
 import { IconArrow, Logo } from "./icons";
-import { BusinessHours } from "./business-hours";
+import { BusinessHours, hoursLabel } from "./business-hours";
 
 const heading = "text-sm font-bold uppercase tracking-wider text-white";
 
@@ -75,19 +75,17 @@ export function SiteFooter() {
                   </a>
                 </li>
               ))}
-              <li>
-                <span className="block text-xs uppercase tracking-wide text-navy-300">Email</span>
-                {site.email ? (
+              {site.email && (
+                <li>
+                  <span className="block text-xs uppercase tracking-wide text-navy-300">Email</span>
                   <a href={`mailto:${site.email}`} className="break-all text-navy-200 hover:text-white">
                     {site.email}
                   </a>
-                ) : (
-                  <span className="text-navy-200">{site.emailNote}</span>
-                )}
-              </li>
+                </li>
+              )}
             </ul>
 
-            <h2 className={`${heading} mt-6`}>Hours</h2>
+            <h2 className={`${heading} mt-6`}>{hoursLabel}</h2>
             <BusinessHours className="mt-3 text-navy-200" />
           </div>
         </div>
@@ -103,17 +101,18 @@ export function SiteFooter() {
             { href: "/service-areas", label: "Service Areas" },
             { href: "/about", label: "About" },
             { href: "/free-estimate", label: "Free Estimate" },
+            { href: "/privacy", label: "Privacy" },
           ].map((l) => (
             <Link key={l.href} href={l.href} className="text-navy-200 transition hover:text-white">
               {l.label}
             </Link>
           ))}
-          {DEMO_MODE && (
+          {INCLUDE_PLAN && (
             <Link
               href="/plan"
               className="rounded-lg border border-accent-400/40 px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-accent-400 transition hover:bg-accent-400/10"
             >
-              Growth plan · demo only
+              Growth plan · internal
             </Link>
           )}
         </nav>

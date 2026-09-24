@@ -103,7 +103,9 @@ class AdminAuthTest extends TestCase
         $this->fromSite()->getJson('/api/admin/me')
             ->assertHeader('X-Content-Type-Options', 'nosniff')
             ->assertHeader('X-Frame-Options', 'DENY')
-            ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+            ->assertHeader('X-Robots-Tag', 'noindex, nofollow')
+            ->assertHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
+            ->assertHeader('Permissions-Policy', 'camera=(), geolocation=(), microphone=(), payment=()');
 
         $this->assertStringContainsString('no-store', $this->signedIn()->getJson('/api/admin/stats')->headers->get('Cache-Control'));
     }

@@ -6,7 +6,7 @@ type P = { className?: string };
 
 /**
  * One line-art family on a 24px grid. Everything strokes with currentColor,
- * so an icon takes the text colour of whatever it sits in.
+ * so an icon takes the text color of whatever it sits in.
  */
 function Svg({
   className,
@@ -190,7 +190,7 @@ export function IconSearch({ className }: P) {
 
 /**
  * The brand mark from the live site: a roof line with a blue ridge accent
- * over two open walls, and the name beside it. Colour comes from className
+ * over two open walls, and the name beside it. Color comes from className
  * (navy in the header, white in the footer); the ridge stays blue.
  */
 export function Logo({ className = "" }: P) {

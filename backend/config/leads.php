@@ -31,6 +31,12 @@ return [
     'notify_email' => env('LEAD_NOTIFY_EMAIL'),
 
     /*
+     * Also email the customer a short "we received your request" note when
+     * they gave an email address. Needs working mail, like notify_email.
+     */
+    'confirm_customer' => (bool) env('LEAD_CONFIRM_CUSTOMER', false),
+
+    /*
      * The public site, including any base path. Used for the dashboard link
      * in new-lead emails and for CORS during local development.
      */

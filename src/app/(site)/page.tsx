@@ -2,7 +2,7 @@ import { ResponsiveImage as Image } from "@/components/responsive-image";
 import { SiteLink as Link } from "@/components/site-link";
 import { services } from "@/lib/services";
 import { coreTowns, states, townCount, townPages } from "@/lib/areas";
-import { differentiators, faqs } from "@/lib/content";
+import { faqs } from "@/lib/content";
 import { asset, PHONE_NH, site } from "@/lib/site";
 import { ArrowLink, Button, Eyebrow, SectionHeading } from "@/components/ui";
 import { IconArrow, IconPhone, IconPin, ServiceIcon } from "@/components/icons";
@@ -14,7 +14,7 @@ import { CtaBand, ProcessList, StraightAnswer } from "@/components/sections";
 /*
  * The four promises the client has explicitly approved (free estimates,
  * one-business-day callback, insurance help, satisfaction guarantee).
- * Deliberately no licence numbers, certifications, warranties, ratings,
+ * Deliberately no license numbers, certifications, warranties, ratings,
  * years in business or 24/7 claims — see the About page.
  */
 const promises = [
@@ -176,22 +176,14 @@ export default function HomePage() {
       </section>
 
       {/* ----------------------------------------------------- Why us */}
+      {/* The promises strip under the hero already lists the benefits; this
+          adds only what it does not say, and points to the guarantee terms. */}
       <section className="bg-mist-50">
-        <div className="wrap py-14 lg:py-20">
-          <SectionHeading title="What you get from us" />
-
-          <div className="mt-9 grid gap-x-12 gap-y-9 sm:grid-cols-2 lg:mt-12">
-            {differentiators.map((d) => (
-              <div key={d.title} className="border-t-2 border-navy-900 pt-5">
-                <h3 className="text-xl font-bold text-navy-900">{d.title}</h3>
-                <p className="mt-2 max-w-[52ch] text-sm leading-relaxed text-charcoal-500 sm:text-base">{d.text}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-12">
-            <StraightAnswer />
-          </div>
+        <div className="wrap py-12 lg:py-16">
+          <StraightAnswer />
+          <ArrowLink href="/about/#guarantee" className="mt-5 sm:ml-6">
+            How our satisfaction guarantee works
+          </ArrowLink>
         </div>
       </section>
 
@@ -201,7 +193,7 @@ export default function HomePage() {
           <div>
             <SectionHeading
               title="Both sides of the state line"
-              lede={`Salem is the centre of our service area, and we cover ${townCount} towns across Southern New Hampshire and Northern Massachusetts. Each state has its own phone line.`}
+              lede={`Salem is the center of our service area, and we cover ${townCount} towns across Southern New Hampshire and Northern Massachusetts. Each state has its own phone line.`}
             />
             <div className="mt-6 flex flex-wrap gap-2">
               {townPages.map((t) => (

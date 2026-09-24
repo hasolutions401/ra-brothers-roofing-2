@@ -11,6 +11,15 @@ export const basePath = url.pathname.replace(/\/$/, "");
 export const siteUrl = `${url.origin}${basePath}`;
 export const demoMode = process.env.DEMO_MODE !== "false";
 
+// The internal growth plan (/plan) is for the partners, not the public. A
+// static site cannot password-protect a page, so it is left out of every
+// build unless INCLUDE_PLAN=true (for a local copy only; never deploy one).
+// `next dev` always shows it.
+if (process.env.INCLUDE_PLAN && !["true", "false"].includes(process.env.INCLUDE_PLAN)) {
+  throw new Error("INCLUDE_PLAN must be true or false.");
+}
+export const includePlan = process.env.INCLUDE_PLAN === "true" || process.env.NODE_ENV === "development";
+
 // API_URL is where the Laravel API answers: "/api" when it shares the site's
 // domain (InfinityFree, Hostinger), or a full URL in local development. Left
 // empty (GitHub Pages), the forms stay in preview mode and send nothing.

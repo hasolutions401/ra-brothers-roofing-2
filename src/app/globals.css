@@ -5,8 +5,8 @@
 
    Same direction as the live RA Brothers site (hasolutions401.github.io/
    roofing-website): blue for buttons, navy for the dark sections, neutral
-   greys everywhere else. The exact shades are our own rather than Tailwind's
-   defaults, and the greys lean warm, like painted clapboard.
+   grays everywhere else. The exact shades are our own rather than Tailwind's
+   defaults, and the grays lean warm, like painted clapboard.
 
    Tailwind v4 has no tailwind.config.js. Anything declared inside @theme
    becomes a real utility class, so --color-navy-900 gives you bg-navy-900,
@@ -17,7 +17,7 @@
   /*
     Navy — header text, dark sections, headings. navy-900 and navy-950 carry
     full-width sections behind white body text. navy-300 is the muted text
-    colour on navy (5.9:1 on navy-900).
+    color on navy (5.9:1 on navy-900).
   */
   --color-navy-50: #f1f5fb;
   --color-navy-100: #dde8f6;
@@ -35,14 +35,14 @@
   --color-charcoal-700: #3a3f45;
   --color-charcoal-900: #1b1e22;
 
-  /* Mist — light section backgrounds and borders, warm rather than blue-grey */
+  /* Mist — light section backgrounds and borders, warm rather than blue-gray */
   --color-mist-50: #f7f6f3;
   --color-mist-100: #efede8;
   --color-mist-200: #e3e0d9;
   --color-mist-300: #cdc9c0;
 
   /*
-    Blue accent — buttons and the one highlight colour, so it always means
+    Blue accent — buttons and the one highlight color, so it always means
     "this is the thing to click". The scale is split by job:
       300 / 400  light — accent text and icons ON dark navy
       500        mid   — button fill, always with WHITE text (6.4:1)

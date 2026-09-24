@@ -9,13 +9,13 @@ export const dynamic = "force-static";
 // Every URL ends in "/" to match trailingSlash in next.config.ts, so search
 // engines are not sent through a redirect for each entry.
 export default function sitemap(): MetadataRoute.Sitemap {
-  const statics = ["/", "/services/", "/service-areas/", "/free-estimate/", "/about/"];
+  const statics = ["/", "/services/", "/service-areas/", "/free-estimate/", "/about/", "/privacy/"];
 
   return [
     ...statics.map((p) => ({
       url: pageUrl(p),
       changeFrequency: "monthly" as const,
-      priority: p === "/" ? 1 : 0.8,
+      priority: p === "/" ? 1 : p === "/privacy/" ? 0.3 : 0.8,
     })),
     ...services.map((s) => ({
       url: pageUrl(`/services/${s.slug}/`),

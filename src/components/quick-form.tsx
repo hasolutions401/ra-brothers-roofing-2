@@ -9,6 +9,7 @@ import { sendSubmission, useFormTimer } from "@/lib/submissions";
 import { IconArrow, IconCheck } from "./icons";
 import { Button } from "./ui";
 import { Honeypot } from "./honeypot";
+import { PrivacyNote } from "./privacy-note";
 import { errorClass, inputClass, isPhone, labelClass, selectStyle } from "./form-styles";
 
 type Errors = { name?: string; phone?: string };
@@ -210,6 +211,7 @@ export function QuickForm() {
           {sending ? "Sending…" : API_ENABLED || !DEMO_MODE ? "Request my free estimate" : "Preview estimate request"}
           {!sending && <IconArrow className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />}
         </button>
+        <PrivacyNote className="text-center" />
       </form>
 
       <p className="mt-4 border-t border-mist-200 pt-4 text-xs leading-relaxed text-charcoal-500">

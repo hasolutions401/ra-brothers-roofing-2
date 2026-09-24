@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { apiUrl, basePath, siteUrl, demoMode } from "./src/lib/deployment.mjs";
+import { apiUrl, basePath, siteUrl, demoMode, includePlan } from "./src/lib/deployment.mjs";
 
 // GitHub Pages serves the site from /ra-brothers-roofing-2, not the domain root.
 
@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_SITE_URL: siteUrl,
     NEXT_PUBLIC_DEMO_MODE: String(demoMode),
     NEXT_PUBLIC_API_URL: apiUrl,
+    NEXT_PUBLIC_INCLUDE_PLAN: String(includePlan),
   },
 
 };

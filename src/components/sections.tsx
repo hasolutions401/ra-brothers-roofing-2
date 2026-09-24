@@ -10,7 +10,7 @@ import { BusinessHours } from "./business-hours";
 
 /**
  * Compact photo banner at the top of inner pages. Without an aside
- * the copy is centred; with one (phone cards on the area pages) the copy sits
+ * the copy is centered; with one (phone cards on the area pages) the copy sits
  * left, the aside sits right, and the hero's own call button is dropped so
  * the number is not shown twice.
  */
@@ -33,20 +33,20 @@ export function PageHero({
   /** The line the hero's call button dials. */
   phone?: Phone;
 }) {
-  const centred = !aside;
+  const centered = !aside;
 
   return (
     <section className="page-banner relative isolate flex items-center overflow-hidden bg-navy-950">
       <Image src={asset(image)} alt="" fill priority sizes="100vw" className="object-cover" />
       {/* Dark layer so white text stays readable. 0.6 is the lightest that keeps 4.5:1 on any photo. */}
       <div
-        className={`absolute inset-0 ${centred ? "bg-navy-950/65" : "bg-navy-950/70 lg:bg-transparent lg:bg-gradient-to-r lg:from-navy-950/85 lg:via-navy-950/70 lg:to-navy-950/60"}`}
+        className={`absolute inset-0 ${centered ? "bg-navy-950/65" : "bg-navy-950/70 lg:bg-transparent lg:bg-gradient-to-r lg:from-navy-950/85 lg:via-navy-950/70 lg:to-navy-950/60"}`}
         aria-hidden="true"
       />
 
       <div
         className={`wrap relative py-16 text-white ${
-          centred
+          centered
             ? "max-w-4xl text-center"
             : "lg:grid lg:grid-cols-[1fr_minmax(0,24rem)] lg:items-center lg:gap-12"
         }`}
@@ -54,7 +54,7 @@ export function PageHero({
         <div>
           {crumbs && (
             <nav aria-label="Breadcrumb" className="text-sm text-navy-100">
-              <ol className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${centred ? "justify-center" : ""}`}>
+              <ol className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${centered ? "justify-center" : ""}`}>
                 <li>
                   <Link href="/" className="underline underline-offset-4 hover:text-white">
                     Home
@@ -88,24 +88,24 @@ export function PageHero({
           )}
           <h1
             className={`${eyebrow ? "mt-3" : "mt-6"} font-extrabold leading-[1.08] tracking-tight ${
-              centred ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl lg:text-5xl"
+              centered ? "text-4xl sm:text-5xl lg:text-6xl" : "text-3xl sm:text-4xl lg:text-5xl"
             }`}
           >
             {title}
           </h1>
           {lede && (
             <p
-              className={`mt-5 max-w-2xl text-base leading-relaxed text-navy-100 sm:text-lg ${centred ? "mx-auto" : ""}`}
+              className={`mt-5 max-w-2xl text-base leading-relaxed text-navy-100 sm:text-lg ${centered ? "mx-auto" : ""}`}
             >
               {lede}
             </p>
           )}
 
-          <div className={`mt-8 flex flex-wrap gap-3 ${centred ? "justify-center" : ""}`}>
+          <div className={`mt-8 flex flex-wrap gap-3 ${centered ? "justify-center" : ""}`}>
             <Button href={site.primaryCta.href} arrow>
               {site.primaryCta.label}
             </Button>
-            {centred && (
+            {centered && (
               <Button href={phone.href} variant="outlineLight">
                 <IconPhone className="h-4 w-4 text-accent-400" />
                 <span className="tabular-nums">Call {phone.display}</span>
@@ -180,7 +180,7 @@ export function StraightAnswer() {
   return (
     <p className="max-w-[68ch] border-l-4 border-accent-500 pl-5 text-base leading-relaxed text-charcoal-700">
       <strong className="font-semibold text-navy-900">We are a new company.</strong> What you get from us is a free
-      estimate, an itemised written quote, a clear recommendation (including when your roof does
+      estimate, an itemized written quote, a clear recommendation (including when your roof does
       not need replacing yet) and a satisfaction guarantee on the work.
     </p>
   );

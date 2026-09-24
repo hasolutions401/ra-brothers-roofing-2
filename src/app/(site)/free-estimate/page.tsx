@@ -5,7 +5,7 @@ import { EstimateForm } from "@/components/estimate-form";
 import { PhoneCard, ProcessList } from "@/components/sections";
 import { Eyebrow, SectionHeading } from "@/components/ui";
 import { IconCheckCircle, IconClock } from "@/components/icons";
-import { BusinessHours } from "@/components/business-hours";
+import { BusinessHours, hoursLabel } from "@/components/business-hours";
 
 export const metadata = pageMetadata({
   title: "Free Roof Estimate",
@@ -18,7 +18,7 @@ const promises = [
   "Always free, for repairs as well as replacements",
   "Often done from your photos, with no visit needed",
   "A call back within one business day",
-  "An itemised written estimate you can compare line for line",
+  "An itemized written estimate you can compare line for line",
   "Help with your insurance claim if it is storm damage",
   "Every job backed by a satisfaction guarantee",
 ];
@@ -71,7 +71,7 @@ export default function FreeEstimatePage() {
             <div className="mt-7 lg:max-w-lg">
               <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-accent-400">
                 <IconClock className="h-4 w-4" />
-                Business hours
+                {hoursLabel}
               </p>
               <BusinessHours className="mt-3 text-navy-200" />
             </div>
@@ -85,7 +85,7 @@ export default function FreeEstimatePage() {
         <div className="wrap py-14 lg:grid lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-16 lg:py-20">
           <SectionHeading
             title="What happens next"
-            lede="The sequence from your enquiry to the finished job."
+            lede="The sequence from your inquiry to the finished job."
           />
           <div className="mt-10 lg:mt-0">
             <ProcessList tone="light" />
