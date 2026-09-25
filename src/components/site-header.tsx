@@ -256,9 +256,9 @@ export function SiteHeader() {
             {/* Below lg these two live in the fixed bottom bar instead. */}
             <a
               href={phone.href}
-              className="hidden items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-navy-900 transition hover:bg-mist-100 lg:flex"
+              className="hidden min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold text-navy-900 underline underline-offset-4 transition hover:bg-mist-100 lg:flex"
             >
-              <IconPhone className="h-4 w-4 text-accent-600" />
+              <IconPhone className="h-4 w-4 shrink-0" />
               <span className="whitespace-nowrap tabular-nums">{phone.display}</span>
             </a>
             <div className="hidden lg:block">

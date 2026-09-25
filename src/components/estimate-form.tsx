@@ -338,11 +338,11 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
         <Honeypot inputRef={honeypot} />
         {/* Progress */}
         <div className="px-5 pt-6 sm:px-7">
-          <div className="flex items-baseline justify-between gap-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
             <Heading ref={heading} tabIndex={-1} className="text-lg font-bold text-navy-900 outline-none sm:text-xl">
               {STEPS[step]}
             </Heading>
-            <span className="shrink-0 text-xs font-semibold uppercase tracking-wider text-charcoal-500">
+            <span className="shrink-0 text-sm font-bold text-navy-900">
               Step {step + 1} of {STEPS.length}
             </span>
           </div>
@@ -351,22 +351,32 @@ export function EstimateForm({ headingLevel = 3, initialTown = "", initialServic
           </p>
           <p className="sr-only" role="alert">{Object.values(errors).filter(Boolean).join(" ")}</p>
           {API_ENABLED ? (
-            <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
+            <p className="mt-4 text-sm leading-relaxed text-charcoal-500">
               Prefer to talk?{" "}
-              <a href={phone.href} className="font-semibold text-accent-600 underline underline-offset-2">
-                Call {phone.display}
+              <a href={phone.href} className="inline-flex min-h-11 items-center gap-2 rounded-xl font-bold text-accent-600 underline underline-offset-4 transition hover:text-accent-700">
+                <IconPhone className="h-4 w-4 shrink-0" />
+                <span className="tabular-nums">Call {phone.display}</span>
               </a>
             </p>
           ) : (
-            <p className="mt-2 text-xs leading-relaxed text-charcoal-500">
+            <p className="mt-4 text-sm leading-relaxed text-charcoal-500">
               {DEMO_MODE ? "Preview form, not connected yet." : "Online requests are not available yet."}{" "}
-              <a href={phone.href} className="font-semibold text-accent-600 underline underline-offset-2">
-                Call {phone.display}
+              <a href={phone.href} className="inline-flex min-h-11 items-center gap-2 rounded-xl font-bold text-accent-600 underline underline-offset-4 transition hover:text-accent-700">
+                <IconPhone className="h-4 w-4 shrink-0" />
+                <span className="tabular-nums">Call {phone.display}</span>
               </a>{" "}
               to make an inquiry now.
             </p>
           )}
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-mist-200" aria-hidden="true">
+          <div
+            className="mt-4 h-2 w-full overflow-hidden rounded-full bg-mist-200"
+            role="progressbar"
+            aria-label="Estimate form progress"
+            aria-valuemin={0}
+            aria-valuemax={STEPS.length}
+            aria-valuenow={step + 1}
+            aria-valuetext={`Step ${step + 1} of ${STEPS.length}: ${STEPS[step]}`}
+          >
             <div
               className="h-full rounded-full bg-accent-500 transition-[width] duration-500 ease-out"
               style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}

@@ -6,7 +6,7 @@ import { DEMO_MODE, PHONE_NH, site } from "@/lib/site";
 import { API_ENABLED, toProblem } from "@/lib/api";
 import { formOptions } from "@/lib/form-options";
 import { sendSubmission, useFormTimer } from "@/lib/submissions";
-import { IconArrow, IconCheck } from "./icons";
+import { IconArrow, IconCheck, IconPhone } from "./icons";
 import { Button } from "./ui";
 import { Honeypot } from "./honeypot";
 import { PrivacyNote } from "./privacy-note";
@@ -214,19 +214,19 @@ export function QuickForm() {
         <PrivacyNote className="text-center" />
       </form>
 
-      <p className="mt-4 border-t border-mist-200 pt-4 text-xs leading-relaxed text-charcoal-500">
+      <div className="mt-5 border-t border-mist-200 pt-4 text-sm leading-relaxed text-charcoal-500">
         {!API_ENABLED && (
-          <span className="mr-1 font-semibold">{DEMO_MODE ? "Preview form, not connected yet." : "Online requests are not available yet."}</span>
+          <p className="mb-2 font-semibold">{DEMO_MODE ? "Preview form, not connected yet." : "Online requests are not available yet."}</p>
         )}
-        Prefer to talk?{" "}
-        <a href={PHONE_NH.href} className="font-semibold text-accent-600 underline underline-offset-2">
-          {PHONE_NH.display}
-        </a>{" "}
-        ·{" "}
-        <Link href="/free-estimate" className="font-semibold text-accent-600 underline underline-offset-2">
+        <p>Prefer to talk?</p>
+        <a href={PHONE_NH.href} className="inline-flex min-h-11 items-center gap-2 rounded-xl font-bold text-accent-600 underline underline-offset-4 transition hover:text-accent-700">
+          <IconPhone className="h-4 w-4 shrink-0" />
+          <span className="tabular-nums">Call {PHONE_NH.display}</span>
+        </a>
+        <Link href="/free-estimate" className="mt-2 flex min-h-11 items-center rounded-xl font-semibold text-accent-600 underline underline-offset-4 transition hover:text-accent-700">
           Longer form with photos
         </Link>
-      </p>
+      </div>
     </div>
   );
 }

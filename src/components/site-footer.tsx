@@ -85,7 +85,7 @@ export function SiteFooter() {
               )}
             </ul>
 
-            <h2 className={`${heading} mt-6`}>{hoursLabel}</h2>
+            <h3 className="mt-6 text-sm font-semibold text-navy-200">{hoursLabel}</h3>
             <BusinessHours className="mt-3 text-navy-200" />
           </div>
         </div>
@@ -103,7 +103,7 @@ export function SiteFooter() {
             { href: "/free-estimate", label: "Free Estimate" },
             { href: "/privacy", label: "Privacy" },
           ].map((l) => (
-            <Link key={l.href} href={l.href} className="text-navy-200 transition hover:text-white">
+            <Link key={l.href} href={l.href} className="inline-flex min-h-11 items-center text-navy-200 transition hover:text-white">
               {l.label}
             </Link>
           ))}

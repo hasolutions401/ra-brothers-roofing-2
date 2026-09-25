@@ -4,7 +4,7 @@ import { services } from "@/lib/services";
 import { coreTowns, states, townCount, townPages } from "@/lib/areas";
 import { faqs } from "@/lib/content";
 import { asset, PHONE_NH, site } from "@/lib/site";
-import { ArrowLink, Button, Eyebrow, SectionHeading } from "@/components/ui";
+import { ArrowLink, Button, SectionHeading } from "@/components/ui";
 import { IconArrow, IconPhone, IconPin, ServiceIcon } from "@/components/icons";
 import { QuickForm } from "@/components/quick-form";
 import { FaqList } from "@/components/faq-list";
@@ -49,7 +49,7 @@ export default function HomePage() {
 
         <div className="wrap relative py-12 lg:grid lg:grid-cols-[1fr_minmax(0,27rem)] lg:items-center lg:gap-12 lg:py-16">
           <div>
-            <Eyebrow tone="light">Southern NH &amp; Northern MA</Eyebrow>
+            <p className="text-sm font-bold tracking-normal text-accent-400">Southern NH &amp; Northern MA</p>
 
             <h1 className="mt-3 max-w-[16ch] text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
               Roofing built for a New England winter.
@@ -63,13 +63,10 @@ export default function HomePage() {
             </p>
 
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Button href={site.primaryCta.href} size="lg" arrow>
-                {site.primaryCta.label}
-              </Button>
-              <Button href={PHONE_NH.href} size="lg" variant="outlineLight">
-                <IconPhone className="h-5 w-5 text-accent-400" />
+              <a href={PHONE_NH.href} className="inline-flex min-h-11 items-center gap-2 rounded-xl text-sm font-bold text-white underline underline-offset-4 transition hover:text-accent-300">
+                <IconPhone className="h-4 w-4 shrink-0" />
                 <span className="tabular-nums">Call {PHONE_NH.display}</span>
-              </Button>
+              </a>
             </div>
           </div>
 
@@ -104,9 +101,9 @@ export default function HomePage() {
               Not sure which of these you need? That is what the free estimate
               is for: we look, photograph it and tell you.
             </p>
-            <ArrowLink href="/services" className="mt-5">
+            <Button href="/services" variant="outline" className="mt-5" arrow>
               All roofing services
-            </ArrowLink>
+            </Button>
           </div>
 
           <ul className="mt-10 divide-y divide-mist-200 border-y border-mist-200 lg:mt-0">
@@ -167,7 +164,7 @@ export default function HomePage() {
               <div className="mt-6">
                 <SignsChecklist />
               </div>
-              <Button href={site.primaryCta.href} size="lg" className="mt-6">
+              <Button href={site.primaryCta.href} size="lg" className="mt-8">
                 {site.primaryCta.label}
               </Button>
             </div>
@@ -181,9 +178,15 @@ export default function HomePage() {
       <section className="bg-mist-50">
         <div className="wrap py-12 lg:py-16">
           <StraightAnswer />
-          <ArrowLink href="/about/#guarantee" className="mt-5 sm:ml-6">
-            How our satisfaction guarantee works
-          </ArrowLink>
+          <div className="mt-6 rounded-xl border border-navy-200 bg-white p-5 sm:p-6">
+            <h2 className="text-lg font-bold text-navy-900">Our satisfaction guarantee</h2>
+            <p className="mt-2 text-sm leading-relaxed text-charcoal-700">
+              Not happy with the work? We come back and make it right.
+            </p>
+            <Button href="/about/#guarantee" variant="outline" className="mt-4" arrow>
+              How the guarantee works
+            </Button>
+          </div>
         </div>
       </section>
 
